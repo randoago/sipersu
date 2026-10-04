@@ -1,0 +1,1 @@
+@include('errors.layout', ['kode' => '419', 'judul' => 'Sesi Kedaluwarsa', 'pesan' => $exception->getMessage() && $exception->getStatusCode() === 403 ? $exception->getMessage() : 'Halaman sudah terlalu lama terbuka. Muat ulang halaman lalu coba lagi.'])

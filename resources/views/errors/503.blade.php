@@ -1,0 +1,1 @@
+@include('errors.layout', ['kode' => '503', 'judul' => 'Sedang Pemeliharaan', 'pesan' => $exception->getMessage() && $exception->getStatusCode() === 403 ? $exception->getMessage() : 'SIPERSU sedang dalam pemeliharaan. Silakan coba beberapa saat lagi.'])

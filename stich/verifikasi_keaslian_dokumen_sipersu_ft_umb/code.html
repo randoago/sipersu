@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Masuk - SIPERSU FT-UMB</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Google Fonts: Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            umb: {
+              green: '#0F6B3E',
+              'green-dark': '#0a4d2c',
+              'green-light': '#14864e',
+              'green-subtle': '#E8F5ED',
+              gold: '#F2B705',
+              'gold-light': '#FFD036',
+              gray: {
+                50: '#F9FAFB',
+                100: '#F3F4F6',
+                200: '#E5E7EB',
+                300: '#D1D5DB',
+                400: '#9CA3AF',
+                500: '#6B7280',
+                600: '#4B5563',
+                700: '#374151',
+                800: '#1F2937',
+                900: '#111827',
+              }
+            }
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    /* Custom pattern for left hero branding */
+    .pattern-overlay {
+      background-image: radial-gradient(rgba(242, 183, 5, 0.12) 1.5px, transparent 1.5px), radial-gradient(rgba(255, 255, 255, 0.08) 1.5px, transparent 1.5px);
+      background-size: 32px 32px;
+      background-position: 0 0, 16px 16px;
+    }
+  </style>
+<meta content="web_blank" name="shell-type"/></head>
+<body class="bg-umb-gray-50 text-umb-gray-800 font-sans antialiased min-h-screen flex flex-col justify-between">
+<!-- Main Container: Full viewport split layout -->
+<main class="min-h-screen w-full flex flex-col lg:flex-row"><div class="flex flex-col w-full">
+<div class="relative w-full overflow-hidden bg-surface py-8 lg:py-14 px-4 sm:px-6 lg:px-8">
+<!-- Security Watermark Background Pattern -->
+<div class="absolute inset-0 pointer-events-none opacity-40">
+<svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<pattern height="160" id="sec-pattern" patterntransform="rotate(25)" patternunits="userSpaceOnUse" width="160">
+<text class="font-headline-sm text-headline-sm tracking-widest font-bold" fill="#00512c" fill-opacity="0.04" x="20" y="40">VERIFIED</text>
+<text class="font-headline-sm text-headline-sm tracking-widest font-bold" fill="#785900" fill-opacity="0.04" x="40" y="110">FT-UMB</text>
+<circle cx="80" cy="80" fill="#00512c" fill-opacity="0.1" r="1.5"></circle>
+</pattern>
+</defs>
+<rect fill="url(#sec-pattern)" height="100%" width="100%"></rect>
+</svg>
+</div>
+<!-- Ambient Glowing Ring Accent -->
+<div class="absolute -top-32 left-1/2 -translate-x-1/2 w-[650px] h-[350px] bg-gradient-to-b from-primary-fixed/30 via-tertiary-fixed/15 to-transparent blur-3xl pointer-events-none -z-0"></div>
+<div class="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
+<!-- Official Header Identity -->
+<header class="w-full text-center flex flex-col items-center mb-8">
+<div class="flex items-center justify-center p-2 mb-4 rounded-xl bg-surface-container-lowest shadow-sm">
+<img alt="Logo Resmi Fakultas Teknik Universitas Muhammadiyah Buton" class="w-16 h-16 object-contain rounded-md" src="https://lh3.googleusercontent.com/aida/AEtjO1VguC6-YSmLtd6kroNipZqVf85p4BrdImWv_rqe30KAx3CrmdIEt8TjizMcW8HyhrxXUrI0Q484vFpbmOBDvMpe5NdPdDJfe8wV-y6_7m1MBVbawuSuAnpCzUWzUvJ4dng3XWUDLgpc1xbINSkX-mcyFyD2058Jkv5a8Ow4leSy7eQds6N_VVvp4w-h8opG3pcmpIiEnleo3Ud08ltzOtbeg5A2sBXwX-2LBKD-qwwJPfxDyxbZ_xNguYo"/>
+</div>
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-high text-primary mb-2">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-primary">Portal Autentikasi Publik Naskah Dinas</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Universitas Muhammadiyah Buton</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xl mt-1">
+          Sistem Informasi Persuratan (SIPERSU FT-UMB) • Layanan Verifikasi Tanda Tangan Elektronik
+        </p>
+</header>
+<!-- Main Verification Status Pill Badge -->
+<section class="w-full max-w-2xl bg-surface-container-lowest rounded-xl shadow-md p-6 sm:p-8 text-center flex flex-col items-center relative overflow-hidden mb-8">
+<div class="absolute -top-12 -right-12 w-32 h-32 bg-primary/5 rounded-full pointer-events-none"></div>
+<div class="absolute -bottom-10 -left-10 w-28 h-28 bg-secondary-container/10 rounded-full pointer-events-none"></div>
+<div class="relative flex items-center justify-center w-20 h-20 rounded-full bg-primary-fixed text-primary mb-4 shadow-sm animate-pulse">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">task_alt</span>
+</div>
+<span class="inline-block px-3 py-1 rounded-full bg-primary-container text-on-primary font-label-md text-label-md uppercase mb-2">
+          Sertifikasi TTE Sah &amp; Valid
+        </span>
+<h2 class="font-headline-xl text-headline-xl text-primary">Dokumen Asli – Terverifikasi</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2 max-w-lg">
+          Naskah dinas ini telah ditandatangani secara elektronik menggunakan sertifikat digital tersertifikasi yang diterbitkan oleh Otoritas Sertifikasi Resmi, sah menurut hukum NKRI.
+        </p>
+<!-- Quick Status Pills -->
+<div class="mt-6 flex flex-wrap items-center justify-center gap-2">
+<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-primary text-sm">security</span>
+            Integritas Hash: Cocok
+          </div>
+<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-primary text-sm">schedule</span>
+            Timestamp: Tercatat Otomatis
+          </div>
+<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-primary text-sm">menu_book</span>
+            Agenda: No. Reg 084/2024
+          </div>
+</div>
+</section>
+<!-- Document Data Specification Card -->
+<section class="w-full bg-surface-container-lowest rounded-xl shadow-md p-6 sm:p-8 mb-8">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-6 bg-surface-container-low p-4 rounded-lg">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Nomor Surat Resmi</span>
+<span class="font-headline-md text-headline-md text-primary font-bold">084/FT-UMB/A.4-II/2024</span>
+</div>
+<div class="mt-3 sm:mt-0 flex items-center gap-2">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-primary text-on-primary font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-container mr-1.5"></span>
+              Status: Aktif &amp; Terdaftar
+            </span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Perihal -->
+<div class="md:col-span-2 bg-surface p-4 rounded-lg">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase block mb-1">Perihal Dokumen</span>
+<p class="font-headline-sm text-headline-sm text-on-surface">Surat Izin Penelitian / Pengambilan Data Tugas Akhir Mahasiswa</p>
+</div>
+<!-- Pemohon / Mahasiswa -->
+<div class="bg-surface p-4 rounded-lg flex flex-col justify-between">
+<div class="flex items-start gap-3">
+<div class="p-2 rounded-lg bg-surface-container text-primary">
+<span class="material-symbols-outlined text-lg">school</span>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase block">Pemohon / Mahasiswa</span>
+<p class="font-label-lg text-label-lg text-on-surface mt-1">Muhammad Fauzan</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">NIM: 21650012</p>
+<p class="font-body-sm text-body-sm text-primary font-semibold mt-0.5">Program Studi S1 Teknik Informatika</p>
+</div>
+</div>
+</div>
+<!-- Instansi Tujuan -->
+<div class="bg-surface p-4 rounded-lg flex flex-col justify-between">
+<div class="flex items-start gap-3">
+<div class="p-2 rounded-lg bg-surface-container text-secondary">
+<span class="material-symbols-outlined text-lg">apartment</span>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase block">Instansi Tujuan</span>
+<p class="font-label-lg text-label-lg text-on-surface mt-1">Dinas Komunikasi dan Informatika (Diskominfo)</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Pemerintah Kota Baubau, Sulawesi Tenggara</p>
+</div>
+</div>
+</div>
+<!-- Penanda Tangan -->
+<div class="bg-surface p-4 rounded-lg">
+<div class="flex items-start gap-3">
+<div class="p-2 rounded-lg bg-surface-container text-primary">
+<span class="material-symbols-outlined text-lg">badge</span>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase block">Penanda Tangan Sah</span>
+<p class="font-headline-sm text-headline-sm text-on-surface mt-1">Dr. Eng. Ir. Sudirman, S.T., M.T.</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">NIP/NIDN: 0912038401</p>
+<p class="font-body-sm text-body-sm text-primary font-medium mt-1">Dekan Fakultas Teknik Universitas Muhammadiyah Buton</p>
+</div>
+</div>
+</div>
+<!-- Tanggal & Waktu TTE -->
+<div class="bg-surface p-4 rounded-lg">
+<div class="flex items-start gap-3">
+<div class="p-2 rounded-lg bg-surface-container text-tertiary">
+<span class="material-symbols-outlined text-lg">history_edu</span>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase block">Waktu Penandatanganan Digital</span>
+<p class="font-headline-sm text-headline-sm text-on-surface mt-1">05 November 2024</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Pukul 10:42:18 WITA (Waktu Indonesia Tengah)</p>
+<span class="inline-block mt-2 font-label-sm text-label-sm text-primary font-semibold">Tersinkronisasi NTP Resmi</span>
+</div>
+</div>
+</div>
+<!-- Algoritma & Hash Keamanan Dokumen -->
+<div class="md:col-span-2 bg-surface-container-low p-4 rounded-lg">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-base">fingerprint</span>
+<span class="font-label-sm text-label-sm text-on-surface uppercase tracking-wider font-semibold">Algoritma &amp; Hash Keamanan Dokumen</span>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-mono">SHA-256 Digest</span>
+</div>
+<div class="bg-surface-container-lowest p-3 rounded font-mono-data text-mono-data text-on-surface-variant select-all break-all overflow-x-auto">
+              8f4b23c9e782a10b429f554019ab76ef32948ca1280bbfe34190cde42fa88301
+            </div>
+</div>
+</div>
+<!-- Action Interactive Buttons -->
+<div class="mt-8 pt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
+<a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-primary text-on-primary font-label-lg text-label-lg shadow-sm hover:opacity-95 transition-all" href="#download-pdf" onclick="alert('Mengunduh salinan resmi arsip naskah dinas terverifikasi SIPERSU...'); return false;">
+<span class="material-symbols-outlined text-lg">download</span>
+            Lihat &amp; Unduh Salinan Resmi PDF
+          </a>
+<button class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-surface-container-highest text-on-surface font-label-lg text-label-lg hover:bg-surface-container-high transition-all" id="btnOpenModal" type="button">
+<span class="material-symbols-outlined text-lg">fact_check</span>
+            Cek Integritas Dokumen
+          </button>
+</div>
+</section>
+<!-- Accordion: Legal Validity & Security Notice -->
+<section class="w-full bg-surface-container-lowest rounded-xl shadow-md p-6 mb-8">
+<button class="w-full flex items-center justify-between text-left focus:outline-none" id="accordionToggle" type="button">
+<div class="flex items-center gap-3">
+<div class="p-2 rounded-lg bg-surface-container text-primary">
+<span class="material-symbols-outlined text-lg">gavel</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Panduan Keabsahan Dokumen Digital</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Payung hukum sertifikasi TTE &amp; regulasi akademik FT-UMB</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant transition-transform duration-200" id="accordionIcon">expand_more</span>
+</button>
+<div class="hidden mt-4 pt-4 bg-surface p-4 rounded-lg text-on-surface-variant font-body-sm text-body-sm space-y-3" id="accordionContent">
+<p>
+            1. <strong>Undang-Undang Republik Indonesia No. 11 Tahun 2008 &amp; No. 1 Tahun 2024 (UU ITE):</strong> Informasi Elektronik dan/atau Dokumen Elektronik dan/atau hasil cetaknya merupakan alat bukti hukum yang sah serta memiliki kekuatan hukum yang mengikat.
+          </p>
+<p>
+            2. <strong>Peraturan Pemerintah No. 71 Tahun 2019:</strong> Penyelenggaraan Sistem dan Transaksi Elektronik menetapkan bahwa Tanda Tangan Elektronik memiliki kekuatan pembuktian yang setara dengan tanda tangan konvensional di atas kertas bermeterai.
+          </p>
+<p>
+            3. <strong>Peraturan Rektor Universitas Muhammadiyah Buton No. 04/PR-UMB/2023:</strong> Tata Naskah Dinas Elektronik di lingkungan Universitas Muhammadiyah Buton memberlakukan validitas tanda tangan digital pada Sistem SIPERSU FT-UMB sebagai instrumen administratif resmi yang sah.
+          </p>
+</div>
+</section>
+<!-- Public Footer Legal Footnote -->
+<footer class="w-full text-center px-4 py-6">
+<div class="inline-flex items-center gap-2 text-on-surface-variant font-label-sm text-label-sm mb-2">
+<span class="material-symbols-outlined text-primary text-sm">cloud_done</span>
+<span>sipersu.ft.um-buton.ac.id</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-2xl mx-auto leading-relaxed">
+          Halaman ini dihasilkan secara otomatis oleh Server Resmi SIPERSU FT-UMB (<span class="font-mono text-on-surface">sipersu.ft.um-buton.ac.id</span>). Dokumen ini sah secara hukum dan tidak memerlukan cap basah atau tanda tangan manual tambahan.
+        </p>
+<div class="mt-4 font-label-sm text-label-sm text-outline">
+          © 2024 Fakultas Teknik • Universitas Muhammadiyah Buton. Seluruh Hak Cipta Dilindungi.
+        </div>
+</footer>
+</div>
+</div>
+<!-- Modal Integritas Dokumen -->
+<div class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-on-surface/50 backdrop-blur-sm" id="integrityModal">
+<div class="bg-surface-container-lowest rounded-xl shadow-xl max-w-lg w-full p-6 relative">
+<div class="flex items-center justify-between pb-3 mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">verified</span>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Hasil Uji Integritas Dokumen</h4>
+</div>
+<button class="p-1 rounded-full text-on-surface-variant hover:bg-surface-container" id="btnCloseModal" type="button">
+<span class="material-symbols-outlined text-xl">close</span>
+</button>
+</div>
+<div class="space-y-3 font-body-sm text-body-sm">
+<div class="p-3 rounded-lg bg-surface-container-low flex items-center justify-between">
+<span class="text-on-surface-variant">Karakteristik Dokumen:</span>
+<span class="font-label-md text-label-md text-primary font-bold">Asli &amp; Belum Dimodifikasi</span>
+</div>
+<div class="p-3 rounded-lg bg-surface flex items-center justify-between">
+<span class="text-on-surface-variant">Sertifikat Root:</span>
+<span class="font-label-md text-label-md text-on-surface">BSrE / Lembaga Sandi Negara</span>
+</div>
+<div class="p-3 rounded-lg bg-surface flex items-center justify-between">
+<span class="text-on-surface-variant">Status Revokasi:</span>
+<span class="font-label-md text-label-md text-primary">Valid (Tidak Dicabut)</span>
+</div>
+<div class="p-3 rounded-lg bg-surface flex items-center justify-between">
+<span class="text-on-surface-variant">Protokol OCSP:</span>
+<span class="font-label-md text-label-md text-on-surface">Merespons Real-Time (200 OK)</span>
+</div>
+</div>
+<div class="mt-6 flex justify-end">
+<button class="px-4 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md" id="btnCloseModalFooter" type="button">
+          Tutup Pratinjau
+        </button>
+</div>
+</div>
+</div>
+<script>
+    (function() {
+      // Accordion handler
+      const accordionToggle = document.getElementById('accordionToggle');
+      const accordionContent = document.getElementById('accordionContent');
+      const accordionIcon = document.getElementById('accordionIcon');
+
+      if (accordionToggle && accordionContent && accordionIcon) {
+        accordionToggle.addEventListener('click', function() {
+          const isHidden = accordionContent.classList.contains('hidden');
+          if (isHidden) {
+            accordionContent.classList.remove('hidden');
+            accordionIcon.style.transform = 'rotate(180deg)';
+          } else {
+            accordionContent.classList.add('hidden');
+            accordionIcon.style.transform = 'rotate(0deg)';
+          }
+        });
+      }
+
+      // Modal handler
+      const modal = document.getElementById('integrityModal');
+      const btnOpen = document.getElementById('btnOpenModal');
+      const btnClose = document.getElementById('btnCloseModal');
+      const btnCloseFooter = document.getElementById('btnCloseModalFooter');
+
+      function openModal() {
+        if (modal) modal.classList.remove('hidden');
+      }
+
+      function closeModal() {
+        if (modal) modal.classList.add('hidden');
+      }
+
+      if (btnOpen) btnOpen.addEventListener('click', openModal);
+      if (btnClose) btnClose.addEventListener('click', closeModal);
+      if (btnCloseFooter) btnCloseFooter.addEventListener('click', closeModal);
+
+      if (modal) {
+        modal.addEventListener('click', function(e) {
+          if (e.target === modal) {
+            closeModal();
+          }
+        });
+      }
+    })();
+  </script>
+</div></main>
+<script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+  </script>
+</body></html>

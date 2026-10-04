@@ -1,0 +1,1 @@
+@include('errors.layout', ['kode' => '429', 'judul' => 'Terlalu Banyak Permintaan', 'pesan' => $exception->getMessage() && $exception->getStatusCode() === 403 ? $exception->getMessage() : 'Mohon tunggu sebentar sebelum mencoba lagi.'])

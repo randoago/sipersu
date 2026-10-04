@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Masuk - SIPERSU FT-UMB</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            umb: {
+              green: '#0F6B3E',
+              'green-dark': '#0a4d2c',
+              'green-light': '#14864e',
+              'green-subtle': '#E8F5ED',
+              gold: '#F2B705',
+              'gold-light': '#FFD036',
+              gray: {
+                50: '#F9FAFB',
+                100: '#F3F4F6',
+                200: '#E5E7EB',
+                300: '#D1D5DB',
+                400: '#9CA3AF',
+                500: '#6B7280',
+                600: '#4B5563',
+                700: '#374151',
+                800: '#1F2937',
+                900: '#111827',
+              }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom pattern for left hero branding */
+    .pattern-overlay {
+      background-image: radial-gradient(rgba(242, 183, 5, 0.12) 1.5px, transparent 1.5px), radial-gradient(rgba(255, 255, 255, 0.08) 1.5px, transparent 1.5px);
+      background-size: 32px 32px;
+      background-position: 0 0, 16px 16px;
+    }
+  </style>
+</head>
+<body class="bg-umb-gray-50 text-umb-gray-800 font-sans antialiased min-h-screen flex flex-col justify-between">
+
+  <!-- Main Container: Full viewport split layout -->
+  <main class="min-h-screen w-full flex flex-col lg:flex-row">
+    
+    <!-- LEFT PANEL: Institutional Branding with Muhammadiyah Green & Gold Accents -->
+    <div class="lg:w-1/2 relative bg-[#0F6B3E] text-white flex flex-col justify-between p-8 sm:p-12 lg:p-16 overflow-hidden">
+      <!-- Background Decorative Elements -->
+      <div class="absolute inset-0 pattern-overlay opacity-60 pointer-events-none"></div>
+      <div class="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-emerald-600/25 blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-28 -right-28 w-96 h-96 rounded-full bg-[#F2B705]/15 blur-3xl pointer-events-none"></div>
+
+      <!-- Left Header / Badge -->
+      <div class="relative z-10 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-md p-1.5 border border-white/20 flex items-center justify-center shadow-lg">
+            <img src="https://lh3.googleusercontent.com/aida/AEtjO1VguC6-YSmLtd6kroNipZqVf85p4BrdImWv_rqe30KAx3CrmdIEt8TjizMcW8HyhrxXUrI0Q484vFpbmOBDvMpe5NdPdDJfe8wV-y6_7m1MBVbawuSuAnpCzUWzUvJ4dng3XWUDLgpc1xbINSkX-mcyFyD2058Jkv5a8Ow4leSy7eQds6N_VVvp4w-h8opG3pcmpIiEnleo3Ud08ltzOtbeg5A2sBXwX-2LBKD-qwwJPfxDyxbZ_xNguYo" alt="Logo FT UMB" class="w-full h-full object-contain">
+          </div>
+          <div>
+            <span class="text-xs uppercase tracking-widest font-semibold text-[#F2B705] block">Portal Resmi</span>
+            <span class="text-sm font-bold tracking-tight text-white/90">SIPERSU FT-UMB</span>
+          </div>
+        </div>
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/15 text-white/90 border border-white/20 backdrop-blur-sm">
+          <span class="w-2 h-2 rounded-full bg-[#F2B705] mr-2 animate-pulse"></span>
+          Tahun Ajaran 2024/2025
+        </span>
+      </div>
+
+      <!-- Left Center: Hero Title, Subtitle, & Key Information -->
+      <div class="relative z-10 my-12 lg:my-auto max-w-lg">
+        <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-lg bg-emerald-950/40 border border-[#F2B705]/30 text-[#F2B705] text-xs font-semibold uppercase tracking-wider mb-6">
+          <i data-lucide="shield-check" class="w-4 h-4"></i>
+          <span>Layanan Administrasi Digital Terpadu</span>
+        </div>
+        
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
+          Sistem Informasi <br>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-[#F2B705] to-amber-200">
+            Persuratan
+          </span>
+        </h1>
+        
+        <p class="mt-4 text-base sm:text-lg text-emerald-100/90 font-medium leading-relaxed">
+          Fakultas Teknik Universitas Muhammadiyah Buton
+        </p>
+
+        <p class="mt-3 text-sm text-emerald-200/75 leading-relaxed">
+          Platform digital pengelolaan surat masuk, surat keluar, disposisi, pengajuan surat aktif kuliah, pengantar kerja praktik, hingga tugas akhir secara efisien, transparan, dan terarsip otomatis.
+        </p>
+
+        <!-- Feature Pill Indicators -->
+        <div class="mt-8 grid grid-cols-2 gap-3 pt-6 border-t border-emerald-500/25">
+          <div class="flex items-start space-x-2.5">
+            <div class="mt-0.5 p-1 rounded-md bg-[#F2B705]/20 text-[#F2B705]">
+              <i data-lucide="check" class="w-3.5 h-3.5 stroke-[3]"></i>
+            </div>
+            <div>
+              <p class="text-xs font-semibold text-white">Tanda Tangan Elektronik</p>
+              <p class="text-[11px] text-emerald-200/70">Validasi QR Code resmi</p>
+            </div>
+          </div>
+          <div class="flex items-start space-x-2.5">
+            <div class="mt-0.5 p-1 rounded-md bg-[#F2B705]/20 text-[#F2B705]">
+              <i data-lucide="check" class="w-3.5 h-3.5 stroke-[3]"></i>
+            </div>
+            <div>
+              <p class="text-xs font-semibold text-white">Disposisi Instan</p>
+              <p class="text-[11px] text-emerald-200/70">Notifikasi berjenjang real-time</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Left Footer: Contact & Address -->
+      <div class="relative z-10 pt-6 border-t border-emerald-500/20 text-xs text-emerald-200/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="map-pin" class="w-3.5 h-3.5 text-[#F2B705]"></i>
+          <span>Kampus FT-UMB, Jl. Betoambari No. 36, Baubau, Sulawesi Tenggara</span>
+        </div>
+        <div class="text-[11px] text-emerald-300/80 font-mono">v2.4 - Build 2024</div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: Authentication Form -->
+    <div class="lg:w-1/2 flex items-center justify-center p-6 sm:p-12 lg:p-16 bg-white">
+      <div class="w-full max-w-md">
+        
+        <!-- Header of Form -->
+        <div class="text-left mb-8">
+          <!-- Mobile-only logo view -->
+          <div class="lg:hidden flex items-center space-x-3 mb-6 pb-4 border-b border-umb-gray-100">
+            <img src="https://lh3.googleusercontent.com/aida/AEtjO1VguC6-YSmLtd6kroNipZqVf85p4BrdImWv_rqe30KAx3CrmdIEt8TjizMcW8HyhrxXUrI0Q484vFpbmOBDvMpe5NdPdDJfe8wV-y6_7m1MBVbawuSuAnpCzUWzUvJ4dng3XWUDLgpc1xbINSkX-mcyFyD2058Jkv5a8Ow4leSy7eQds6N_VVvp4w-h8opG3pcmpIiEnleo3Ud08ltzOtbeg5A2sBXwX-2LBKD-qwwJPfxDyxbZ_xNguYo" alt="Logo FT UMB" class="w-10 h-10 object-contain">
+            <div>
+              <div class="font-bold text-umb-gray-900 text-sm">SIPERSU FT-UMB</div>
+              <div class="text-xs text-umb-gray-500">Universitas Muhammadiyah Buton</div>
+            </div>
+          </div>
+
+          <h2 class="text-2xl sm:text-3xl font-bold text-umb-gray-900 tracking-tight">
+            Selamat Datang Kembali
+          </h2>
+          <p class="mt-2 text-sm text-umb-gray-500">
+            Silakan masukkan identitas akun akademik Anda untuk masuk ke sistem persuratan.
+          </p>
+        </div>
+
+        <!-- Role Selector Tabs (Mahasiswa, Dosen, Staf / TU) -->
+        <div class="mb-6 p-1 bg-umb-gray-100 rounded-lg flex space-x-1 border border-umb-gray-200/70">
+          <button type="button" class="flex-1 py-2 text-xs font-semibold rounded-md bg-white text-umb-green shadow-sm border border-umb-gray-200/50 transition">
+            Mahasiswa
+          </button>
+          <button type="button" class="flex-1 py-2 text-xs font-medium text-umb-gray-600 hover:text-umb-gray-900 rounded-md transition">
+            Dosen
+          </button>
+          <button type="button" class="flex-1 py-2 text-xs font-medium text-umb-gray-600 hover:text-umb-gray-900 rounded-md transition">
+            Staf TU / Admin
+          </button>
+        </div>
+
+        <!-- Form Elements -->
+        <form action="#" method="POST" class="space-y-5" onsubmit="event.preventDefault();">
+          
+          <!-- Field 1: NIM / NIDN / NIP -->
+          <div>
+            <label for="identifier" class="block text-sm font-semibold text-umb-gray-700 mb-1.5">
+              NIM / NIDN / NIP <span class="text-rose-500">*</span>
+            </label>
+            <div class="relative rounded-lg shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-umb-gray-400">
+                <i data-lucide="user" class="w-4 h-4"></i>
+              </div>
+              <input 
+                type="text" 
+                name="identifier" 
+                id="identifier" 
+                required 
+                placeholder="Contoh: 21650012 atau 0012088501" 
+                class="block w-full pl-10 pr-4 py-2.5 text-sm rounded-lg border border-umb-gray-300 bg-white placeholder-umb-gray-400 text-umb-gray-900 focus:outline-none focus:ring-2 focus:ring-umb-green focus:border-umb-green transition"
+              >
+            </div>
+            <p class="mt-1 text-[11px] text-umb-gray-400">Gunakan NIM untuk mahasiswa, NIDN untuk dosen, atau NIP/NIK untuk staf.</p>
+          </div>
+
+          <!-- Field 2: Kata Sandi -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label for="password" class="block text-sm font-semibold text-umb-gray-700">
+                Kata Sandi <span class="text-rose-500">*</span>
+              </label>
+              <a href="#" class="text-xs font-semibold text-umb-green hover:text-umb-green-dark hover:underline">
+                Lupa kata sandi?
+              </a>
+            </div>
+            <div class="relative rounded-lg shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-umb-gray-400">
+                <i data-lucide="lock" class="w-4 h-4"></i>
+              </div>
+              <input 
+                type="password" 
+                name="password" 
+                id="password" 
+                required 
+                placeholder="Masukkan kata sandi akun" 
+                class="block w-full pl-10 pr-10 py-2.5 text-sm rounded-lg border border-umb-gray-300 bg-white placeholder-umb-gray-400 text-umb-gray-900 focus:outline-none focus:ring-2 focus:ring-umb-green focus:border-umb-green transition"
+              >
+              <button type="button" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-umb-gray-400 hover:text-umb-gray-600 focus:outline-none">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Remember Me Checkbox -->
+          <div class="flex items-center justify-between pt-1">
+            <div class="flex items-center">
+              <input 
+                id="remember_me" 
+                name="remember_me" 
+                type="checkbox" 
+                class="h-4 w-4 text-umb-green focus:ring-umb-green border-umb-gray-300 rounded cursor-pointer"
+              >
+              <label for="remember_me" class="ml-2 block text-xs text-umb-gray-600 cursor-pointer select-none">
+                Ingat saya di perangkat ini selama 30 hari
+              </label>
+            </div>
+          </div>
+
+          <!-- Primary Submit Button: Green "Masuk" -->
+          <div class="pt-2">
+            <button 
+              type="submit" 
+              class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-md text-sm font-bold text-white bg-[#0F6B3E] hover:bg-[#0a4d2c] active:bg-[#083a21] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-umb-green transition duration-150"
+            >
+              <span>Masuk ke SIPERSU</span>
+              <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
+            </button>
+          </div>
+
+        </form>
+
+        <!-- Academic SSO Alternative -->
+        <div class="mt-8">
+          <div class="relative">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-umb-gray-200"></div>
+            </div>
+            <div class="relative flex justify-center text-xs uppercase">
+              <span class="bg-white px-3 text-umb-gray-400 font-medium">atau masuk dengan</span>
+            </div>
+          </div>
+
+          <div class="mt-5">
+            <button 
+              type="button" 
+              class="w-full inline-flex justify-center items-center py-2.5 px-4 border border-umb-gray-200 rounded-lg shadow-sm bg-white text-xs font-semibold text-umb-gray-700 hover:bg-umb-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-umb-gray-300 transition"
+            >
+              <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <span>Akun Google Institusi (@um-buton.ac.id)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Helpdesk & Information -->
+        <div class="mt-8 pt-6 border-t border-umb-gray-100 flex items-center justify-between text-xs text-umb-gray-500">
+          <div class="flex items-center space-x-1.5">
+            <i data-lucide="help-circle" class="w-4 h-4 text-umb-green"></i>
+            <span>Butuh bantuan akses?</span>
+          </div>
+          <a href="#" class="font-semibold text-umb-green hover:underline">
+            Hubungi Tata Usaha FT
+          </a>
+        </div>
+
+        <!-- Legal and Copyright -->
+        <p class="mt-6 text-center text-[11px] text-umb-gray-400">
+          &copy; 2024 Fakultas Teknik Universitas Muhammadiyah Buton. Hak Cipta Dilindungi.
+        </p>
+
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+  </script>
+</body>
+</html>

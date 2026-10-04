@@ -1,0 +1,1 @@
+@include('errors.layout', ['kode' => '500', 'judul' => 'Terjadi Kesalahan Sistem', 'pesan' => $exception->getMessage() && $exception->getStatusCode() === 403 ? $exception->getMessage() : 'Maaf, terjadi kesalahan pada server. Kesalahan telah dicatat; hubungi Tata Usaha bila berulang.'])

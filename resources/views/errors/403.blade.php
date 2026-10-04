@@ -1,0 +1,1 @@
+@include('errors.layout', ['kode' => '403', 'judul' => 'Akses Ditolak', 'pesan' => $exception->getMessage() && $exception->getStatusCode() === 403 ? $exception->getMessage() : 'Anda tidak memiliki izin untuk membuka halaman atau melakukan tindakan ini. Hubungi Tata Usaha bila Anda merasa ini keliru.'])

@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+
+<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-secondary-container":"#6c5000","on-background":"#131b2e","on-tertiary":"#ffffff","on-primary-fixed":"#00210f","on-surface-variant":"#3f4941","surface-container-lowest":"#ffffff","outline":"#6f7a70","background":"#faf8ff","on-tertiary-fixed-variant":"#00522d","secondary-fixed-dim":"#f9bd14","surface-bright":"#faf8ff","surface-container-highest":"#dae2fd","on-primary-fixed-variant":"#00522d","on-primary":"#ffffff","error-container":"#ffdad6","on-secondary-fixed-variant":"#5b4300","on-secondary":"#ffffff","on-error":"#ffffff","surface-container-high":"#e2e7ff","on-primary-container":"#95e9b0","surface":"#faf8ff","primary-fixed":"#a1f5bb","on-tertiary-container":"#87ecaa","tertiary-fixed-dim":"#76db9b","surface-container":"#eaedff","primary-fixed-dim":"#85d8a1","on-error-container":"#93000a","error":"#ba1a1a","inverse-surface":"#283044","secondary-fixed":"#ffdf9d","on-tertiary-fixed":"#00210f","on-surface":"#131b2e","surface-container-low":"#f2f3ff","surface-variant":"#dae2fd","secondary-container":"#fcc019","tertiary-container":"#006c3d","surface-dim":"#d2d9f4","surface-tint":"#116c3f","primary-container":"#0f6b3e","primary":"#00512c","on-secondary-fixed":"#251a00","tertiary":"#00512c","outline-variant":"#bfc9be","inverse-primary":"#85d8a1","tertiary-fixed":"#92f8b5","secondary":"#785900","inverse-on-surface":"#eef0ff"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"gutter":"1.5rem","space-lg":"1.5rem","gutter-mobile":"0.75rem","space-md":"1rem","space-xl":"2rem","space-xs":"0.25rem","space-sm":"0.5rem","margin-mobile":"1rem","margin":"2rem"},fontFamily:{"label-sm":["Inter"],"label-md":["Inter"],"label-lg":["Inter"],"headline-md":["Plus Jakarta Sans"],"body-lg":["Inter"],"headline-xl":["Plus Jakarta Sans"],"headline-xl-mobile":["Plus Jakarta Sans"],"body-sm":["Inter"],"body-md":["Inter"],"headline-lg":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"],"mono-data":["Inter"],"headline-lg-mobile":["Plus Jakarta Sans"]},fontSize:{"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.04em","fontWeight":"600"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"label-lg":["14px",{"lineHeight":"20px","fontWeight":"600"}],"headline-md":["18px",{"lineHeight":"26px","letterSpacing":"-0.01em","fontWeight":"600"}],"body-lg":["16px",{"lineHeight":"26px","fontWeight":"400"}],"headline-xl":["30px",{"lineHeight":"38px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-xl-mobile":["24px",{"lineHeight":"32px","letterSpacing":"-0.02em","fontWeight":"700"}],"body-sm":["13px",{"lineHeight":"18px","fontWeight":"400"}],"body-md":["14px",{"lineHeight":"22px","fontWeight":"400"}],"headline-lg":["24px",{"lineHeight":"32px","letterSpacing":"-0.015em","fontWeight":"600"}],"headline-sm":["16px",{"lineHeight":"24px","fontWeight":"600"}],"mono-data":["13px",{"lineHeight":"18px","fontWeight":"500"}],"headline-lg-mobile":["20px",{"lineHeight":"28px","letterSpacing":"-0.01em","fontWeight":"600"}]}}}}</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-low shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between"><div class="flex flex-col"><div class="h-16 px-space-md flex items-center gap-space-sm bg-surface-container-lowest"><img alt="Brand logo. - Primary color: #0f6b3e
+- Font: plusJakartaSans
+- Mode: light
+- Roundness: rounded-md
+" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VguC6-YSmLtd6kroNipZqVf85p4BrdImWv_rqe30KAx3CrmdIEt8TjizMcW8HyhrxXUrI0Q484vFpbmOBDvMpe5NdPdDJfe8wV-y6_7m1MBVbawuSuAnpCzUWzUvJ4dng3XWUDLgpc1xbINSkX-mcyFyD2058Jkv5a8Ow4leSy7eQds6N_VVvp4w-h8opG3pcmpIiEnleo3Ud08ltzOtbeg5A2sBXwX-2LBKD-qwwJPfxDyxbZ_xNguYo"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-primary tracking-tight">SIPERSU</span><span class="font-label-sm text-label-sm text-on-surface-variant leading-none">FT-UM Buton</span></div></div><div class="px-space-md pt-space-lg pb-space-xs"><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Navigasi Utama</span></div><nav class="flex flex-col gap-space-xs px-space-sm" data-active-classes="bg-primary-container text-on-primary-container font-semibold rounded-lg shadow-sm"><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all duration-150" data-path="beranda" href="#"><span class="material-symbols-outlined text-[20px]">dashboard</span><span class="font-body-md text-body-md">Beranda</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all duration-150" data-path="pengajuan-surat" href="#"><span class="material-symbols-outlined text-[20px]">post_add</span><span class="font-body-md text-body-md">Pengajuan Surat</span></a><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-2.5 transition-all duration-150 bg-primary-container text-on-primary-container font-semibold rounded-lg shadow-sm" data-path="lacak-status" href="#"><span class="material-symbols-outlined text-[20px]">timeline</span><span class="font-body-md text-body-md">Lacak Status</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all duration-150" data-path="riwayat-surat" href="#"><span class="material-symbols-outlined text-[20px]">history_edu</span><span class="font-body-md text-body-md">Riwayat Surat</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all duration-150" data-path="bantuan-tu" href="#"><span class="material-symbols-outlined text-[20px]">support_agent</span><span class="font-body-md text-body-md">Bantuan TU</span></a></nav></div><div class="p-space-md m-space-sm rounded-lg bg-surface-container flex flex-col gap-space-xs"><div class="flex items-center gap-space-xs text-secondary"><span class="material-symbols-outlined text-[18px]">verified</span><span class="font-label-sm text-label-sm font-semibold">Akreditasi FT</span></div><p class="font-label-sm text-label-sm text-on-surface-variant">Fakultas Teknik Universitas Muhammadiyah Buton</p></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-margin"><div class="flex items-center gap-space-sm text-on-surface-variant"><span class="material-symbols-outlined text-[20px]">home</span><span class="font-body-sm text-body-sm">/</span><span class="font-body-sm text-body-sm text-on-surface font-medium">Persuratan Akademik</span></div><div class="flex items-center gap-space-md"><div class="relative flex items-center"><button class="relative p-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-secondary-container ring-2 ring-surface"></span></button></div><div class="h-6 w-[1px] bg-outline-variant"></div><div class="flex items-center gap-space-sm pl-space-xs"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary-fixed" src="https://lh3.googleusercontent.com/aida/AEtjO1W7KLViN-uzdCvvUBCL3_7L1CKhxSRp6eYmqkxo6TeLbBGmnSNZQyLTAVDFyba8QQUxTZ1oIIwKv-qs7dka6nhxRJskEh_h7gnd-vG-YvVOCciXyV5agElqHPYa0Qxqmrr10JLAVujXwwuGyEC_Lk0lhO_Wn3jG50K-cFwcKhuBR3F-w-h82rXJuFLCUX3PEBarDTQCgjtsQUHdbAmkFgikI0FMo9ksNCnlk0arGK50JRKMdlGXPuBiDQ"/><div class="flex flex-col text-left"><span class="font-label-sm text-label-sm text-on-surface leading-tight font-semibold">Civitas Akademika</span><span class="font-label-sm text-label-sm text-on-surface-variant leading-tight">Mahasiswa FT-UMB</span></div></div></div></header><main class="relative pt-16 w-full px-margin min-h-screen bg-surface"><div class="flex flex-col w-full pb-space-xl">
+<!-- Page Header & Tracking Search Widget -->
+<div class="relative overflow-hidden rounded-xl bg-surface-container-lowest shadow-sm mb-space-lg p-space-lg">
+<div class="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-primary-fixed/30 blur-3xl pointer-events-none"></div>
+<div class="absolute right-32 -bottom-20 w-60 h-60 rounded-full bg-secondary-fixed/40 blur-3xl pointer-events-none"></div>
+<div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="max-w-2xl">
+<div class="inline-flex items-center gap-space-xs px-2.5 py-1 rounded-full bg-surface-container-high text-primary font-label-sm text-label-sm mb-space-xs">
+<span class="material-symbols-outlined text-[16px]">verified_user</span>
+<span>Sistem Pelacakan Resmi FT-UMB</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">Lacak Status Permohonan Surat</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">
+          Pantau alur verifikasi berkas permohonan surat akademik secara transparan dan berjenjang dari Tata Usaha hingga Dekanat.
+        </p>
+</div>
+<!-- Quick Switcher Tabs -->
+<div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-space-xs bg-surface-container-low p-1.5 rounded-lg">
+<button class="flex items-center justify-center gap-2 px-space-md py-2 rounded-lg font-label-md text-label-md transition-all duration-150 bg-primary-container text-on-primary-container shadow-sm" id="tab-approved" onclick="switchTab('approved')">
+<span class="w-2 h-2 rounded-full bg-primary-fixed"></span>
+<span>Izin Penelitian (Selesai)</span>
+</button>
+<button class="flex items-center justify-center gap-2 px-space-md py-2 rounded-lg font-label-md text-label-md transition-all duration-150 text-on-surface-variant hover:text-on-surface hover:bg-surface-container" id="tab-rejected" onclick="switchTab('rejected')">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span>Kerja Praktik (Ditolak)</span>
+</button>
+</div>
+</div>
+<!-- Tracking Input Bar -->
+<div class="relative z-10 mt-space-lg pt-space-md bg-surface-container-low rounded-lg p-space-md">
+<div class="flex flex-col md:flex-row items-stretch md:items-center gap-space-sm">
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+<input class="w-full h-11 pl-11 pr-4 rounded-lg bg-surface-container-lowest text-on-surface font-mono-data text-mono-data focus:outline-none focus:ring-2 focus:ring-primary shadow-sm" id="tracking-input" placeholder="Masukkan nomor tiket permohonan (contoh: REQ-2024/FT-UMB/XXXX)..." type="text" value="REQ-2024/FT-UMB/0842"/>
+</div>
+<button class="h-11 px-space-lg rounded-lg bg-primary hover:bg-primary-container text-on-primary font-headline-sm text-headline-sm flex items-center justify-center gap-space-xs shadow-sm transition-colors" onclick="handleSearch()">
+<span class="material-symbols-outlined text-[20px]">manage_search</span>
+<span>Cari Berkas</span>
+</button>
+</div>
+<div class="flex flex-wrap items-center gap-space-md mt-space-xs font-label-sm text-label-sm text-on-surface-variant">
+<span>Format kode: <strong class="font-mono-data text-on-surface">REQ-YYYY/FT-UMB/ID</strong></span>
+<span>•</span>
+<span>Terakhir diperbarui: <strong>15 Okt 2024, 14:25 WITA</strong></span>
+</div>
+</div>
+</div>
+<!-- VIEW 1: APPROVED CASE (REQ-2024/FT-UMB/0842) -->
+<div class="flex flex-col gap-space-lg" id="view-approved">
+<!-- Top Highlights: Success Banner -->
+<div class="rounded-xl bg-gradient-to-r from-primary via-primary-container to-tertiary text-on-primary p-space-lg shadow-md relative overflow-hidden">
+<div class="absolute -right-8 -top-8 w-64 h-64 rounded-full bg-surface-container-lowest/10 blur-2xl pointer-events-none"></div>
+<div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-md">
+<div class="w-14 h-14 rounded-xl bg-surface-container-lowest/15 backdrop-blur flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[32px] text-secondary-fixed">verified</span>
+</div>
+<div>
+<div class="flex items-center gap-space-xs mb-1">
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm uppercase tracking-wide">Dokumen Resmi Terbit</span>
+<span class="font-mono-data text-mono-data text-primary-fixed">No. Surat: 148/FT-UMB/A/X/2024</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg font-bold">Surat Resmi Telah Diterbitkan &amp; Ditandatangani!</h2>
+<p class="font-body-md text-body-md text-on-primary-container max-w-2xl mt-1">
+              Dokumen telah melalui verifikasi Kaprodi, paraf Wakil Dekan I, dan ditandatangani secara digital (BSrE/TTE) oleh Dekan Fakultas Teknik UMB.
+            </p>
+</div>
+</div>
+<!-- Download Actions -->
+<div class="flex flex-wrap sm:flex-nowrap items-center gap-space-xs shrink-0">
+<button class="h-11 px-space-md rounded-lg bg-surface-container-lowest text-primary hover:bg-surface-container-high font-headline-sm text-headline-sm flex items-center gap-space-xs shadow-sm transition-all">
+<span class="material-symbols-outlined text-[20px]">download</span>
+<span>Unduh Surat (PDF)</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-surface-container-low text-primary">245 KB</span>
+</button>
+<button class="h-11 px-space-md rounded-lg bg-surface-container-lowest/20 hover:bg-surface-container-lowest/30 text-on-primary font-headline-sm text-headline-sm flex items-center gap-space-xs backdrop-blur transition-all">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+<span>Pratinjau</span>
+</button>
+<button class="h-11 w-11 rounded-lg bg-surface-container-lowest/20 hover:bg-surface-container-lowest/30 text-on-primary flex items-center justify-center backdrop-blur transition-all" title="Salin QR Verifikasi">
+<span class="material-symbols-outlined text-[20px]">qr_code_2</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Main Grid: Request Detail & Interactive Vertical Timeline -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- Left Column: Request Details Card (4 cols) -->
+<div class="lg:col-span-4 flex flex-col gap-space-md">
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
+<div class="flex items-center justify-between pb-space-sm mb-space-sm bg-surface-container-low -mx-space-lg -mt-space-lg px-space-lg pt-space-md rounded-t-xl">
+<div class="flex items-center gap-space-xs text-on-surface font-headline-sm text-headline-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">description</span>
+<span>Rincian Permohonan</span>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-semibold">
+              Selesai
+            </span>
+</div>
+<div class="space-y-space-md">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider">Nomor Registrasi</span>
+<span class="font-mono-data text-mono-data text-primary font-bold">REQ-2024/FT-UMB/0842</span>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider">Jenis Surat</span>
+<span class="font-body-md text-body-md font-semibold text-on-surface">Surat Izin Penelitian / Tugas Akhir</span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded-lg">
+<span class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider mb-1">Identitas Pemohon</span>
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-headline-sm text-headline-sm font-bold">
+                  FR
+                </div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md font-bold text-on-surface truncate">Fikri Ramadhan</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">NIM: 21650012 • Reguler</span>
+<span class="font-label-sm text-label-sm text-primary font-medium">Teknik Informatika (S1)</span>
+</div>
+</div>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider">Judul Penelitian / Skripsi</span>
+<p class="font-body-sm text-body-sm text-on-surface font-medium mt-1 leading-relaxed bg-surface-container-lowest">
+                “Implementasi IoT dan Sensor Kelembaban Tanah pada Budidaya Pertanian Modern di Baubau”
+              </p>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider">Ditujukan Kepada</span>
+<p class="font-body-sm text-body-sm text-on-surface font-medium">
+                Kepala Dinas Komunikasi dan Informatika Kota Baubau
+              </p>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Lokasi: Kota Baubau, Sulawesi Tenggara</span>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider">Waktu Registrasi Awal</span>
+<span class="font-body-sm text-body-sm text-on-surface font-medium">14 Oktober 2024, 08:30 WITA</span>
+</div>
+<!-- Attached Files Pill List -->
+<div class="pt-space-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider mb-2">Lampiran Berkas Pemohon</span>
+<div class="space-y-1.5">
+<div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-2 truncate">
+<span class="material-symbols-outlined text-[18px] text-primary">attach_file</span>
+<span class="font-body-sm text-body-sm truncate">KTM_21650012.pdf</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">142 KB</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-2 truncate">
+<span class="material-symbols-outlined text-[18px] text-primary">receipt_long</span>
+<span class="font-body-sm text-body-sm truncate">SPP_Lunas_Ganjil2024.pdf</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">310 KB</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-2 truncate">
+<span class="material-symbols-outlined text-[18px] text-primary">task</span>
+<span class="font-body-sm text-body-sm truncate">Proposal_Ringkas_IoT.pdf</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">1.4 MB</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Academic QR Verification Widget -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex items-center gap-space-md">
+<div class="p-2 bg-surface-container-lowest rounded-lg shadow-sm shrink-0">
+<svg class="w-16 h-16 text-primary" fill="currentColor" viewbox="0 0 24 24">
+<path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h3v2h-3v-2zm-5 0h3v3h-3v-3zm2 3h3v2h-3v-2zm3 2h3v3h-3v-3zm-3 2h2v1h-2v-1zm5-2h1v3h-1v-3zM5 5h4v4H5V5zm10 0h4v4h-4V5zM5 15h4v4H5v-4z"></path>
+</svg>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-secondary uppercase font-bold tracking-wider">Tanda Tangan Elektronik</span>
+<p class="font-body-sm text-body-sm text-on-surface font-medium leading-snug">Disertifikasi oleh Balai Sertifikasi Elektronik (BSrE - BSSN RI).</p>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono-data">ID: BSRE-FT-UMB-992140</span>
+</div>
+</div>
+</div>
+<!-- Right Column: Vertical Hierarchical Timeline (8 cols) -->
+<div class="lg:col-span-8 flex flex-col gap-space-md">
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-space-md mb-space-lg bg-surface-container-low -mx-space-lg -mt-space-lg px-space-lg pt-space-md rounded-t-xl">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-bold">Alur Verifikasi Dokumen Berjenjang</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Lacak rekam jejak pemeriksaan setiap pejabat berwenang secara real-time.</p>
+</div>
+<div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed font-label-md text-label-md font-bold self-start sm:self-auto">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+<span>5 dari 5 Tahapan Terpenuhi</span>
+</div>
+</div>
+<!-- Timeline Container -->
+<div class="relative pl-6 sm:pl-8 space-y-space-lg">
+<!-- Continuous vertical line -->
+<div class="absolute left-3 sm:left-4 top-3 bottom-4 w-0.5 bg-primary"></div>
+<!-- STEP 1: DIAJUKAN -->
+<div class="relative group">
+<!-- Node Icon -->
+<div class="absolute -left-6 sm:-left-8 top-0 w-7 h-7 rounded-full bg-primary text-on-primary flex items-center justify-center ring-4 ring-surface-container-lowest shadow-sm">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="bg-surface-container-low rounded-xl p-space-md hover:bg-surface-container transition-all">
+<div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm font-semibold">Tahap 1</span>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-bold">Permohonan Berhasil Diajukan</h4>
+</div>
+<span class="font-mono-data text-mono-data text-on-surface-variant bg-surface-container-lowest px-2 py-0.5 rounded">14 Okt 2024, 08:30 WITA</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm mb-2">
+<span class="material-symbols-outlined text-[16px] text-primary">person</span>
+<span>Oleh: <strong class="text-on-surface">Fikri Ramadhan (Mahasiswa)</strong></span>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-lowest text-on-surface-variant font-body-sm text-body-sm">
+<span class="font-medium text-on-surface">Catatan Sistem:</span> Berkas formulir permohonan surat izin penelitian, kartu rencana studi (KRS), dan bukti lunas SPP tahap berjalan berhasil diunggah lengkap tanpa anomali.
+                </div>
+</div>
+</div>
+<!-- STEP 2: DIVERIFIKASI -->
+<div class="relative group">
+<!-- Node Icon -->
+<div class="absolute -left-6 sm:-left-8 top-0 w-7 h-7 rounded-full bg-primary text-on-primary flex items-center justify-center ring-4 ring-surface-container-lowest shadow-sm">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="bg-surface-container-low rounded-xl p-space-md hover:bg-surface-container transition-all">
+<div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm font-semibold">Tahap 2</span>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-bold">Verifikasi Kelayakan Akademik &amp; Tata Usaha</h4>
+</div>
+<span class="font-mono-data text-mono-data text-on-surface-variant bg-surface-container-lowest px-2 py-0.5 rounded">14 Okt 2024, 11:15 WITA</span>
+</div>
+<div class="flex flex-wrap items-center gap-3 text-on-surface-variant font-body-sm text-body-sm mb-2">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-primary">badge</span>
+<span>Admin TU: <strong class="text-on-surface">Syahrul Munir, S.Kom.</strong></span>
+</span>
+<span class="text-outline-variant">•</span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-primary">school</span>
+<span>Kaprodi TI: <strong class="text-on-surface">Dr. Ir. H. Anwar, M.T.</strong></span>
+</span>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-lowest text-on-surface-variant font-body-sm text-body-sm">
+<span class="font-medium text-on-surface">Catatan Verifikator:</span> SKS kumulatif memenuhi persyaratan Tugas Akhir (118 SKS). Mata kuliah Metodologi Penelitian telah lulus dengan nilai A. Berkas direkomendasikan lanjut ke Dekanat.
+                </div>
+</div>
+</div>
+<!-- STEP 3: DISETUJUI -->
+<div class="relative group">
+<!-- Node Icon -->
+<div class="absolute -left-6 sm:-left-8 top-0 w-7 h-7 rounded-full bg-primary text-on-primary flex items-center justify-center ring-4 ring-surface-container-lowest shadow-sm">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="bg-surface-container-low rounded-xl p-space-md hover:bg-surface-container transition-all">
+<div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm font-semibold">Tahap 3</span>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-bold">Persetujuan &amp; Paraf Wakil Dekan I</h4>
+</div>
+<span class="font-mono-data text-mono-data text-on-surface-variant bg-surface-container-lowest px-2 py-0.5 rounded">15 Okt 2024, 09:40 WITA</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm mb-2">
+<span class="material-symbols-outlined text-[16px] text-primary">account_circle</span>
+<span>Pejabat: <strong class="text-on-surface">Ir. Ridwan Hamzah, S.T., M.Eng.</strong> (Wakil Dekan I Bidang Akademik)</span>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-lowest text-on-surface-variant font-body-sm text-body-sm">
+<span class="font-medium text-on-surface">Catatan Disposisi:</span> Draf surat disetujui. Registrasi kode penomoran arsip resmi: <code class="bg-surface-container px-1 py-0.5 rounded text-primary font-mono-data">148/FT-UMB/A/X/2024</code>. Diteruskan ke Dekan untuk penandatanganan elektronik.
+                </div>
+</div>
+</div>
+<!-- STEP 4: DITANDATANGANI -->
+<div class="relative group">
+<!-- Node Icon -->
+<div class="absolute -left-6 sm:-left-8 top-0 w-7 h-7 rounded-full bg-primary text-on-primary flex items-center justify-center ring-4 ring-surface-container-lowest shadow-sm">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="bg-surface-container-low rounded-xl p-space-md hover:bg-surface-container transition-all">
+<div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm font-semibold">Tahap 4</span>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-bold">Penandatanganan Digital oleh Dekan FT</h4>
+</div>
+<span class="font-mono-data text-mono-data text-on-surface-variant bg-surface-container-lowest px-2 py-0.5 rounded">15 Okt 2024, 14:20 WITA</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm mb-2">
+<span class="material-symbols-outlined text-[16px] text-primary">draw</span>
+<span>Dekan FT: <strong class="text-on-surface">Prof. Dr. Ir. H. Masrun, S.T., M.T., IPU.</strong></span>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-lowest text-on-surface-variant font-body-sm text-body-sm">
+<span class="font-medium text-on-surface">Catatan Otorisasi:</span> Dokumen telah ditandatangani secara digital dengan sertifikat elektronik aktif dari BSrE. Integritas dan keaslian dokumen dijamin undang-undang ITE.
+                </div>
+</div>
+</div>
+<!-- STEP 5: SELESAI -->
+<div class="relative group">
+<!-- Node Icon with pulsating halo -->
+<div class="absolute -left-6 sm:-left-8 top-0 w-7 h-7 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center ring-4 ring-primary-fixed shadow-md animate-pulse">
+<span class="material-symbols-outlined text-[16px] font-bold text-on-primary-container">task_alt</span>
+</div>
+<div class="bg-primary-fixed/20 rounded-xl p-space-md transition-all">
+<div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm font-semibold">Tahap 5 • Final</span>
+<h4 class="font-headline-sm text-headline-sm text-primary font-bold">Surat Selesai &amp; Diterbitkan ke Arsip Mahasiswa</h4>
+</div>
+<span class="font-mono-data text-mono-data text-primary bg-surface-container-lowest px-2 py-0.5 rounded font-bold">15 Okt 2024, 14:25 WITA</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm mb-2">
+<span class="material-symbols-outlined text-[16px] text-primary">cloud_done</span>
+<span>Sistem: <strong class="text-on-surface">SIPERSU Digital Repository FT-UMB</strong></span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface leading-relaxed">
+                  Surat sah telah tersedia dalam format PDF berstempel QR resmi dan dapat langsung diserahkan kepada instansi tujuan penelitian tanpa memerlukan stempel basah konvensional.
+                </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- VIEW 2: REJECTED CASE (REQ-2024/FT-UMB/0791) -->
+<div class="hidden flex-col gap-space-lg" id="view-rejected">
+<!-- Rejected Alert Header Card -->
+<div class="rounded-xl bg-error-container text-on-error-container p-space-lg shadow-sm">
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-error text-on-error flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[28px]">error</span>
+</div>
+<div>
+<div class="flex items-center gap-space-xs mb-1">
+<span class="px-2 py-0.5 rounded-full bg-error text-on-error font-label-sm text-label-sm uppercase tracking-wide">Status: Ditolak</span>
+<span class="font-mono-data text-mono-data font-semibold">Tiket: REQ-2024/FT-UMB/0791</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg font-bold">Permohonan Surat Belum Dapat Diproses</h2>
+<p class="font-body-md text-body-md opacity-90 max-w-2xl mt-1">
+              Ditolak pada tahap Verifikasi Berkas oleh Tata Usaha Fakultas Teknik pada 12 Oktober 2024, pukul 10:15 WITA.
+            </p>
+</div>
+</div>
+<div class="flex items-center gap-space-xs shrink-0">
+<button class="h-10 px-space-md rounded-lg bg-error text-on-error hover:opacity-90 font-headline-sm text-headline-sm flex items-center gap-space-xs shadow-sm transition-opacity">
+<span class="material-symbols-outlined text-[18px]">edit_document</span>
+<span>Ajukan Ulang / Perbaiki Berkas</span>
+</button>
+<button class="h-10 px-space-md rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container font-headline-sm text-headline-sm flex items-center gap-space-xs shadow-sm transition-colors">
+<span class="material-symbols-outlined text-[18px]">contact_support</span>
+<span>Bantuan TU</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Details of Rejection and Flow -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- Left Info Box -->
+<div class="lg:col-span-5 flex flex-col gap-space-md">
+<!-- Rejection Box with Bold Explanation -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
+<div class="flex items-center gap-2 pb-space-sm mb-space-sm bg-surface-container-low -mx-space-lg -mt-space-lg px-space-lg pt-space-md rounded-t-xl text-error">
+<span class="material-symbols-outlined text-[20px]">report_problem</span>
+<span class="font-headline-sm text-headline-sm font-bold">Catatan Penolakan Administrasi</span>
+</div>
+<div class="p-space-md rounded-lg bg-error-container/40 text-on-error-container space-y-2 mb-space-md">
+<span class="font-label-sm text-label-sm font-bold uppercase tracking-wider block text-error">Alasan Utama Penolakan:</span>
+<p class="font-body-md text-body-md leading-relaxed">
+              “Bukti pembayaran SPP semester berjalan yang diunggah buram dan belum divalidasi oleh Bagian Keuangan Universitas. Selain itu, tanggal mulai pelaksanaan Kerja Praktik (18 Nov 2024) bertabrakan dengan jadwal Ujian Tengah Semester (UTS) Fakultas Teknik. Silakan sesuaikan tanggal dan perbarui scan bukti SPP.”
+            </p>
+</div>
+<div class="space-y-space-sm text-on-surface font-body-sm text-body-sm">
+<div class="flex justify-between py-1 bg-surface-container-low px-2 rounded">
+<span class="text-on-surface-variant">Petugas Pemeriksa:</span>
+<span class="font-semibold">Ibu Nurhayati, A.Md. (Admin TU)</span>
+</div>
+<div class="flex justify-between py-1 bg-surface-container-low px-2 rounded">
+<span class="text-on-surface-variant">Tanggal Keputusan:</span>
+<span class="font-mono-data">12 Okt 2024, 10:15 WITA</span>
+</div>
+<div class="flex justify-between py-1 bg-surface-container-low px-2 rounded">
+<span class="text-on-surface-variant">Batas Revisi:</span>
+<span class="font-semibold text-secondary">19 Okt 2024 (7 Hari Kerja)</span>
+</div>
+</div>
+</div>
+<!-- Student Data -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm space-y-space-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Data Permohonan Terkait</h3>
+<div class="text-on-surface font-body-sm text-body-sm space-y-2">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider">Jenis Permohonan</span>
+<span class="font-semibold">Surat Pengantar Kerja Praktik (KP)</span>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider">Mahasiswa</span>
+<span>Muh. Syahrir (NIM: 21650044) - Teknik Sipil</span>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider">Instansi Mitra Tujuan</span>
+<span>PT. Waskita Karya (Proyek Preservasi Jalan Pulau Buton)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Timeline Showing Failure Step -->
+<div class="lg:col-span-7 flex flex-col gap-space-md">
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
+<div class="flex items-center justify-between pb-space-sm mb-space-lg bg-surface-container-low -mx-space-lg -mt-space-lg px-space-lg pt-space-md rounded-t-xl">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-bold">Status Alur Berkas</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Proses dihentikan pada Tahap 2 menunggu perbaikan berkas dari mahasiswa.</p>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-bold">
+              Terhenti
+            </span>
+</div>
+<!-- Vertical Timeline with Halt -->
+<div class="relative pl-6 sm:pl-8 space-y-space-lg">
+<div class="absolute left-3 sm:left-4 top-3 bottom-8 w-0.5 bg-outline-variant"></div>
+<!-- STEP 1 (Done) -->
+<div class="relative">
+<div class="absolute -left-6 sm:-left-8 top-0 w-7 h-7 rounded-full bg-primary text-on-primary flex items-center justify-center ring-4 ring-surface-container-lowest shadow-sm">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="bg-surface-container-low rounded-xl p-space-md">
+<div class="flex items-center justify-between mb-1">
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-bold">1. Berkas Pengajuan Masuk</h4>
+<span class="font-mono-data text-mono-data text-on-surface-variant">11 Okt 2024, 16:00 WITA</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Mahasiswa mengunggah permohonan surat pengantar KP ke PT Waskita Karya.</p>
+</div>
+</div>
+<!-- STEP 2 (Rejected / Error) -->
+<div class="relative">
+<div class="absolute -left-6 sm:-left-8 top-0 w-7 h-7 rounded-full bg-error text-on-error flex items-center justify-center ring-4 ring-error-container shadow-md">
+<span class="material-symbols-outlined text-[16px] font-bold">close</span>
+</div>
+<div class="bg-error-container/30 rounded-xl p-space-md">
+<div class="flex items-center justify-between mb-1">
+<h4 class="font-headline-sm text-headline-sm text-error font-bold">2. Ditolak pada Verifikasi TU</h4>
+<span class="font-mono-data text-mono-data text-error font-semibold">12 Okt 2024, 10:15 WITA</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-error-container leading-relaxed">
+                  Berkas tidak memenuhi syarat administratif (Lampiran SPP tidak terbaca dan jadwal pelaksanaan bentrok dengan kalender akademik).
+                </p>
+<div class="mt-space-sm pt-space-xs flex items-center gap-space-xs">
+<button class="px-3 py-1.5 rounded-lg bg-error text-on-error font-label-md text-label-md hover:opacity-90 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">upload_file</span>
+<span>Unggah Berkas Pengganti</span>
+</button>
+</div>
+</div>
+</div>
+<!-- STEP 3 (Disabled / Pending) -->
+<div class="relative opacity-40">
+<div class="absolute -left-6 sm:-left-8 top-0 w-7 h-7 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center ring-4 ring-surface-container-lowest">
+<span class="material-symbols-outlined text-[16px]">lock</span>
+</div>
+<div class="bg-surface-container-low rounded-xl p-space-md">
+<h4 class="font-headline-sm text-headline-sm text-on-surface-variant font-bold">3. Persetujuan Wakil Dekan I</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Menunggu penyelesaian perbaikan berkas di loket Tata Usaha.</p>
+</div>
+</div>
+<!-- STEP 4 (Disabled / Pending) -->
+<div class="relative opacity-40">
+<div class="absolute -left-6 sm:-left-8 top-0 w-7 h-7 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center ring-4 ring-surface-container-lowest">
+<span class="material-symbols-outlined text-[16px]">lock</span>
+</div>
+<div class="bg-surface-container-low rounded-xl p-space-md">
+<h4 class="font-headline-sm text-headline-sm text-on-surface-variant font-bold">4. Tanda Tangan Dekan &amp; Penerbitan</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Tahapan ditangguhkan hingga seluruh verifikasi tuntas.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Academic Information Card -->
+<div class="mt-space-lg rounded-xl bg-surface-container-low p-space-md flex flex-col md:flex-row items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest text-secondary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[22px]">info</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Butuh Bantuan atau Klarifikasi Berkas?</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          Hubungi Subbagian Akademik &amp; Tata Usaha Fakultas Teknik Universitas Muhammadiyah Buton di Gedung B Lantai 2 atau via WhatsApp Helpdesk.
+        </p>
+</div>
+</div>
+<div class="flex items-center gap-space-xs shrink-0">
+<a class="h-9 px-space-md rounded-lg bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-md text-label-md flex items-center gap-1.5 shadow-sm transition-colors" href="https://wa.me/6281234567890" target="_blank">
+<span class="material-symbols-outlined text-[18px] text-primary">chat</span>
+<span>WhatsApp TU FT</span>
+</a>
+<button class="h-9 px-space-md rounded-lg bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-md text-label-md flex items-center gap-1.5 shadow-sm transition-colors">
+<span class="material-symbols-outlined text-[18px]">menu_book</span>
+<span>Panduan SOP Persuratan</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+  function switchTab(type) {
+    const btnApproved = document.getElementById('tab-approved');
+    const btnRejected = document.getElementById('tab-rejected');
+    const viewApproved = document.getElementById('view-approved');
+    const viewRejected = document.getElementById('view-rejected');
+    const inputField = document.getElementById('tracking-input');
+
+    if (type === 'approved') {
+      btnApproved.className = "flex items-center justify-center gap-2 px-space-md py-2 rounded-lg font-label-md text-label-md transition-all duration-150 bg-primary-container text-on-primary-container shadow-sm";
+      btnRejected.className = "flex items-center justify-center gap-2 px-space-md py-2 rounded-lg font-label-md text-label-md transition-all duration-150 text-on-surface-variant hover:text-on-surface hover:bg-surface-container";
+      viewApproved.classList.remove('hidden');
+      viewRejected.classList.add('hidden');
+      inputField.value = 'REQ-2024/FT-UMB/0842';
+    } else {
+      btnRejected.className = "flex items-center justify-center gap-2 px-space-md py-2 rounded-lg font-label-md text-label-md transition-all duration-150 bg-error text-on-error shadow-sm";
+      btnApproved.className = "flex items-center justify-center gap-2 px-space-md py-2 rounded-lg font-label-md text-label-md transition-all duration-150 text-on-surface-variant hover:text-on-surface hover:bg-surface-container";
+      viewRejected.classList.remove('hidden');
+      viewApproved.classList.add('hidden');
+      inputField.value = 'REQ-2024/FT-UMB/0791';
+    }
+  }
+
+  function handleSearch() {
+    const inputVal = document.getElementById('tracking-input').value.trim();
+    if (inputVal.includes('0791') || inputVal.toLowerCase().includes('tolak')) {
+      switchTab('rejected');
+    } else {
+      switchTab('approved');
+    }
+  }
+</script></main></div></body></html>

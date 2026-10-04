@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verifikasi Offline — SIPERSU FT-UMB</title>
+<style>
+  :root { --hijau:#0F6B3E; --hijau-tua:#00512c; --emas:#F2B705; --merah:#ba1a1a; --bg:#faf8ff; --teks:#131b2e; --abu:#3f4941; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background:var(--bg); color:var(--teks); line-height:1.5; }
+  main { max-width: 720px; margin: 0 auto; padding: 24px 16px 48px; }
+  header { text-align:center; margin-bottom: 20px; }
+  header .lencana { display:inline-block; background:#e2e7ff; color:var(--hijau-tua); border-radius:999px; padding:4px 12px; font-size:12px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; }
+  h1 { font-size: 22px; margin: 10px 0 2px; }
+  header p { margin:0; color:var(--abu); font-size:14px; }
+  .kartu { background:#fff; border-radius:12px; box-shadow:0 1px 8px rgba(0,0,0,.06); padding:20px; margin-bottom:16px; }
+  label { font-weight:600; font-size:14px; display:block; margin-bottom:6px; }
+  textarea { width:100%; min-height:110px; border:1px solid #bfc9be; border-radius:8px; padding:10px; font: 13px ui-monospace, Menlo, Consolas, monospace; resize:vertical; }
+  textarea:focus { outline:2px solid var(--hijau); border-color:var(--hijau); }
+  .baris { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+  button { border:0; border-radius:8px; padding:10px 16px; font-weight:600; font-size:14px; cursor:pointer; }
+  .utama { background:var(--hijau-tua); color:#fff; } .utama:hover { background:var(--hijau); }
+  .sekunder { background:#e2e7ff; color:var(--teks); }
+  .hasil { text-align:center; }
+  .ikon { width:72px; height:72px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:38px; font-weight:700; margin-bottom:8px; }
+  .ok .ikon { background:#a1f5bb; color:var(--hijau-tua); } .gagal .ikon { background:#ffdad6; color:var(--merah); }
+  .ok h2 { color:var(--hijau-tua); } .gagal h2 { color:var(--merah); }
+  h2 { margin:4px 0; font-size:24px; }
+  dl { text-align:left; margin:16px 0 0; display:grid; grid-template-columns: 140px 1fr; gap:8px 12px; font-size:14px; }
+  dt { color:var(--abu); } dd { margin:0; font-weight:600; word-break:break-word; }
+  .kecil { font-size:12px; color:var(--abu); } .mono { font-family: ui-monospace, Menlo, Consolas, monospace; font-size:12px; word-break:break-all; }
+  video { width:100%; border-radius:8px; margin-top:12px; background:#000; }
+  [hidden] { display:none !important; }
+  @media (max-width:480px){ dl { grid-template-columns: 1fr; } dt { margin-top:6px; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <span class="lencana">Verifikasi Offline</span>
+    <h1>SIPERSU FT-UMB — Universitas Muhammadiyah Buton</h1>
+    <p>Memeriksa tanda tangan elektronik pada QR surat. Berjalan sepenuhnya di peramban Anda; tidak ada data yang dikirim ke mana pun.</p>
+  </header>
+
+  <section class="kartu">
+    <label for="isi">Tempel tautan/isi kode QR surat</label>
+    <textarea id="isi" placeholder="https://…/v/…#eyJ2IjoxLC…" spellcheck="false"></textarea>
+    <div class="baris">
+      <button class="utama" id="periksa">Periksa Keaslian</button>
+      <button class="sekunder" id="pindai" hidden>Pindai dengan Kamera</button>
+      <button class="sekunder" id="bersih">Bersihkan</button>
+    </div>
+    <video id="video" playsinline hidden></video>
+    <p class="kecil">Cara: pindai QR pada surat dengan aplikasi pemindai di ponsel, salin tautannya, lalu tempel di sini. Anda juga dapat membuka berkas ini dengan <code>#…</code> dari tautan QR.</p>
+  </section>
+
+  <section class="kartu hasil" id="hasil" hidden></section>
+
+  <section class="kartu">
+    <p class="kecil" style="margin:0"><strong>Kunci publik fakultas (Ed25519)</strong><br>
+      Sidik jari SHA-256: <span class="mono" id="sidik"></span><br>
+      Bandingkan sidik jari ini dengan yang diumumkan Fakultas Teknik UM Buton. Bila berbeda, jangan percaya hasil di halaman ini.</p>
+  </section>
+</main>
+
+<script>/*NACL*/</script>
+<script>
+(function () {
+  'use strict';
+  var KUNCI_PUBLIK_B64 = '/*KUNCI_PUBLIK*/';
+  var $ = function (id) { return document.getElementById(id); };
+
+  function dariB64(s) { var b = atob(s), u = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
+  function dariB64Url(s) { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; return dariB64(s); }
+  function hex(u) { return Array.prototype.map.call(u, function (x) { return ('0' + x.toString(16)).slice(-2); }).join(''); }
+  function esc(t) { var d = document.createElement('div'); d.textContent = String(t == null ? '' : t); return d.innerHTML; }
+
+  var kunci = dariB64(KUNCI_PUBLIK_B64);
+  if (window.crypto && crypto.subtle) {
+    crypto.subtle.digest('SHA-256', kunci).then(function (h) { $('sidik').textContent = hex(new Uint8Array(h)).match(/.{1,4}/g).join(' '); });
+  }
+
+  function periksa(masukan) {
+    var teks = String(masukan || '').trim();
+    var i = teks.indexOf('#'); if (i >= 0) teks = teks.slice(i + 1);
+    var bagian = teks.split('.');
+    if (bagian.length !== 2 || !/^[A-Za-z0-9_-]+$/.test(bagian[0]) || !/^[A-Za-z0-9_-]+$/.test(bagian[1])) return { ok: false, alasan: 'Format kode tidak dikenali. Pastikan Anda menempelkan tautan lengkap dari QR (memuat tanda #).' };
+    var pesan, sig;
+    try { pesan = dariB64Url(bagian[0]); sig = dariB64Url(bagian[1]); } catch (e) { return { ok: false, alasan: 'Kode rusak (base64 tidak valid).' }; }
+    if (sig.length !== 64) return { ok: false, alasan: 'Panjang tanda tangan tidak sesuai.' };
+    var sah = nacl.sign.detached.verify(pesan, sig, kunci);
+    var data = null;
+    try { data = JSON.parse(new TextDecoder('utf-8').decode(pesan)); } catch (e) { /* biarkan */ }
+    if (!sah) return { ok: false, alasan: 'Tanda tangan TIDAK cocok dengan kunci publik fakultas. Dokumen kemungkinan dipalsukan atau diubah.', data: null };
+    return { ok: true, data: data };
+  }
+
+  function tampil(h) {
+    var el = $('hasil'); el.hidden = false; el.className = 'kartu hasil ' + (h.ok ? 'ok' : 'gagal');
+    if (!h.ok) { el.innerHTML = '<div class="ikon">✕</div><h2>Tidak Valid</h2><p>' + esc(h.alasan) + '</p>'; return; }
+    var d = h.data || {};
+    el.innerHTML = '<div class="ikon">✓</div><h2>Dokumen Asli</h2><p>Tanda tangan elektronik cocok dengan kunci publik Fakultas Teknik UM Buton.</p>' +
+      '<dl><dt>Nomor surat</dt><dd>' + esc(d.n) + '</dd><dt>Perihal</dt><dd>' + esc(d.p) + '</dd><dt>Penanda tangan</dt><dd>' + esc(d.s) + '</dd>' +
+      '<dt>Jabatan</dt><dd>' + esc(d.j) + '</dd><dt>Tanggal surat</dt><dd>' + esc(d.t) + '</dd><dt>Ringkasan isi (SHA-256)</dt><dd class="mono">' + esc(d.h) + '</dd></dl>' +
+      '<p class="kecil">Pemeriksaan offline hanya memastikan data pada QR asli. Status pembatalan surat hanya dapat dilihat pada halaman verifikasi online.</p>';
+  }
+
+  $('periksa').addEventListener('click', function () { tampil(periksa($('isi').value)); });
+  $('bersih').addEventListener('click', function () { $('isi').value = ''; $('hasil').hidden = true; });
+  if (location.hash.length > 1) { $('isi').value = location.href; tampil(periksa(location.hash)); }
+
+  // Pemindai kamera (bila peramban mendukung BarcodeDetector)
+  if ('BarcodeDetector' in window && navigator.mediaDevices) {
+    $('pindai').hidden = false;
+    $('pindai').addEventListener('click', function () {
+      var video = $('video'), det = new BarcodeDetector({ formats: ['qr_code'] }), aliran;
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(function (s) {
+        aliran = s; video.srcObject = s; video.hidden = false; video.play();
+        (function loop() {
+          if (video.hidden) return;
+          det.detect(video).then(function (r) {
+            if (r.length) { video.hidden = true; aliran.getTracks().forEach(function (t) { t.stop(); }); $('isi').value = r[0].rawValue; tampil(periksa(r[0].rawValue)); }
+            else requestAnimationFrame(loop);
+          }).catch(function () { requestAnimationFrame(loop); });
+        })();
+      }).catch(function () { alert('Kamera tidak dapat diakses.'); });
+    });
+  }
+})();
+</script>
+</body>
+</html>

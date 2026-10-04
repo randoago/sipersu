@@ -1,0 +1,1 @@
+@include('errors.layout', ['kode' => '404', 'judul' => 'Halaman Tidak Ditemukan', 'pesan' => $exception->getMessage() && $exception->getStatusCode() === 403 ? $exception->getMessage() : 'Alamat yang Anda tuju tidak ada atau data sudah tidak tersedia.'])
