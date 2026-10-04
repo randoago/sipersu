@@ -62,8 +62,8 @@ class SuratKeluarController extends Controller
     public function simpanFormat(Request $request, JenisSurat $jenis)
     {
         abort_unless($this->alur->bolehMembuat($request->user()) && $jenis->aktif && $jenis->adalahUntukStaf(), 404);
-        $isian = $request->validate($jenis->aturanIsian(), [], $jenis->atributIsian())['isian'] ?? [];
-        $s = $this->alur->simpanDariFormat($request->user(), $jenis, $isian);
+        $data = $request->validate($jenis->aturanIsian() + $this->aturanTanggal(), $this->pesanTanggal(), $jenis->atributIsian() + ['tanggal_surat' => 'tanggal surat']);
+        $s = $this->alur->simpanDariFormat($request->user(), $jenis, $data['isian'] ?? [], null, $data['tanggal_surat'] ?? null);
 
         return redirect()->route('surat-keluar.show', $s)->with('sukses', 'Draf surat disimpan. Periksa pratinjau, lalu ajukan untuk '.(($s->data['paraf_role'] ?? null) ? 'paraf' : 'tanda tangan').'.');
     }
@@ -74,6 +74,29 @@ class SuratKeluarController extends Controller
         $s = $this->alur->simpan($request->user(), $this->validasi($request));
 
         return redirect()->route('surat-keluar.show', $s)->with('sukses', 'Draf surat disimpan. Periksa pratinjau, lalu ajukan untuk '.(($s->data['paraf_role'] ?? null) ? 'paraf' : 'tanda tangan').'.');
+    }
+
+    /** Pratinjau tampilan surat dari isian formulir yang belum disimpan (format TU atau surat bebas). */
+    public function pratinjau(Request $request, PenyusunSurat $penyusun)
+    {
+        abort_unless($this->alur->bolehMembuat($request->user()), 403);
+
+        if ($request->filled('format')) {
+            $jenis = JenisSurat::where('kode', $request->input('format'))->where('sasaran', 'staf')->with('penandatanganJabatan.pejabat')->firstOrFail();
+            $isian = $penyusun->isianPratinjau($jenis->field_formulir, (array) $request->input('isian', []));
+            $h = $penyusun->dariFormat($jenis, $isian, $request->user());
+            $html = $penyusun->htmlPratinjau($h['isi'], $jenis->judul_surat, $jenis->penandatanganJabatan, $jenis->mode_ttd ?? 'qr', $h['perihal'], $jenis->gaya_tanggal ?? 'dikeluarkan', $this->tanggalPratinjau($request));
+        } else {
+            $isi = $penyusun->suratUmum([
+                'lampiran' => trim((string) $request->input('lampiran')) ?: '-', 'perihal' => trim((string) $request->input('perihal')) ?: '[Perihal]',
+                'tujuan' => trim((string) $request->input('tujuan')) ?: '[Tujuan surat]', 'isi' => trim((string) $request->input('isi')) ?: '[Isi surat]',
+                'salam' => $request->boolean('salam'),
+            ]);
+            $jabatan = Jabatan::with('pejabat')->find($request->input('jabatan_id'));
+            $html = $penyusun->htmlPratinjau($isi, null, $jabatan, in_array($request->input('mode_ttd'), ['qr', 'basah'], true) ? $request->input('mode_ttd') : 'qr', '', 'dikeluarkan', $this->tanggalPratinjau($request));
+        }
+
+        return response()->json(['html' => $html]);
     }
 
     public function ubah(Request $request, Surat $surat)
@@ -93,8 +116,8 @@ class SuratKeluarController extends Controller
         abort_unless($this->alur->bolehMengubah($surat, $request->user()), 403);
         if ($surat->jenis_surat_id) {
             $jenis = $surat->jenis;
-            $isian = $request->validate($jenis->aturanIsian(), [], $jenis->atributIsian())['isian'] ?? [];
-            $this->alur->simpanDariFormat($request->user(), $jenis, $isian, $surat);
+            $data = $request->validate($jenis->aturanIsian() + $this->aturanTanggal(), $this->pesanTanggal(), $jenis->atributIsian() + ['tanggal_surat' => 'tanggal surat']);
+            $this->alur->simpanDariFormat($request->user(), $jenis, $data['isian'] ?? [], $surat, $data['tanggal_surat'] ?? null);
         } else {
             $this->alur->simpan($request->user(), $this->validasi($request), $surat);
         }
@@ -181,6 +204,28 @@ class SuratKeluarController extends Controller
         return redirect()->route('surat-keluar.index')->with('sukses', 'Draf dihapus.');
     }
 
+    /** Tanggal surat: dari 30 hari lalu sampai 90 hari ke depan (menjaga konsistensi nomor surat). */
+    private function aturanTanggal(): array
+    {
+        return ['tanggal_surat' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:'.now()->subDays(30)->toDateString(), 'before_or_equal:'.now()->addDays(90)->toDateString()]];
+    }
+
+    private function pesanTanggal(): array
+    {
+        return [
+            'tanggal_surat.date_format' => 'Tanggal surat tidak valid.',
+            'tanggal_surat.after_or_equal' => 'Tanggal surat tidak boleh lebih dari 30 hari ke belakang.',
+            'tanggal_surat.before_or_equal' => 'Tanggal surat tidak boleh lebih dari 90 hari ke depan.',
+        ];
+    }
+
+    private function tanggalPratinjau(Request $request): ?string
+    {
+        $t = (string) $request->input('tanggal_surat');
+
+        return preg_match('/^\d{4}-\d{2}-\d{2}$/', $t) && strtotime($t) ? $t : null;
+    }
+
     private function milik(Surat $s): void
     {
         abort_unless($s->arah === 'keluar' && $s->pengajuan_id === null, 404);
@@ -208,7 +253,7 @@ class SuratKeluarController extends Controller
             'jabatan_id' => ['required', Rule::exists('jabatan', 'id')->where('aktif', true)->whereNotNull('user_id')],
             'paraf_role' => ['nullable', Rule::in(['wakil_dekan', 'kaprodi'])],
             'mode_ttd' => ['required', Rule::in(['qr', 'basah'])],
-        ], [
+        ] + $this->aturanTanggal(), $this->pesanTanggal() + [
             'tujuan.required' => 'Tujuan surat wajib diisi.', 'perihal.required' => 'Perihal wajib diisi.', 'isi.required' => 'Isi surat wajib diisi.',
             'jabatan_id.required' => 'Pilih penandatangan.', 'klasifikasi_id.required' => 'Pilih klasifikasi.',
         ]);

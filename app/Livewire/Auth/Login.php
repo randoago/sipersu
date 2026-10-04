@@ -15,7 +15,7 @@ use Livewire\Component;
 #[Layout('layouts::guest')]
 class Login extends Component
 {
-    #[Validate('required|string', message: 'NIM/NIDN/NIP wajib diisi.')]
+    #[Validate('required|string', message: 'NPM/NIDN wajib diisi.')]
     public string $nomor_induk = '';
 
     #[Validate('required|string', message: 'Kata sandi wajib diisi.')]
@@ -44,7 +44,7 @@ class Login extends Component
             RateLimiter::hit($kunci, 60);
             LogAktivitas::catat('login_gagal', 'Percobaan masuk gagal', null, ['nomor_induk' => $this->nomor_induk], null);
             $this->reset('password');
-            throw ValidationException::withMessages(['nomor_induk' => 'NIM/NIDN/NIP atau kata sandi salah, atau akun tidak aktif.']);
+            throw ValidationException::withMessages(['nomor_induk' => 'NPM/NIDN atau kata sandi salah, atau akun tidak aktif.']);
         }
 
         RateLimiter::clear($kunci);

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id"><head><meta charset="utf-8"><title>{{ $nomor ?? 'Surat' }}</title>
 <style>
-    @page { size: A4 portrait; margin: 1.2cm 2.2cm 1.2cm 2.4cm; }
+    @page { size: A4 portrait; margin: 1.2cm 2.2cm 2.1cm 2.4cm; }
     body { margin: 0; }
     @include('pdf._gaya')
 </style></head><body>

@@ -80,14 +80,36 @@ class DokumentasiContohSurat extends Command
             }
 
             // Surat dari FORMAT buatan TU (menu Surat Keluar → Buat Surat)
-            $tugas = JenisSurat::where('kode', 'SURAT-TUGAS')->firstOrFail();
-            $st = $surat->simpanDariFormat($tu, $tugas, [
-                'nama_penerima' => 'Rando, S.Kom., M.Eng', 'nomor_induk' => '0912068502', 'jabatan_penerima' => 'Ketua Program Studi Rekayasa Sistem Komputer',
-                'uraian_tugas' => 'mengikuti Workshop Penyusunan Instrumen Akreditasi LAM Teknik', 'tempat' => 'Hotel Claro, Makassar',
-                'tgl_mulai' => '2026-11-02', 'tgl_selesai' => '2026-11-04',
-            ]);
-            $st = $surat->ajukan($st, $tu);
-            $berkas['09-surat-tugas-dari-format.pdf'] = $surat->tandatangani($st, $dekan);
+            $dariFormat = function (string $kode, array $isian, string $mode = 'qr') use ($surat, $tu, $dekan) {
+                $f = JenisSurat::where('kode', $kode)->firstOrFail();
+                $f->update(['mode_ttd' => $mode]);                       // dibatalkan oleh rollback di akhir
+                $x = $surat->simpanDariFormat($tu, $f, $isian);
+
+                return $surat->tandatangani($surat->ajukan($x, $tu), $dekan);
+            };
+            $undangan = [
+                'kepada' => "Bapak/Ibu TIM Akreditasi\nProdi Teknik Sipil UM. Buton\nDi -\nTempat", 'lampiran' => '-', 'perihal' => 'Undangan Rapat',
+                'sehubungan' => 'Pembahasan dan Persiapan Pelaksanaan Akreditasi Program Studi Teknik Sipil Fakultas Teknik Universitas Muhammadiyah Buton',
+                'sebagai' => 'menghadiri rapat', 'hari_tanggal' => '2025-08-19', 'waktu' => '10.00 - Selesai', 'tempat' => 'Ruang Dosen Fakultas Teknik', 'tembusan' => 'Arsip',
+            ];
+            $tugas = [
+                'dasar' => 'Berdasarkan ketentuan pelaksanaan Tridarma Perguruan Tinggi, yang meliputi kegiatan pendidikan, penelitian, serta pengabdian kepada masyarakat, serta dalam rangka mendukung peningkatan kinerja, profesionalisme, dan kontribusi dalam pengembangan ilmu pengetahuan kepada masyarakat yang dilaksanakan pada T.A Semester Genap 2025/2026,',
+                'ditugaskan' => [['La Sianto, S.T., M.T', 'Teknik Sipil'], ['Idwan, S.T., M.Si.', 'Teknik Sipil']],
+                'kegiatan' => 'Pengabdian Kepada Masyarakat', 'tema' => 'Pemberdayaan Masyarakat/Petani dalam Percepatan Peningkatan Tata Guna Air Irigasi',
+                'mitra' => 'BWS Sulawesi IV Kendari', 'waktu' => '21 April 2026 - Selesai', 'tembusan' => "Rektor Universitas Muhammadiyah Buton di Baubau\nYang bersangkutan\nArsip",
+            ];
+            $rekomendasi = [
+                'nama_penerima' => 'DARMAWAN, S.Kom.,M.Kom', 'nidn_penerima' => '0911048204', 'jabatan_penerima' => 'Kaprodi Rekayasa Sistem Komputer',
+                'unit_kerja' => 'Fakultas Teknik Universitas Muhammadiyah Buton',
+                'keperluan' => 'Untuk dapat ditugaskan sebagai tenaga pemeriksa ijazah S2, S1, D-4, dan Akreditasi BAN-PT dalam rangka penerimaan terpadu Polri T.A 2026 yang diadakan di Polres Baubau pada tanggal 9 s/d 30 Maret 2026.',
+                'tembusan' => "Rektor Universitas Muhammadiyah Buton di Baubau\nYang bersangkutan\nArsip",
+            ];
+            // Tiap format dibuat berpasangan: ber-QR (TTE) dan TANPA QR (tanda tangan basah + cap)
+            foreach ([['09-surat-undangan-dari-format', 'UNDANGAN-RAPAT', $undangan], ['11-surat-tugas-dari-format', 'SURAT-TUGAS', $tugas],
+                ['13-surat-tugas-rekomendasi-dari-format', 'SURAT-TUGAS-REKOMENDASI', $rekomendasi]] as [$nama, $kode, $isian]) {
+                $berkas["$nama.pdf"] = $dariFormat($kode, $isian, 'qr');
+                $berkas[(string) (substr($nama, 0, 2) + 1).substr($nama, 2).'-TANPA-QR.pdf'] = $dariFormat($kode, $isian, 'basah');
+            }
 
             foreach ($berkas as $f => $s) {
                 File::put($tujuan.DIRECTORY_SEPARATOR.$f, Storage::disk('local')->get($s->fresh()->file_pdf));

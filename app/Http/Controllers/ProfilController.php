@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\LogAktivitas;
+use App\Services\SpesimenService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -30,29 +31,20 @@ class ProfilController extends Controller
         return back()->with('sukses', 'Kata sandi berhasil diganti.');
     }
 
-    public function spesimen(Request $request)
+    /** Unggah spesimen sendiri: jenis "ttd" (tanda tangan saja) atau "stempel" (tanda tangan + stempel, dipakai surat ber-QR). */
+    public function spesimen(Request $request, SpesimenService $layanan)
     {
-        abort_unless($request->user()->hasAnyRole(['dekan', 'wakil_dekan', 'kaprodi']) || $request->user()->jabatanAktif()->exists(), 403);
-        $request->validate(['spesimen' => ['required', 'file', 'mimes:png,jpg,jpeg', 'max:2048', 'dimensions:min_width=100,min_height=50']], [
-            'spesimen.mimes' => 'Spesimen harus berformat PNG atau JPG.',
-            'spesimen.max' => 'Ukuran spesimen maksimal 2 MB.',
-            'spesimen.dimensions' => 'Gambar terlalu kecil (minimal 100×50 piksel).',
-        ]);
-        $u = $request->user();
-        if ($u->spesimen_ttd) {
-            Storage::disk('local')->delete($u->spesimen_ttd);
-        }
-        $ext = strtolower($request->file('spesimen')->guessExtension() ?: 'png');
-        $path = $request->file('spesimen')->storeAs('spesimen', 'user-'.$u->id.'-'.bin2hex(random_bytes(4)).'.'.$ext, 'local');
-        $u->update(['spesimen_ttd' => $path]);
-        LogAktivitas::catat('spesimen_ttd', 'Mengunggah spesimen tanda tangan');
+        abort_unless(SpesimenService::adalahPejabat($request->user()), 403);
+        $request->validate(['jenis' => ['nullable', 'in:ttd,stempel'], 'spesimen' => SpesimenService::ATURAN], SpesimenService::PESAN);
+        $layanan->simpan($request->user(), $request->input('jenis'), $request->file('spesimen'), $request->user());
 
-        return back()->with('sukses', 'Spesimen tanda tangan disimpan.');
+        return back()->with('sukses', 'Spesimen disimpan.');
     }
 
     public function lihatSpesimen(Request $request)
     {
-        $path = $request->user()->spesimen_ttd;
+        $u = $request->user();
+        $path = $request->query('jenis') === 'stempel' ? $u->spesimen_stempel : $u->spesimen_ttd;
         abort_unless($path && Storage::disk('local')->exists($path), 404);
 
         return Storage::disk('local')->response($path, null, ['Cache-Control' => 'private, max-age=60']);

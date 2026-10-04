@@ -83,7 +83,7 @@
                         <dt class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Identitas Pemohon</dt>
                         <dd class="mt-2 flex items-center gap-3">
                             <span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary-fixed font-label-md text-label-md text-primary">{{ $p->pemohon->inisial() }}</span>
-                            <span><span class="block font-label-lg text-label-lg">{{ $p->pemohon->nama }}</span><span class="block font-body-sm text-body-sm text-on-surface-variant tabular">NIM: {{ $p->pemohon->nomor_induk }}</span><span class="block font-label-sm text-label-sm text-primary">{{ $p->pemohon->prodi?->nama }} ({{ $p->pemohon->prodi?->jenjang }})</span></span>
+                            <span><span class="block font-label-lg text-label-lg">{{ $p->pemohon->nama }}</span><span class="block font-body-sm text-body-sm text-on-surface-variant tabular">NPM: {{ $p->pemohon->nomor_induk }}</span><span class="block font-label-sm text-label-sm text-primary">{{ $p->pemohon->prodi?->nama }} ({{ $p->pemohon->prodi?->jenjang }})</span></span>
                         </dd>
                     </div>
                     @foreach ($p->jenis->field_formulir as $f)

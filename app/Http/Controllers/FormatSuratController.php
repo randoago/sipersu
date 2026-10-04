@@ -16,7 +16,7 @@ use Illuminate\Validation\ValidationException;
 /** Format surat yang diatur TU: nama/kegunaan, daftar isian, templat, penandatangan, bentuk (QR/tanpa QR). */
 class FormatSuratController extends Controller
 {
-    private const TIPE = ['teks' => 'Teks pendek', 'area' => 'Teks panjang', 'tanggal' => 'Tanggal', 'angka' => 'Angka', 'pilihan' => 'Pilihan'];
+    private const TIPE = ['teks' => 'Teks pendek', 'area' => 'Teks panjang', 'tanggal' => 'Tanggal', 'angka' => 'Angka', 'pilihan' => 'Pilihan', 'daftar' => 'Daftar (satu per baris)', 'tabel' => 'Tabel (baris berulang)'];
 
     public function index(Request $request)
     {
@@ -84,26 +84,31 @@ class FormatSuratController extends Controller
         return redirect()->route('format-surat.ubah', $baru)->with('sukses', 'Format disalin (nonaktif). Sesuaikan lalu aktifkan.');
     }
 
-    /** Pratinjau isi surat dengan data contoh (tidak menyimpan apa pun). */
+    /** Pratinjau tampilan surat lengkap dengan data contoh (tidak menyimpan apa pun). */
     public function pratinjau(Request $request, PenyusunSurat $penyusun)
     {
         $fields = $this->bangunFields($request->input('fields', []), false);
         $isian = [];
         foreach ($fields as $f) {
             $isian[$f['nama']] = match ($f['tipe']) {
-                'tanggal' => now()->addDays(7)->translatedFormat('j F Y'), 'angka' => '1',
-                'pilihan' => $f['opsi'][0] ?? '…', default => '['.$f['label'].']',
+                'tanggal' => now()->addDays(7)->toDateString(), 'angka' => '1', 'pilihan' => $f['opsi'][0] ?? '…',
+                'tabel' => [array_map(fn ($k) => '['.$k.']', $f['kolom'] ?? [])], 'daftar' => "[{$f['label']} 1]\n[{$f['label']} 2]",
+                default => '['.$f['label'].']',
             };
         }
+        $isian = $penyusun->formatIsian($fields, $isian);
         $jabatan = Jabatan::with('pejabat')->find($request->input('penandatangan_jabatan_id'));
         $data = [
             'isian' => $isian, 'pembuat' => ['nama' => $request->user()->namaLengkap()],
-            'pemohon' => ['nama' => 'MUHAMMAD FAUZAN', 'nim' => '21650012', 'prodi' => 'Sistem dan Teknologi Informasi (S1)', 'ttl' => 'Baubau, 14 Mei 2002', 'alamat' => 'Jl. Pahlawan No. 42, Baubau', 'angkatan' => '2021'],
+            'pemohon' => ['nama' => 'MUHAMMAD FAUZAN', 'nim' => '21650012', 'npm' => '21650012', 'prodi' => 'Sistem dan Teknologi Informasi (S1)', 'ttl' => 'Baubau, 14 Mei 2002', 'alamat' => 'Jl. Pahlawan No. 42, Baubau', 'angkatan' => '2021'],
         ];
-        $html = $penyusun->badan($penyusun->bersihkanHtml((string) $request->input('template_html')), $data, $jabatan);
+        $isi = $penyusun->badan($penyusun->bersihkanHtml((string) $request->input('template_html')), $data, $jabatan);
         $judul = trim((string) $request->input('judul_surat'));
+        $mode = in_array($request->input('mode_ttd'), ['qr', 'basah'], true) ? $request->input('mode_ttd') : 'qr';
 
-        return response()->json(['html' => ($judul !== '' ? '<div class="judul">'.e(mb_strtoupper($judul)).'</div><div class="nomor">Nomor: 000/…/FT-UMB/…/'.now()->year.'</div>' : '').'<div class="isi">'.$html.'</div>']);
+        $gayaTanggal = $request->input('gaya_tanggal') === 'hijriah' ? 'hijriah' : 'dikeluarkan';
+
+        return response()->json(['html' => $penyusun->htmlPratinjau($isi, $judul !== '' ? $judul : null, $jabatan, $mode, '', $gayaTanggal)]);
     }
 
     // ---- util -------------------------------------------------------------------------------------------
@@ -117,7 +122,7 @@ class FormatSuratController extends Controller
             'jabatan' => Jabatan::with('pejabat')->where('aktif', true)->orderBy('nama')->get(),
             'fields' => old('fields', collect($f?->field_formulir ?? [])->map(fn ($x) => [
                 'nama' => $x['nama'], 'label' => $x['label'], 'tipe' => $x['tipe'], 'wajib' => (bool) ($x['wajib'] ?? false),
-                'placeholder' => $x['placeholder'] ?? '', 'opsi' => implode("\n", $x['opsi'] ?? []), 'lebar' => $x['lebar'] ?? 'penuh',
+                'placeholder' => $x['placeholder'] ?? '', 'opsi' => implode("\n", $x['opsi'] ?? []), 'kolom' => implode("\n", $x['kolom'] ?? []), 'lebar' => $x['lebar'] ?? 'penuh',
             ])->all()),
             'syarat' => old('syarat', collect($f?->syarat ?? [])->map(fn ($x) => ['label' => $x['label'], 'wajib' => (bool) ($x['wajib'] ?? false)])->all()),
         ];
@@ -143,6 +148,7 @@ class FormatSuratController extends Controller
             'sla_hari' => [$masuk ? 'nullable' : 'required', 'integer', 'min:1', 'max:30'],
             'urutan' => ['nullable', 'integer', 'min:0', 'max:999'],
             'template_html' => [$masuk ? 'nullable' : 'required', 'string', 'max:20000'],
+            'gaya_tanggal' => ['nullable', Rule::in(['dikeluarkan', 'hijriah'])],
         ], [
             'nama.required' => 'Nama format wajib diisi.', 'template_html.required' => 'Isi (templat) surat wajib diisi.',
             'klasifikasi_id.required' => 'Pilih klasifikasi untuk nomor surat.', 'penandatangan_jabatan_id.required' => 'Pilih penandatangan.',
@@ -150,12 +156,16 @@ class FormatSuratController extends Controller
         ]);
 
         $kolom['urutan'] = $kolom['urutan'] ?? 50;
+        $kolom['gaya_tanggal'] = $kolom['gaya_tanggal'] ?? 'dikeluarkan';
         $kolom['mode_ttd'] = $kolom['mode_ttd'] ?? 'qr';
         $kolom['sla_hari'] = $kolom['sla_hari'] ?? 1;
         $kolom['template_html'] = $kolom['template_html'] ?? '';
         $fields = $this->bangunFields($request->input('fields', []));
         if (! $fields && ! $masuk) {
             throw ValidationException::withMessages(['fields' => 'Tambahkan minimal satu isian.']);
+        }
+        if ($kolom['sasaran'] === 'mahasiswa' && collect($fields)->contains('tipe', 'tabel')) {
+            throw ValidationException::withMessages(['fields' => 'Isian bertipe Tabel belum didukung untuk surat mahasiswa (e-Layanan). Pakai Teks panjang atau Daftar.']);
         }
         // Token {{ isian.xxx }} pada templat harus ada di daftar isian.
         preg_match_all('/\{\{\s*isian\.([a-z0-9_]+)\s*\}\}/i', $kolom['template_html'], $m);
@@ -214,6 +224,16 @@ class FormatSuratController extends Controller
                 $f['lebar'] = 'setengah';
             }
             if ($tipe === 'area') {
+                $f['maks'] = 1000;
+            }
+            if ($tipe === 'tabel') {
+                $kolom = array_slice(array_values(array_filter(array_map(fn ($k) => Str::limit(trim($k), 60, ''), preg_split('/[\r\n]+/', (string) ($b['kolom'] ?? ''))))), 0, 6);
+                if (! $kolom && $ketat) {
+                    throw ValidationException::withMessages(['fields' => "Isian \"$label\" bertipe Tabel: isi nama kolom (satu per baris, maks. 6)."]);
+                }
+                $f['kolom'] = $kolom;
+            }
+            if ($tipe === 'daftar') {
                 $f['maks'] = 1000;
             }
             if ($tipe === 'pilihan') {

@@ -2,7 +2,7 @@
     $v = fn ($k, $b = null) => old($k, $f?->{$k} ?? $b);
     $hintPerihal = 'Boleh memakai isian, mis. {{ isian.nama_rapat }}. Kosong = memakai nama format.';
     $tokenTetap = [['pembuat.nama', 'Nama pembuat surat'], ['penandatangan.nama', 'Nama penandatangan'], ['penandatangan.jabatan', 'Jabatan penandatangan']];
-    $tokenMhs = [['pemohon.nama', 'Nama mahasiswa'], ['pemohon.nim', 'NIM'], ['pemohon.prodi', 'Program studi'], ['pemohon.ttl', 'Tempat, tanggal lahir'], ['pemohon.alamat', 'Alamat']];
+    $tokenMhs = [['pemohon.nama', 'Nama mahasiswa'], ['pemohon.npm', 'NPM'], ['pemohon.prodi', 'Program studi'], ['pemohon.ttl', 'Tempat, tanggal lahir'], ['pemohon.alamat', 'Alamat']];
 @endphp
 <x-layouts::app :title="$f ? 'Ubah Format Surat' : 'Tambah Format Surat'" :cari="false">
 <div class="mx-auto max-w-6xl"
@@ -69,6 +69,10 @@
                                 </span>
                             </div>
                         </div>
+                        <div class="mt-2" x-show="r.tipe === 'tabel'" x-cloak>
+                            <label class="mb-1 block font-label-md text-label-md">Kolom tabel <span class="font-normal text-on-surface-variant">(satu per baris, maks. 6; kolom "No" otomatis)</span></label>
+                            <textarea :name="`fields[${i}][kolom]`" x-model="r.kolom" rows="3" placeholder="Nama&#10;Program Studi" class="w-full rounded-lg border-outline-variant bg-surface-container-lowest font-body-sm text-body-sm focus:ring-2 focus:ring-primary"></textarea>
+                        </div>
                         <div class="mt-2" x-show="r.tipe === 'pilihan'" x-cloak>
                             <label class="mb-1 block font-label-md text-label-md">Daftar pilihan <span class="font-normal text-on-surface-variant">(satu per baris)</span></label>
                             <textarea :name="`fields[${i}][opsi]`" x-model="r.opsi" rows="3" class="w-full rounded-lg border-outline-variant bg-surface-container-lowest font-body-sm text-body-sm focus:ring-2 focus:ring-primary"></textarea>
@@ -87,6 +91,9 @@
                     <button type="button" @click="sisip('<strong>', '</strong>')" class="rounded-md bg-surface-container px-2.5 py-1 font-label-md text-label-md font-bold hover:bg-surface-container-high">Tebal</button>
                     <button type="button" @click="sisip('<em>', '</em>')" class="rounded-md bg-surface-container px-2.5 py-1 font-label-md text-label-md italic hover:bg-surface-container-high">Miring</button>
                     <button type="button" @click="tabel()" class="rounded-md bg-surface-container px-2.5 py-1 font-label-md text-label-md hover:bg-surface-container-high">▦ Tabel data</button>
+                    <button type="button" @click="sisip('{' + '%ttd%' + '}', '')" title="Bagian setelah penanda ini dicetak SETELAH blok tanda tangan (mis. Tembusan)" class="rounded-md bg-secondary-fixed/50 px-2.5 py-1 font-label-md text-label-md hover:bg-secondary-fixed">✍ Tanda tangan di sini</button>
+                    <span class="inline-flex items-center gap-1"><select x-model="kondisi" class="h-7 rounded-md border-outline-variant py-0 pl-2 pr-7 font-label-md text-label-md focus:ring-2 focus:ring-primary"><option value="">Blok bersyarat…</option><template x-for="r in isian.filter(x => x.nama)" :key="r.k"><option :value="r.nama" x-text="r.label"></option></template></select>
+                        <button type="button" @click="kondisi && sisip('{' + '% jika isian.' + kondisi + ' %' + '}', '{' + '% akhir %' + '}')" :disabled="!kondisi" title="Teks di dalam blok hanya tampil bila isian tersebut diisi" class="rounded-md bg-surface-container px-2 py-1 font-label-md text-label-md hover:bg-surface-container-high disabled:opacity-40">Sisipkan</button></span>
                 </div>
                 <div>
                     <p class="mb-1 font-label-md text-label-md text-on-surface-variant">Sisipkan isian:</p>
@@ -96,7 +103,7 @@
                     </div>
                 </div>
                 <x-textarea name="template_html" wajib rows="16" class="font-mono" x-ref="templat" spellcheck="false" bantuan="Gunakan tombol di atas; hasilnya berupa HTML sederhana (p, strong, em, table, ul, ol, br). Tag berbahaya dibuang otomatis.">{{ $v('template_html', "<p>Dengan hormat,</p>\n<p></p>\n<p>Demikian disampaikan, atas perhatian Bapak/Ibu diucapkan terima kasih.</p>") }}</x-textarea>
-                <x-tombol varian="lembut" ikon="visibility" x-on:click="pratinjau()">Lihat Pratinjau (data contoh)</x-tombol>
+                <x-tombol varian="lembut" ikon="visibility" x-on:click="pratinjau()">Lihat Tampilan Surat (data contoh)</x-tombol>
             </div>
         </x-kartu>
 
@@ -104,10 +111,14 @@
             <div class="grid gap-space-md md:grid-cols-2">
                 <x-select label="Klasifikasi (kode pada nomor surat / bawaan)" name="klasifikasi_id">@foreach ($klasifikasi as $k)<option value="{{ $k->id }}" @selected($v('klasifikasi_id') == $k->id)>{{ $k->kode }} — {{ $k->nama }}</option>@endforeach</x-select>
                 <div x-show="sasaran !== 'masuk'"><x-select label="Penandatangan" name="penandatangan_jabatan_id" wajib x-model="jabatan">@foreach ($jabatan as $j)<option value="{{ $j->id }}" @selected($v('penandatangan_jabatan_id') == $j->id)>{{ $j->nama }}{{ $j->pejabat ? ' — '.$j->pejabat->namaLengkap() : ' (belum ada pejabat)' }}</option>@endforeach</x-select></div>
+                <x-select label="Format tanggal pada blok tanda tangan" name="gaya_tanggal" class="md:col-span-2" x-show="sasaran !== 'masuk'" bantuan="Hijriah: “Baubau: 18 Syawal 1447 H / 06 April 2026 M”. Biasa: “Dikeluarkan di : Baubau / Pada tanggal : …”.">
+                    <option value="dikeluarkan" @selected($v('gaya_tanggal', 'dikeluarkan') === 'dikeluarkan')>Dikeluarkan di … / Pada tanggal …</option>
+                    <option value="hijriah" @selected($v('gaya_tanggal') === 'hijriah')>Baubau: tanggal Hijriah + Masehi</option>
+                </x-select>
                 <div class="md:col-span-2" x-show="sasaran !== 'masuk'" x-data="{ m: @js($v('mode_ttd', 'qr')) }">
                     <p class="mb-1.5 font-label-lg text-label-lg">Bentuk surat</p>
                     <div class="grid gap-3 md:grid-cols-2">
-                        @foreach (['qr' => ['Surat ber-QR (TTE)', 'Tanda tangan elektronik + QR yang dapat diverifikasi publik, tanpa cap.', 'qr_code_2'], 'basah' => ['Surat tanpa QR', 'Nomor tetap otomatis; PDF dicetak, ditandatangani basah dan dicap.', 'print']] as $k => [$j, $d, $i])
+                        @foreach (['qr' => ['Surat ber-QR (TTE)', 'Tanda tangan elektronik + QR (dapat diverifikasi publik) dengan spesimen tanda tangan & stempel pejabat.', 'qr_code_2'], 'basah' => ['Surat tanpa QR', 'Nomor tetap otomatis; PDF disiapkan KOSONG (tanpa tanda tangan dan stempel) untuk dibubuhi manual.', 'print']] as $k => [$j, $d, $i])
                             <label class="flex cursor-pointer gap-3 rounded-xl border-2 p-3 transition" :class="m === '{{ $k }}' ? 'border-primary-container bg-primary-fixed/20' : 'border-outline-variant hover:bg-surface-container-low'"><input type="radio" name="mode_ttd" value="{{ $k }}" x-model="m" class="mt-1 text-primary focus:ring-primary"><span><span class="flex items-center gap-1.5 font-label-lg text-label-lg"><x-ikon name="{{ $i }}" class="text-[18px] text-primary" />{{ $j }}</span><span class="block font-body-sm text-body-sm text-on-surface-variant">{{ $d }}</span></span></label>
                         @endforeach
                     </div>
@@ -139,28 +150,21 @@
             </div>
         </x-kartu>
 
-        <div class="flex justify-end gap-2"><x-tombol :href="route('format-surat.index')" varian="sekunder">Batal</x-tombol><x-tombol type="submit" ikon="save">Simpan Format</x-tombol></div>
+        <div class="flex flex-wrap justify-end gap-2"><x-tombol :href="route('format-surat.index')" varian="sekunder">Batal</x-tombol><x-tombol varian="lembut" ikon="visibility" x-on:click="pratinjau()" x-show="sasaran !== 'masuk'">Lihat Tampilan Surat</x-tombol><x-tombol type="submit" ikon="save">Simpan Format</x-tombol></div>
     </form>
 
-    {{-- Pratinjau --}}
-    <div x-show="lihat" x-cloak class="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-[#0f172a]/45 p-4" @keydown.escape.window="lihat = false">
-        <div class="my-6 w-full max-w-3xl rounded-lg bg-surface-container-lowest shadow-modal" @click.outside="lihat = false">
-            <div class="flex items-center justify-between border-b border-surface-container px-space-lg py-space-md"><h3 class="font-headline-md text-headline-md">Pratinjau (data contoh)</h3><button type="button" @click="lihat = false" class="rounded p-1 hover:bg-surface-container" aria-label="Tutup"><x-ikon name="close" class="text-[20px]" /></button></div>
-            <style>@include('pdf._gaya')</style>
-            <div class="bg-surface-container-high/60 p-4"><div class="surat layar mx-auto min-h-[400px] max-w-[700px] bg-white px-10 py-8 shadow" x-html="html"></div></div>
-        </div>
-    </div>
+    <x-pratinjau-surat />
 </div>
 @push('skrip')
 <script>
 function builder(isian, syarat, sasaran, tokenTetap, tokenMhs, urlPratinjau) {
     let n = 0;
     return {
-        n: 0, sasaran, jabatan: null, lihat: false, html: '',
+        n: 0, sasaran, jabatan: null, kondisi: '',
         isian: isian.map(r => ({ ...r, k: ++n, baru: false, wajib: !!r.wajib })),
         syarat: syarat.map(s => ({ ...s, k: ++n, wajib: !!s.wajib })),
         init() { this.n = n; },
-        tambah() { this.isian.push({ k: ++n, nama: '', label: '', tipe: 'teks', lebar: 'penuh', wajib: true, placeholder: '', opsi: '', baru: true }); this.n = n; },
+        tambah() { this.isian.push({ k: ++n, nama: '', label: '', tipe: 'teks', lebar: 'penuh', wajib: true, placeholder: '', opsi: '', kolom: '', baru: true }); this.n = n; },
         hapus(i) { this.isian.splice(i, 1); },
         naik(i) { if (i > 0) this.isian.splice(i - 1, 2, this.isian[i], this.isian[i - 1]); },
         turun(i) { if (i < this.isian.length - 1) this.isian.splice(i, 2, this.isian[i + 1], this.isian[i]); },
@@ -182,15 +186,10 @@ function builder(isian, syarat, sasaran, tokenTetap, tokenMhs, urlPratinjau) {
         tok(k) { return '{' + '{ ' + k + ' }' + '}'; },
         sisipToken(k) { this.sisip(this.tok(k), ''); },
         tabel() {
-            const baris = this.isian.filter(r => r.nama).map(r => `  <tr><td width="32%">${r.label}</td><td width="3%">:</td><td>${this.tok('isian.' + r.nama)}</td></tr>`).join('\n');
+            const baris = this.isian.filter(r => r.nama && !['tabel', 'daftar'].includes(r.tipe)).map(r => `  <tr><td width="32%">${r.label}</td><td width="3%">:</td><td>${this.tok('isian.' + r.nama)}</td></tr>`).join('\n');
             this.sisip(`<table class="data">\n${baris || '  <tr><td>Keterangan</td><td>:</td><td></td></tr>'}\n</table>\n`, '');
         },
-        async pratinjau() {
-            const fd = new FormData(this.$refs.form); fd.delete('_method');
-            const r = await fetch(urlPratinjau, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' } });
-            this.html = r.ok ? (await r.json()).html : '<p>Pratinjau gagal: periksa isian (ada isian bertipe pilihan tanpa opsi?).</p>';
-            this.lihat = true;
-        },
+        pratinjau() { return window.pratinjauSurat(urlPratinjau, this.$refs.form); },
     };
 }
 </script>

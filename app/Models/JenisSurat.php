@@ -42,8 +42,22 @@ class JenisSurat extends Model
     {
         $aturan = [];
         foreach ($this->field_formulir as $f) {
+            if ($f['tipe'] === 'tabel') {
+                $wajib = (bool) ($f['wajib'] ?? false);
+                $aturan[$awalan.$f['nama']] = [$wajib ? 'required' : 'nullable', 'array', 'max:30', function ($atribut, $nilai, $gagal) use ($wajib, $f) {
+                    $ada = collect((array) $nilai)->contains(fn ($b) => is_array($b) && array_filter($b, fn ($x) => trim((string) $x) !== ''));
+                    if ($wajib && ! $ada) {
+                        $gagal('Isi minimal satu baris pada tabel "'.mb_strtolower($f['label']).'".');
+                    }
+                }];
+                $aturan[$awalan.$f['nama'].'.*'] = ['nullable', 'array', 'max:'.max(1, count($f['kolom'] ?? []))];
+                $aturan[$awalan.$f['nama'].'.*.*'] = ['nullable', 'string', 'max:200'];
+
+                continue;
+            }
             $r = [($f['wajib'] ?? false) ? 'required' : 'nullable'];
             $r = array_merge($r, match ($f['tipe']) {
+                'daftar' => ['string', 'max:'.($f['maks'] ?? 1000)],
                 'area' => ['string', 'max:'.($f['maks'] ?? 1000)],
                 'tanggal' => ['date', $f['nama'] === 'tgl_selesai' ? 'after_or_equal:'.$awalan.'tgl_mulai' : ($tanggalBolehLampau ? 'date' : 'after_or_equal:today')],
                 'angka' => ['numeric', 'min:0', 'max:100000000'],

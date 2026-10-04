@@ -130,38 +130,49 @@ class FormatSuratTest extends TestCase
     public function test_menu_buat_surat_menampilkan_format_staf_saja(): void
     {
         $this->actingAs($this->u('198701012010011001'))->get('/surat-keluar/buat')->assertOk()
-            ->assertSee('Surat Undangan Rapat')->assertSee('Surat Tugas')->assertSee('Surat Bebas')->assertDontSee('Surat Cuti Akademik');
+            ->assertSee('Surat Undangan')->assertSee('Surat Tugas')->assertSee('Surat Bebas')->assertDontSee('Surat Cuti Akademik');
         $this->actingAs($this->u('21650012'))->get('/surat-keluar/buat')->assertForbidden();
     }
 
     public function test_mengisi_formulir_membuat_draf_dengan_isi_dirender_dan_aman_dari_xss(): void
     {
         $tu = $this->u('198701012010011001');
-        $this->actingAs($tu)->get('/surat-keluar/format/SURAT-TUGAS')->assertOk()->assertSee('Nama yang ditugaskan')->assertSee('Uraian tugas');
+        $this->actingAs($tu)->get('/surat-keluar/format/SURAT-TUGAS')->assertOk()->assertSee('Yang ditugaskan')->assertSee('Tambah Baris')->assertSee('Program Studi');
 
         $this->actingAs($tu)->post('/surat-keluar/format/SURAT-TUGAS', ['isian' => [
-            'nama_penerima' => 'Dosen <script>x</script> Contoh', 'nomor_induk' => '0912088704', 'jabatan_penerima' => 'Dosen',
-            'uraian_tugas' => "mengikuti pelatihan\nakreditasi", 'tempat' => 'Makassar', 'tgl_mulai' => '2026-11-02', 'tgl_selesai' => '2026-11-04',
+            'dasar' => "Berdasarkan ketentuan Tridarma\nPerguruan Tinggi <script>x</script>",
+            'ditugaskan' => [['La Sianto, S.T., M.T', 'Teknik Sipil'], ['Rando <b>X</b>', 'Rekayasa Sistem Komputer'], ['', '']],
+            'kegiatan' => 'Pengabdian Kepada Masyarakat', 'tema' => 'Tata Guna Air Irigasi', 'mitra' => '', 'waktu' => '21 April 2026 - Selesai',
+            'tembusan' => "1. Rektor Universitas Muhammadiyah Buton\n- Yang bersangkutan\nArsip",
         ]])->assertRedirect();
 
         $s = Surat::firstOrFail();
         $this->assertSame('draf', $s->status);
-        $this->assertStringContainsString('Surat Tugas', $s->perihal);
-        $this->assertStringContainsString('2 November 2026', $s->isi_html);
-        $this->assertStringContainsString('mengikuti pelatihan<br>akreditasi', $s->isi_html);
-        $this->assertStringContainsString('Dekan Fakultas Teknik', $s->isi_html, 'token penandatangan');
-        $this->assertStringNotContainsString('<script', $s->isi_html);
         $this->assertSame('II.6.SK', $s->klasifikasi->kode);
-        $this->assertNotNull($s->jenis_surat_id);
-        $this->actingAs($tu)->get("/surat-keluar/{$s->id}")->assertOk()->assertSee('SURAT TUGAS');
+        $this->assertStringContainsString('Surat Tugas', $s->perihal);
+        $h = $s->isi_html;
+        $this->assertStringContainsString('<table class="tabel-isi">', $h);
+        $this->assertStringContainsString('<th>Program Studi</th>', $h);
+        $this->assertStringContainsString('<td>La Sianto, S.T., M.T</td>', $h);
+        $this->assertStringContainsString('<td align="center">2.</td>', $h);
+        $this->assertStringNotContainsString('<td align="center">3.</td>', $h, 'baris kosong dibuang');
+        $this->assertStringContainsString('Rando &lt;b&gt;X&lt;/b&gt;', $h, 'isi sel di-escape');
+        $this->assertStringNotContainsString('<script', $h);
+        $this->assertStringContainsString('Dekan Fakultas Teknik Universitas Muhammadiyah Buton Menugaskan', $h);
+        $this->assertStringContainsString('<ol class="daftar-isi"><li>Rektor Universitas Muhammadiyah Buton</li><li>Yang bersangkutan</li><li>Arsip</li></ol>', $h, 'nomor/penanda awal baris dibuang');
+        $this->assertStringContainsString('Tema', $h);
+        $this->assertStringNotContainsString('>Mitra<', $h, 'baris bersyarat hilang bila kosong');
+        $this->assertStringContainsString('{%ttd%}', $h, 'penanda posisi tanda tangan tersimpan');
+        $this->actingAs($tu)->get("/surat-keluar/{$s->id}")->assertOk()->assertSee('SURAT TUGAS')->assertSee('Tembusan:');
+        $this->assertEquals([['La Sianto, S.T., M.T', 'Teknik Sipil'], ['Rando <b>X</b>', 'Rekayasa Sistem Komputer'], ['', '']], $s->data['isian_mentah']['ditugaskan']);
     }
 
-    public function test_validasi_isian_wajib_dan_tanggal_selesai_tidak_boleh_sebelum_mulai(): void
+    public function test_validasi_isian_wajib_tabel_dan_daftar(): void
     {
         $tu = $this->actingAs($this->u('198701012010011001'));
-        $tu->post('/surat-keluar/format/SURAT-TUGAS', ['isian' => ['nama_penerima' => '']])->assertSessionHasErrors(['isian.nama_penerima', 'isian.uraian_tugas', 'isian.tempat', 'isian.tgl_mulai']);
-        $tu->post('/surat-keluar/format/SURAT-TUGAS', ['isian' => ['nama_penerima' => 'A', 'uraian_tugas' => 'x', 'tempat' => 'y', 'tgl_mulai' => '2026-11-10', 'tgl_selesai' => '2026-11-01']])
-            ->assertSessionHasErrors('isian.tgl_selesai');
+        $tu->post('/surat-keluar/format/SURAT-TUGAS', ['isian' => ['dasar' => '']])->assertSessionHasErrors(['isian.dasar', 'isian.ditugaskan', 'isian.kegiatan', 'isian.waktu']);
+        $tu->post('/surat-keluar/format/SURAT-TUGAS', ['isian' => ['dasar' => 'x', 'kegiatan' => 'y', 'waktu' => 'z', 'ditugaskan' => [['', '']]]])->assertSessionHasErrors('isian.ditugaskan');
+        $tu->post('/surat-keluar/format/SURAT-TUGAS', ['isian' => ['dasar' => 'x', 'kegiatan' => 'y', 'waktu' => 'z', 'ditugaskan' => [['A', 'B']], 'tembusan' => str_repeat('a', 1100)]])->assertSessionHasErrors('isian.tembusan');
         $this->assertSame(0, Surat::count());
     }
 
@@ -169,7 +180,7 @@ class FormatSuratTest extends TestCase
     {
         $tu = $this->u('198701012010011001');
         $dekan = $this->u('0912038401');
-        $isian = ['kepada' => "Ketua Prodi\ndi Tempat", 'nama_rapat' => 'Rapat Mutu', 'hari_tanggal' => '2026-10-20', 'waktu' => '09.00', 'tempat' => 'Aula'];
+        $isian = ['kepada' => "Ketua Prodi\ndi Tempat", 'perihal' => 'Undangan Rapat Mutu', 'sehubungan' => 'persiapan akreditasi', 'sebagai' => 'menghadiri rapat', 'hari_tanggal' => '2026-10-20', 'waktu' => '09.00', 'tempat' => 'Aula'];
 
         $this->actingAs($tu)->post('/surat-keluar/format/UNDANGAN-RAPAT', ['isian' => $isian])->assertRedirect();
         $this->actingAs($tu)->post('/surat-keluar/format/SURAT-PEMBERITAHUAN', ['isian' => ['kepada' => 'Semua Dosen', 'hal' => 'Libur', 'isi' => 'Kampus libur.']])->assertRedirect();

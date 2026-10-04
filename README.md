@@ -5,6 +5,7 @@ Laravel 12 · Livewire · Alpine.js · Tailwind (dikompilasi sekali) · SQLite �
 
 - **Pasang di Windows:** baca [INSTALL.md](INSTALL.md)
 - **Contoh surat & dokumentasi:** folder [documentation/](documentation/)
+- **Cara kerja tanda tangan elektronik (enkripsi, kunci, QR, verifikasi):** [documentation/cara-kerja-tanda-tangan-elektronik.md](documentation/cara-kerja-tanda-tangan-elektronik.md)
 - **Aset gambar kop/logo/tanda tangan:** [template/img/](template/img/)
 
 ## Pengembangan

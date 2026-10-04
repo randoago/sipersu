@@ -41,9 +41,11 @@ class TandaTanganService
                 }
 
                 $sekarang = now();
-                $s->nomor = $this->penomoran->terbitkan($s->klasifikasi, $sekarang);
+                // Tanggal surat: yang dipilih pembuat; bila tidak dipilih = hari penandatanganan. Nomor (bulan/tahun) mengikutinya.
+                $tglSurat = $s->tgl_surat ? $s->tgl_surat->copy()->startOfDay() : $sekarang->copy()->startOfDay();
+                $s->nomor = $this->penomoran->terbitkan($s->klasifikasi, $tglSurat);
                 $s->qr_token = Str::random(43);
-                $s->tgl_surat = $sekarang->toDateString();
+                $s->tgl_surat = $tglSurat->toDateString();
                 $s->penandatangan_id = $penandatangan->id;
                 $s->penandatangan_nama = $penandatangan->namaLengkap();
                 $s->penandatangan_jabatan = $jabatan->nama;

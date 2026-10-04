@@ -5,7 +5,10 @@
     @include('master._tab')
     <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <form method="get" class="relative sm:w-80"><x-ikon name="search" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[20px] text-outline" /><input name="q" value="{{ $q }}" placeholder="Cari {{ mb_strtolower($d['judul']) }}…" class="h-10 w-full rounded-lg border-outline-variant bg-surface-container-lowest pl-10 font-body-md text-body-md focus:ring-2 focus:ring-primary"></form>
-        <x-tombol :href="route('master.buat', $entitas)" ikon="add">Tambah {{ $d['judul'] }}</x-tombol>
+        <div class="flex gap-2">
+            @if ($entitas === 'pengguna')<x-tombol :href="route('master.impor')" varian="sekunder" ikon="upload_file">Impor CSV</x-tombol>@endif
+            <x-tombol :href="route('master.buat', $entitas)" ikon="add">Tambah {{ $d['judul'] }}</x-tombol>
+        </div>
     </div>
     <x-tabel :jumlah="$daftar->count()">
         <x-slot:kepala>@foreach ($d['kolom'] as $k)<th class="px-4">{{ $k[0] }}</th>@endforeach<th>Status</th><th class="px-4 text-right">Aksi</th></x-slot:kepala>

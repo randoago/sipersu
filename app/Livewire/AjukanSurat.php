@@ -112,6 +112,19 @@ class AjukanSurat extends Component
         $this->langkah = max(1, $this->langkah - 1);
     }
 
+    /** Pratinjau tampilan surat dari isian saat ini (belum dikirim). */
+    public function pratinjau(\App\Services\PenyusunSurat $penyusun): void
+    {
+        $isian = $penyusun->isianPratinjau($this->jenis->field_formulir, $this->isian);
+        $p = new \App\Models\Pengajuan(['data_isian' => $isian]);
+        $p->setRelation('pemohon', auth()->user()->loadMissing('prodi'));
+        $p->setRelation('jenis', $this->jenis);
+        $jabatan = $this->jenis->penandatanganJabatan;
+        $isi = $penyusun->badan($this->jenis->template_html, $penyusun->dataPengajuan($p), $jabatan);
+
+        $this->dispatch('tampil-pratinjau', html: $penyusun->htmlPratinjau($isi, $this->jenis->judul_surat, $jabatan, $this->jenis->mode_ttd ?? 'qr'));
+    }
+
     public function kirim(AlurPengajuan $alur)
     {
         $this->validate($this->aturanIsian() + $this->aturanBerkas() + ['setuju' => ['accepted']], ['setuju.accepted' => 'Centang pernyataan kebenaran data terlebih dahulu.'], $this->namaAtribut());

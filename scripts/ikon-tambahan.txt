@@ -46,3 +46,6 @@ assignment_ind
 campaign
 event
 edit_note
+upload_file
+file_download
+file_present

@@ -16,18 +16,24 @@
     </x-kartu>
 
     @if ($pejabat)
-        <x-kartu judul="Spesimen Tanda Tangan" ikon="draw" deskripsi="Dicetak pada surat yang Anda tandatangani, di samping kode QR.">
-            <div class="flex flex-col gap-5 sm:flex-row sm:items-start">
-                <div class="flex h-32 w-52 shrink-0 items-center justify-center rounded-lg border border-dashed border-outline-variant bg-white p-2">
-                    @if ($u->spesimen_ttd)<img src="{{ route('profil.spesimen.lihat') }}?v={{ md5($u->spesimen_ttd) }}" alt="Spesimen tanda tangan" class="max-h-full max-w-full object-contain">@else<span class="text-center font-body-sm text-body-sm text-on-surface-variant">Belum ada spesimen</span>@endif
-                </div>
-                <form method="post" action="{{ route('profil.spesimen') }}" enctype="multipart/form-data" class="flex-1 space-y-3">@csrf
-                    <input type="file" name="spesimen" accept="image/png,image/jpeg" required class="block w-full rounded-lg border border-outline-variant bg-surface-container-lowest font-body-sm text-body-sm file:mr-3 file:border-0 file:bg-surface-container-high file:px-4 file:py-2.5 file:font-label-md">
-                    @error('spesimen')<p class="font-body-sm text-body-sm text-[#e11d48]">{{ $message }}</p>@enderror
-                    <p class="font-body-sm text-body-sm text-on-surface-variant">PNG (latar transparan disarankan) atau JPG, maks. 2 MB. Spesimen disimpan di penyimpanan privat.</p>
-                    <x-tombol type="submit" ikon="upload">Unggah Spesimen</x-tombol>
-                </form>
+        <x-kartu judul="Spesimen Tanda Tangan & Stempel" ikon="draw" deskripsi="Dicetak pada surat ber-QR yang Anda tandatangani, di samping kode QR. Surat tanpa QR dibiarkan kosong.">
+            <div class="grid gap-5 md:grid-cols-2">
+                @foreach (['stempel' => ['Tanda tangan + stempel', 'Dipakai pada surat ber-QR (disarankan). Bila belum diunggah, dipakai spesimen tanpa stempel.', $u->spesimen_stempel], 'ttd' => ['Tanda tangan saja (tanpa stempel)', 'Cadangan bila spesimen berstempel belum ada.', $u->spesimen_ttd]] as $jenis => [$judul, $ket, $ada])
+                    <div class="space-y-3 rounded-lg border border-outline-variant/60 p-space-md">
+                        <div><p class="font-label-lg text-label-lg">{{ $judul }}</p><p class="font-body-sm text-body-sm text-on-surface-variant">{{ $ket }}</p></div>
+                        <div class="flex h-32 items-center justify-center rounded-lg border border-dashed border-outline-variant bg-white p-2">
+                            @if ($ada)<img src="{{ route('profil.spesimen.lihat', ['jenis' => $jenis]) }}&v={{ md5($ada) }}" alt="Spesimen {{ $judul }}" class="max-h-full max-w-full object-contain">@else<span class="text-center font-body-sm text-body-sm text-on-surface-variant">Belum ada spesimen</span>@endif
+                        </div>
+                        <form method="post" action="{{ route('profil.spesimen') }}" enctype="multipart/form-data" class="space-y-2">@csrf
+                            <input type="hidden" name="jenis" value="{{ $jenis }}">
+                            <input type="file" name="spesimen" accept="image/png,image/jpeg" required class="block w-full rounded-lg border border-outline-variant bg-surface-container-lowest font-body-sm text-body-sm file:mr-3 file:border-0 file:bg-surface-container-high file:px-3 file:py-2 file:font-label-md">
+                            @if (old('jenis') === $jenis) @error('spesimen')<p class="font-body-sm text-body-sm text-[#e11d48]">{{ $message }}</p>@enderror @endif
+                            <x-tombol type="submit" ukuran="sm" ikon="upload">Unggah</x-tombol>
+                        </form>
+                    </div>
+                @endforeach
             </div>
+            <p class="mt-3 font-body-sm text-body-sm text-on-surface-variant">PNG (latar transparan disarankan) atau JPG, maks. 2 MB. Disimpan di penyimpanan privat.</p>
         </x-kartu>
     @endif
 

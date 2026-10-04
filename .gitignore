@@ -23,6 +23,7 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 
+/template/img
 /database/*.sqlite
 /database/*.sqlite-*
 /storage/keys

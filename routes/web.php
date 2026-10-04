@@ -33,6 +33,14 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dasbor', \App\Http\Controllers\DasborController::class)->name('dasbor');
 
+    // Konversi tanggal Masehi → Hijriah (dipakai pemilih tanggal surat)
+    Route::get('/tanggal/hijriah', function (\Illuminate\Http\Request $r) {
+        $d = $r->validate(['tgl' => ['required', 'date_format:Y-m-d']]);
+        $c = \Illuminate\Support\Carbon::createFromFormat('!Y-m-d', $d['tgl']);
+
+        return ['hijriah' => \App\Support\TanggalHijriah::format($c), 'masehi' => $c->translatedFormat('l, j F Y')];
+    })->name('tanggal.hijriah');
+
     // e-Layanan mahasiswa
     Route::get('/layanan', [PengajuanController::class, 'katalog'])->name('layanan.katalog');
     Route::get('/layanan/lacak', [PengajuanController::class, 'lacak'])->name('layanan.lacak');
@@ -79,6 +87,17 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('role:super_admin|admin_tu')->prefix('master')->name('master.')->group(function () {
         Route::redirect('/', '/master/pengguna')->name('index');
+        $sp = \App\Http\Controllers\SpesimenController::class;
+        Route::get('/spesimen', [$sp, 'index'])->name('spesimen');
+        Route::post('/spesimen/{user}', [$sp, 'simpan'])->name('spesimen.simpan');
+        Route::delete('/spesimen/{user}/{jenis}', [$sp, 'hapus'])->name('spesimen.hapus');
+        Route::get('/spesimen/{user}/lihat', [$sp, 'lihat'])->name('spesimen.lihat');
+        $ip = \App\Http\Controllers\ImporPenggunaController::class;
+        Route::get('/pengguna/impor', [$ip, 'form'])->name('impor');
+        Route::get('/pengguna/impor/templat', [$ip, 'templat'])->name('impor.templat');
+        Route::post('/pengguna/impor/periksa', [$ip, 'periksa'])->name('impor.periksa');
+        Route::post('/pengguna/impor/proses', [$ip, 'proses'])->name('impor.proses');
+        Route::get('/pengguna/impor/hasil', [$ip, 'hasil'])->name('impor.hasil');
         $e = ['entitas' => 'pengguna|prodi|jabatan|klasifikasi'];
         Route::get('/{entitas}', [\App\Http\Controllers\MasterController::class, 'daftar'])->where($e)->name('daftar');
         Route::get('/{entitas}/buat', [\App\Http\Controllers\MasterController::class, 'buat'])->where($e)->name('buat');
@@ -115,6 +134,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/surat-keluar/format/{jenis:kode}', [$sk, 'isi'])->name('surat-keluar.isi');
     Route::post('/surat-keluar/format/{jenis:kode}', [$sk, 'simpanFormat'])->name('surat-keluar.simpan-format');
     Route::post('/surat-keluar', [$sk, 'simpan'])->name('surat-keluar.simpan');
+    Route::post('/surat-keluar/pratinjau', [$sk, 'pratinjau'])->name('surat-keluar.pratinjau');
     Route::get('/surat-keluar/{surat}', [$sk, 'show'])->name('surat-keluar.show');
     Route::get('/surat-keluar/{surat}/ubah', [$sk, 'ubah'])->name('surat-keluar.ubah');
     Route::put('/surat-keluar/{surat}', [$sk, 'perbarui'])->name('surat-keluar.perbarui');

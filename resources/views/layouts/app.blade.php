@@ -133,7 +133,42 @@
         </nav>
     @endif
 
+    <script>
+        /** Data Alpine untuk komponen tanggal-surat: konversi Masehi → Hijriah lewat server (ikut koreksi Hijriah di Pengaturan). */
+        window.tanggalSurat = function (awal, url, hariIni) {
+            return {
+                tgl: awal, hariIni, hijriah: '', masehi: '',
+                init() { this.hitung(); },
+                hariIniKlik() { this.tgl = this.hariIni; this.hitung(); },
+                async hitung() {
+                    if (!this.tgl) { this.hijriah = ''; this.masehi = ''; return; }
+                    try {
+                        const r = await fetch(url + '?tgl=' + encodeURIComponent(this.tgl), { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                        if (!r.ok) throw new Error();
+                        const d = await r.json();
+                        this.hijriah = d.hijriah; this.masehi = d.masehi;
+                    } catch (e) { this.hijriah = '(tidak dapat dihitung)'; this.masehi = ''; }
+                },
+            };
+        };
+    </script>
     @livewireScripts
+    <script>
+        /** Kirim isian formulir ke server untuk dirender menjadi tampilan surat, lalu buka modal pratinjau. */
+        window.pratinjauSurat = async function (url, form, tambahan) {
+            const fd = new FormData(form);
+            fd.delete('_method');
+            Object.entries(tambahan || {}).forEach(([k, v]) => fd.set(k, v));
+            let html;
+            try {
+                const r = await fetch(url, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' } });
+                html = r.ok ? (await r.json()).html : '<p>Pratinjau gagal dimuat (' + r.status + '). Periksa isian lalu coba lagi.</p>';
+            } catch (e) {
+                html = '<p>Pratinjau gagal dimuat. Periksa koneksi ke server.</p>';
+            }
+            window.dispatchEvent(new CustomEvent('tampil-pratinjau', { detail: { html } }));
+        };
+    </script>
     @stack('skrip')
 </body>
 </html>

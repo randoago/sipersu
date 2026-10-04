@@ -56,12 +56,23 @@ class AlurSuratKeluar
         return $s->status === 'ditandatangani' && ($u->adalahAdmin() || $s->penandatangan_id === $u->id);
     }
 
+    /** Tanggal yang dipilih = tanggal surat; kosong atau sama dengan hari ini = ikut hari penandatanganan (disimpan null). */
+    public static function tanggalPilihan(?string $tgl): ?string
+    {
+        if (! $tgl || $tgl === now()->toDateString()) {
+            return null;
+        }
+
+        return $tgl;
+    }
+
     public function simpan(User $pembuat, array $d, ?Surat $surat = null): Surat
     {
         $isi = $this->penyusun->suratUmum($d);
         $atribut = [
             'arah' => 'keluar', 'klasifikasi_id' => $d['klasifikasi_id'], 'perihal' => $d['perihal'], 'sifat' => $d['sifat'],
             'asal_tujuan' => preg_split('/\R/', trim($d['tujuan']))[0], 'isi_html' => $isi, 'jabatan_id' => $d['jabatan_id'], 'mode_ttd' => $d['mode_ttd'] ?? 'qr',
+            'tgl_surat' => self::tanggalPilihan($d['tanggal_surat'] ?? null),
             'data' => ['umum' => true, 'tujuan' => $d['tujuan'], 'lampiran' => $d['lampiran'] ?? '', 'isi' => $d['isi'], 'salam' => ! empty($d['salam']), 'paraf_role' => $d['paraf_role'] ?: null],
         ];
         if ($surat) {
@@ -75,13 +86,13 @@ class AlurSuratKeluar
     }
 
     /** Surat dari format TU: isian dirender ke templat; klasifikasi, penandatangan, paraf, dan bentuk QR mengikuti format. */
-    public function simpanDariFormat(User $pembuat, \App\Models\JenisSurat $jenis, array $isian, ?Surat $surat = null): Surat
+    public function simpanDariFormat(User $pembuat, \App\Models\JenisSurat $jenis, array $isian, ?Surat $surat = null, ?string $tanggalSurat = null): Surat
     {
         $h = $this->penyusun->dariFormat($jenis, $isian, $pembuat);
         $atribut = [
             'arah' => 'keluar', 'klasifikasi_id' => $jenis->klasifikasi_id, 'perihal' => $h['perihal'], 'sifat' => 'biasa',
             'asal_tujuan' => preg_split('/\R/', trim(strip_tags($h['tujuan'])))[0] ?: '-', 'isi_html' => $h['isi'], 'data' => $h['data'],
-            'jabatan_id' => $jenis->penandatangan_jabatan_id, 'mode_ttd' => $jenis->mode_ttd ?? 'qr', 'jenis_surat_id' => $jenis->id,
+            'jabatan_id' => $jenis->penandatangan_jabatan_id, 'mode_ttd' => $jenis->mode_ttd ?? 'qr', 'jenis_surat_id' => $jenis->id, 'gaya_tanggal' => $jenis->gaya_tanggal ?? 'dikeluarkan', 'tgl_surat' => self::tanggalPilihan($tanggalSurat),
         ];
         if ($surat) {
             $surat->update($atribut);

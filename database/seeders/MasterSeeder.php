@@ -36,9 +36,11 @@ class MasterSeeder extends Seeder
         Pengaturan::simpan('panjang_urut', '3');
         Pengaturan::simpan('format_agenda', 'AGD-{tahun}/{bulan_romawi}/{urut}');
         Pengaturan::simpan('panjang_agenda', '4');
-        Pengaturan::simpan('alamat_fakultas', 'Jl. Betoambari No. 36, Kota Baubau, Sulawesi Tenggara 93724');
-        Pengaturan::simpan('email_fakultas', 'teknik@um-buton.ac.id');
-        Pengaturan::simpan('web_fakultas', 'ft.um-buton.ac.id');
+        // Kop surat (header: 3 baris; footer: alamat + kontak) — sesuai surat resmi fakultas
+        Pengaturan::simpan('kop_alamat', 'Jl. Betoambari No. 36 Telp (0402) 2827038 Kota Baubau Sulawesi Tenggara');
+        Pengaturan::simpan('alamat_fakultas', 'Jl. Betoambari No. 36, Telp. (0402) 2827038, Kota Baubau Sulawesi Tenggara');
+        Pengaturan::simpan('email_fakultas', 'rektorat@umbuton.ac.id');
+        Pengaturan::simpan('web_fakultas', 'umbuton.ac.id');
         Pengaturan::simpan('kota_surat', 'Baubau');
     }
 }

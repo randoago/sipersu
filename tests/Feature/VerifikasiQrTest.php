@@ -157,4 +157,17 @@ class VerifikasiQrTest extends TestCase
             ->assertDontSee('Permohonan diajukan')
             ->assertDontSee('Diverifikasi');
     }
+
+    public function test_perintah_tte_periksa_menilai_asli_dan_tidak_valid(): void
+    {
+        $url = app(TandaTanganService::class)->urlQr($this->surat);
+
+        $this->artisan('tte:periksa', ['isi' => $url])->expectsOutputToContain('DOKUMEN ASLI')->assertExitCode(0);
+        $this->artisan('tte:periksa', ['isi' => explode('#', $url, 2)[1]])->expectsOutputToContain('DOKUMEN ASLI')->assertExitCode(0);   // tanpa alamat
+
+        [$b64, $sig] = explode('.', explode('#', $url, 2)[1]);
+        $rusak = substr($b64, 0, 30).($b64[30] === 'A' ? 'B' : 'A').substr($b64, 31);
+        $this->artisan('tte:periksa', ['isi' => "$rusak.$sig"])->expectsOutputToContain('TIDAK VALID')->assertExitCode(1);
+        $this->artisan('tte:periksa', ['isi' => 'bukan-format'])->expectsOutputToContain('Format tidak dikenali')->assertExitCode(1);
+    }
 }

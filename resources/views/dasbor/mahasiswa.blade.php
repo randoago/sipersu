@@ -8,7 +8,7 @@
                 <div class="flex flex-wrap items-center gap-1.5">
                     <h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold tracking-tight text-on-surface lg:font-headline-lg lg:text-headline-lg">Halo, {{ $u->nama }}</h1><span class="text-lg">👋</span>
                 </div>
-                <p class="font-body-sm text-body-sm font-medium text-on-surface-variant tabular">NIM: {{ $u->nomor_induk }} • {{ $u->prodi?->nama }} ({{ $u->prodi?->jenjang }})</p>
+                <p class="font-body-sm text-body-sm font-medium text-on-surface-variant tabular">NPM: {{ $u->nomor_induk }} • {{ $u->prodi?->nama }} ({{ $u->prodi?->jenjang }})</p>
             </div>
             <span class="inline-flex shrink-0 items-center whitespace-nowrap rounded-full bg-secondary-container/20 px-2 py-1 font-label-sm text-label-sm text-on-secondary-fixed-variant">Semester {{ \App\Support\TahunAkademik::saatIni() }}</span>
         </div>

@@ -3,7 +3,7 @@
     <div><h1 class="font-headline-xl text-headline-xl">Layanan Mahasiswa</h1><p class="mt-1 font-body-md text-body-md text-on-surface-variant">Daftar pengajuan surat mahasiswa dan statusnya.</p></div>
     <form method="get" class="flex flex-col gap-2 sm:flex-row">
         <div class="relative flex-1"><x-ikon name="search" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[20px] text-outline" />
-            <input name="q" value="{{ $q }}" placeholder="Cari nama / NIM / nomor pengajuan…" class="h-10 w-full rounded-lg border-outline-variant bg-surface-container-lowest pl-10 font-body-md text-body-md focus:ring-2 focus:ring-primary"></div>
+            <input name="q" value="{{ $q }}" placeholder="Cari nama / NPM / nomor pengajuan…" class="h-10 w-full rounded-lg border-outline-variant bg-surface-container-lowest pl-10 font-body-md text-body-md focus:ring-2 focus:ring-primary"></div>
         <x-select name="status" class="sm:w-52" onchange="this.form.submit()"><option value="">Semua status</option>@foreach (\App\Enums\StatusPengajuan::cases() as $s)<option value="{{ $s->value }}" @selected($status === $s->value)>{{ $s->label() }}</option>@endforeach</x-select>
         <x-tombol type="submit" varian="sekunder" ikon="filter_list">Terapkan</x-tombol>
     </form>

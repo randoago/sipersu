@@ -13,10 +13,16 @@ sehingga tampilannya sama persis dengan surat yang terbit di aplikasi.
 | `06-surat-keterangan-aktif-kuliah-TANPA-QR.pdf` | Surat Keterangan Aktif Kuliah | **Tanpa QR** — dicetak, tanda tangan basah + cap |
 | `07-surat-keluar-undangan-ber-QR.pdf` | Surat keluar umum (undangan) | Ber-QR (TTE) |
 | `08-surat-keluar-undangan-TANPA-QR.pdf` | Surat keluar umum (undangan) | **Tanpa QR** |
-| `09-surat-tugas-dari-format.pdf` | Surat Tugas — dibuat dari **format buatan TU** (Format Surat → Buat Surat → isi formulir) | Ber-QR (TTE) |
+| `09-surat-undangan-dari-format.pdf` | Surat Undangan dari **format buatan TU** (tanggal Hijriah + Masehi sejajar) | Ber-QR (TTE) |
+| `10-surat-undangan-dari-format-TANPA-QR.pdf` | idem | **Tanpa QR** |
+| `11-surat-tugas-dari-format.pdf` | Surat Tugas penugasan: **tabel** yang ditugaskan, tema/mitra/waktu, tembusan | Ber-QR (TTE) |
+| `12-surat-tugas-dari-format-TANPA-QR.pdf` | idem | **Tanpa QR** |
+| `13-surat-tugas-rekomendasi-dari-format.pdf` | Surat Tugas Rekomendasi (penandatangan + yang direkomendasikan, tanggal Hijriah) | Ber-QR (TTE) |
+| `14-surat-tugas-rekomendasi-dari-format-TANPA-QR.pdf` | idem | **Tanpa QR** |
 
 ## Catatan
 
+- **Kop surat** mengikuti surat resmi fakultas: header hijau (`template/img/Header-Undangan.png`) berisi FAKULTAS TEKNIK / UNIVERSITAS MUHAMMADIYAH BUTON / alamat, dan footer hijau rata kanan berisi alamat serta e-mail/laman (diatur di Pengaturan → Format Nomor).
 - **Ukuran kertas A4** (210 × 297 mm) untuk semua berkas.
 - **Surat ber-QR terdiri dari 2 halaman**: halaman 1 = surat (kop header hijau, isi, QR + spesimen tanda tangan); halaman 2 = **Lembar Riwayat Dokumen** (diajukan, diverifikasi, diparaf, ditandatangani, beserta pelaksana dan waktu, alamat verifikasi, dan ringkasan SHA-256). Surat **tanpa QR** hanya 1 halaman karena disahkan dengan tanda tangan basah dan cap.
 
@@ -24,7 +30,8 @@ sehingga tampilannya sama persis dengan surat yang terbit di aplikasi.
 - **QR pada contoh ini tidak dapat diverifikasi**: contoh dibuat dalam transaksi yang di-rollback, sehingga
   token dan nomor tidak tersimpan di basis data (nomor asli tidak terpakai). Surat yang diterbitkan lewat
   aplikasi punya QR yang bisa diverifikasi.
-- Pada surat **tanpa QR** ruang di atas nama pejabat sengaja dikosongkan untuk tanda tangan basah dan cap.
+- Surat **ber-QR** memuat QR + spesimen **tanda tangan dengan stempel** (`template/img/ttd-dekan/ttd-dekan-stempel.png`).
+- Surat **tanpa QR** disiapkan **kosong**: tanpa QR, tanda tangan, maupun stempel — ruang di atas nama pejabat dikosongkan untuk dibubuhi manual.
 
 ## Membuat ulang
 

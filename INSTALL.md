@@ -24,7 +24,7 @@ Tanda ☐ adalah kotak centang untuk Anda pakai sendiri.
 - ☐ HDD eksternal atau flashdisk besar (≥ 16 GB) khusus backup
 - ☐ Akun Google fakultas (untuk backup mingguan) — opsional tetapi sangat disarankan
 - ☐ Akun email untuk pengirim notifikasi (contoh: Gmail fakultas) — opsional
-- ☐ Akun Cloudflare gratis dan sebuah domain (contoh: `ft-umb.ac.id`) — untuk QR publik
+- ☐ Akun Cloudflare gratis dan sebuah domain (contoh: `umbuton.ac.id`) — untuk QR publik
 - ☐ Akun GitHub gratis — untuk halaman verifikasi offline
 
 ---
@@ -60,8 +60,8 @@ Tanda ☐ adalah kotak centang untuk Anda pakai sendiri.
 2. Buka `.env` dengan Notepad dan isi bagian penting berikut:
 
 ```ini
-APP_URL=http://192.168.1.10            # IP statis server (bagian 5)
-APP_PUBLIC_URL=https://verifikasi.ft-umb.ac.id   # alamat PUBLIK untuk QR (bagian 7)
+APP_URL=http://sipersu.ft.umbuton.ac.id   # alamat server di jaringan lokal (bagian 5.3)
+APP_PUBLIC_URL=https://verifikasi.umbuton.ac.id   # alamat PUBLIK untuk QR (bagian 7)
 APP_DEBUG=false                         # JANGAN diubah ke true di server
 
 BACKUP_PASSWORD=GantiDenganSandiPanjangYangKuat   # bagian 9 & SOP di bagian 12
@@ -97,7 +97,7 @@ MAIL_FROM_ADDRESS="persuratan.ft@gmail.com"
 
 ### Akun contoh (kata sandi semuanya `password`)
 
-| Peran | NIM/NIDN/NIP | Nama |
+| Peran | NPM/NIDN | Nama |
 |---|---|---|
 | Super Admin | `0000000001` | Super Admin |
 | Admin TU | `198701012010011001` | Admin Tata Usaha |
@@ -112,8 +112,8 @@ MAIL_FROM_ADDRESS="persuratan.ft@gmail.com"
 > ⚠️ **Wajib dilakukan sebelum dipakai sungguhan**
 > - ☐ Masuk sebagai **Super Admin → Profil → Ganti Kata Sandi** untuk **semua** akun, atau nonaktifkan akun contoh di **Master Data → Pengguna**.
 > - ☐ Perbarui **nama & nomor induk pejabat asli**, **Master Data → Jabatan** (pejabat aktif & periode), **Klasifikasi Surat**, dan **Program Studi**.
-> - ☐ Dekan/Wakil Dekan/Kaprodi masuk ke **Profil → Spesimen Tanda Tangan** dan mengunggah gambar tanda tangan (PNG/JPG, maks. 2 MB).
-> - ☐ **Pengaturan → Format Nomor**: periksa pola nomor, kota surat, alamat, email, dan laman fakultas untuk kop surat.
+> - ☐ Unggah spesimen pejabat: **Admin TU / Super Admin** di **Master Data → Spesimen TTD** (untuk Dekan, Wakil Dekan, Kaprodi), atau pejabat sendiri di **Profil**. Ada dua gambar: *tanda tangan + stempel* (dipakai surat ber-QR) dan *tanda tangan saja* (cadangan). PNG/JPG, maks. 2 MB.
+> - ☐ **Pengaturan → Format Nomor**: periksa pola nomor, kota surat, serta isi **kop surat** (baris alamat pada header hijau; alamat, e-mail, dan laman pada footer hijau di bawah halaman).
 > - ☐ Simpan salinan kunci: buka *Command Prompt* di folder proyek lalu jalankan
 >   `php artisan kunci:cadangkan D:\kunci-sipersu` dan simpan salinannya di tempat aman (bagian 12).
 
@@ -130,7 +130,7 @@ MAIL_FROM_ADDRESS="persuratan.ft@gmail.com"
    - Gateway: `192.168.1.1` (alamat router kampus)
    - DNS: `8.8.8.8` dan `1.1.1.1`
 3. Tanyakan ke admin jaringan agar `192.168.1.10` **dikecualikan dari DHCP** (supaya tidak dipakai perangkat lain).
-4. Pastikan `APP_URL` di `.env` sama dengan IP ini, lalu jalankan di folder proyek:
+4. Atur alamat nama `sipersu.ft.umbuton.ac.id` agar mengarah ke IP ini (bagian 5.3), pastikan `APP_URL` di `.env` memakai nama itu, lalu jalankan di folder proyek:
    `php artisan config:cache`.
 
 ### 5.2 Firewall
@@ -138,9 +138,34 @@ MAIL_FROM_ADDRESS="persuratan.ft@gmail.com"
 1. **Klik kanan `scripts\buka-firewall.bat` → Run as administrator.**
    Port 80 dibuka **hanya untuk jaringan lokal**.
 2. Pastikan jaringan diatur sebagai **Private**: *Settings → Network → Properties → Network profile type → Private*.
-3. Uji dari HP/laptop lain di Wi-Fi yang sama: buka `http://192.168.1.10`.
+3. Uji dari HP/laptop lain di Wi-Fi yang sama: buka `http://192.168.1.10` (atau `http://sipersu.ft.umbuton.ac.id` setelah bagian 5.3).
 
-### 5.3 Nonaktifkan sleep
+### 5.3 Alamat nama lokal: `sipersu.ft.umbuton.ac.id`
+
+Agar pengguna cukup mengetik `http://sipersu.ft.umbuton.ac.id` (bukan angka IP), nama itu harus mengarah ke IP server **hanya di jaringan lokal**. Pilih salah satu:
+
+**A. Disarankan: catatan DNS internal.** Minta pengelola jaringan/DNS kampus (mis. UPT TIK) menambahkan catatan **A**:
+
+| Nama | Tipe | Nilai |
+|---|---|---|
+| `sipersu.ft.umbuton.ac.id` | A | `192.168.1.10` (IP statis server) |
+
+Catatan ini cukup ada di DNS **internal** kampus; tidak perlu dibuka ke internet (alamat IP lokal memang tidak dapat dipakai dari luar).
+
+**B. Cadangan, tanpa pengelola DNS: berkas `hosts` di tiap komputer pengguna.**
+1. Buka Notepad **sebagai Administrator**, lalu buka `C:\Windows\System32\drivers\etc\hosts`.
+2. Tambahkan satu baris di paling bawah, lalu simpan:
+   ```
+   192.168.1.10   sipersu.ft.umbuton.ac.id
+   ```
+
+**Lalu di server:**
+1. Isi `.env`: `APP_URL=http://sipersu.ft.umbuton.ac.id`, kemudian `php artisan config:cache`.
+2. Uji dari komputer lain di jaringan yang sama: buka `http://sipersu.ft.umbuton.ac.id` → muncul halaman masuk. Alamat `http://192.168.1.10` tetap berfungsi.
+
+> Alamat ini **hanya `http`** dan **hanya untuk jaringan lokal**; aplikasi tetap menolak akses dari luar jaringan lokal. Alamat publik untuk QR adalah hal terpisah (`verifikasi.umbuton.ac.id`, bagian 7).
+
+### 5.4 Nonaktifkan sleep
 
 **Klik kanan `scripts\nonaktifkan-sleep.bat` → Run as administrator.**
 Setelah itu laptop tidak tidur/hibernasi saat tersambung listrik, termasuk saat layar laptop ditutup.
@@ -181,22 +206,23 @@ Uji: jalankan `scripts\backup-sekarang.bat` lalu lihat di **Pengaturan → Backu
 
 Server ada di jaringan lokal dan **tidak bisa** diakses dari luar. Dengan **Cloudflare Tunnel**, **hanya** alamat `/v/…` (halaman verifikasi QR) yang dibuka ke internet; halaman lain tetap hanya untuk jaringan lokal. Ada dua lapis pengaman: aturan di Cloudflare dan pemeriksaan di dalam aplikasi.
 
-1. Daftar/masuk ke <https://dash.cloudflare.com>, tambahkan domain fakultas (atau gunakan subdomain domain yang sudah ada).
+1. Daftar/masuk ke <https://dash.cloudflare.com> dan siapkan domain untuk alamat publik verifikasi, yaitu `verifikasi.umbuton.ac.id`.
+   > **Koordinasikan dengan pengelola DNS `umbuton.ac.id`** (mis. UPT TIK universitas). Agar hostname tunnel bisa dibuat, domain/zone-nya harus aktif di Cloudflare: mintalah pengelola DNS menambahkan `umbuton.ac.id` ke akun Cloudflare, atau menyiapkan subdomain `verifikasi` sesuai kebijakan mereka. Bila tidak memungkinkan, pakai domain lain milik fakultas dan cukup ubah `APP_PUBLIC_URL`.
 2. Buka **Zero Trust → Networks → Tunnels → Create a tunnel → Cloudflared**. Beri nama `sipersu`.
 3. Pilih **Windows**, salin dan jalankan perintah yang ditampilkan di *Command Prompt (Administrator)*. Perintah ini memasang **cloudflared sebagai Windows Service** sehingga berjalan otomatis.
 4. Tab **Public Hostname → Add**:
-   - Subdomain/Domain: `verifikasi` + `ft-umb.ac.id`
+   - Subdomain/Domain: `verifikasi` + `umbuton.ac.id`
    - **Path:** `^/(v/.*|css/.*|fonts/.*|images/.*|js/.*)$`   *(hanya ini yang boleh lewat)*
    - Service: **HTTP** → `localhost:80`
 5. (Disarankan) Tambahkan satu aturan lagi di bawahnya: hostname yang sama, path kosong, Service **HTTP Status → 404**, agar jalur lain ditolak oleh Cloudflare.
 6. Isi `.env`:
 
 ```ini
-APP_PUBLIC_URL=https://verifikasi.ft-umb.ac.id
+APP_PUBLIC_URL=https://verifikasi.umbuton.ac.id
 ```
    lalu jalankan `php artisan config:cache`.
 7. **Uji:**
-   - Dari HP dengan **data seluler** (bukan Wi-Fi kampus), buka `https://verifikasi.ft-umb.ac.id/login` → harus **404**.
+   - Dari HP dengan **data seluler** (bukan Wi-Fi kampus), buka `https://verifikasi.umbuton.ac.id/login` → harus **404**.
    - Terbitkan satu surat ber-QR, pindai QR-nya dengan HP (data seluler) → halaman **Dokumen Asli** tampil.
 8. Perhatikan: hanya surat yang diterbitkan **setelah** `APP_PUBLIC_URL` benar yang QR-nya menuju alamat publik. QR pada surat lama tidak berubah sendiri.
 
@@ -205,6 +231,8 @@ APP_PUBLIC_URL=https://verifikasi.ft-umb.ac.id
 ---
 
 ## 8. Verifikasi offline (GitHub Pages, gratis)
+
+> Ingin memahami cara kerja tanda tangan elektronik, kunci, dan QR? Baca `documentation/cara-kerja-tanda-tangan-elektronik.md`.
 
 Setiap QR memuat tanda tangan digital (Ed25519). Berkas `verifikasi.html` (kunci publik sudah tertanam) dapat memeriksanya **tanpa server fakultas**.
 
@@ -280,20 +308,23 @@ Cara: klik dua kali `scripts\uji-pemulihan.bat`, tarik berkas backup ke jendelan
 
 ## 10. Pemakaian sehari-hari (ringkas)
 
-- **Mahasiswa**: login dengan NIM → *Pengajuan Surat* → isi formulir → unggah berkas (PDF/JPG/PNG, maks 2 MB) → *Lacak Status* → unduh PDF.
+- **Mahasiswa**: login dengan NPM → *Pengajuan Surat* → isi formulir → unggah berkas (PDF/JPG/PNG, maks 2 MB) → *Lacak Status* → unduh PDF.
 - **Admin TU / Kaprodi**: *Layanan Mahasiswa* → periksa → **Verifikasi** atau **Tolak** (alasan wajib).
 - **Wakil Dekan**: *Persetujuan & TTD* → **Paraf** (bila jenis surat memerlukan).
 - **Dekan / penandatangan**: *Persetujuan & TTD* → masukkan kata sandi akun → **Setujui & Tanda Tangani** → nomor surat terbit otomatis.
+- **Tanggal surat**: pada formulir Surat Keluar ada pemilih **Tanggal surat**. Bila tidak diubah = hari ini (dan mengikuti hari penandatanganan); bila dipilih, **tanggal Hijriah-nya langsung tampil** dan dipakai pada surat, QR, serta **nomor surat** (bulan romawi dan tahun mengikuti tanggal itu). Batas: 30 hari ke belakang sampai 90 hari ke depan.
 - **Surat keluar umum**: *Surat Keluar → Buat Surat* → pilih **bentuk surat**:
-  - **Surat ber-QR (TTE)** — PDF memuat QR dan spesimen tanda tangan, bisa diverifikasi publik, **tanpa cap**.
-  - **Surat tanpa QR** — nomor tetap otomatis, PDF tanpa QR; **dicetak, ditandatangani basah, dan dicap**.
+  - **Surat ber-QR (TTE)** — PDF memuat QR beserta spesimen **tanda tangan + stempel** pejabat, bisa diverifikasi publik.
+  - **Surat tanpa QR** — nomor tetap otomatis, PDF disiapkan **kosong** (tanpa QR, tanda tangan, maupun stempel); **dicetak lalu ditandatangani dan dicap secara manual**.
   Untuk surat mahasiswa, bentuk surat diatur per jenis di **Master Data → Jenis Surat → Bentuk surat**.
 - **Format Surat (menu khusus Admin TU/Super Admin)**: TU menentukan *surat untuk apa* tanpa menulis kode:
   1. **Format Surat → Tambah Format Surat**, isi nama dan kegunaan, pilih **Dibuat oleh**: *Staf* (muncul di Surat Keluar) atau *Mahasiswa* (muncul di katalog e-Layanan).
   2. **Isian yang harus diisi**: klik *Tambah Isian*, beri nama (contoh "Nama Dosen"), pilih jenis (teks, teks panjang, tanggal, angka, pilihan), wajib/tidak. Urutan bisa digeser.
   3. **Isi surat (templat)**: tulis isi surat, lalu klik tombol nama isian untuk menyisipkannya. Klik *Lihat Pratinjau* untuk melihat hasil dengan data contoh.
-  4. Pilih klasifikasi (kode nomor), penandatangan, bentuk surat (ber-QR / tanpa QR), dan apakah perlu paraf. **Simpan**.
+  4. Pilih klasifikasi (kode nomor), penandatangan, bentuk surat (ber-QR / tanpa QR), format tanggal ("Dikeluarkan di…" atau tanggal **Hijriah + Masehi**), dan apakah perlu paraf. **Simpan**.
+     Jenis isian khusus: **Daftar** (satu per baris, mis. Tembusan → dicetak bernomor) dan **Tabel** (baris berulang dengan kolom yang Anda tentukan, mis. Nama | Program Studi). Tombol **✍ Tanda tangan di sini** menaruh bagian templat *setelah* blok tanda tangan (mis. Tembusan), dan **Blok bersyarat** menyembunyikan teks bila isiannya kosong. Koreksi tanggal Hijriah (±1 hari) ada di Pengaturan → Format Nomor.
   5. Petugas membuat surat lewat **Surat Keluar → Buat Surat → pilih format → isi formulir → Simpan Draf → Ajukan**. Format yang dinonaktifkan tidak lagi tampil; format dapat disalin untuk dijadikan dasar format baru.
+- **Menambah banyak pengguna** (Admin TU): **Master Data → Pengguna → Impor CSV** → *Unduh Templat CSV* → isi di Excel → simpan sebagai CSV UTF-8 → unggah → **Periksa** → **Impor**. Format kolom lengkap: `documentation/format-csv-pengguna.md`.
 - **Surat masuk** (Admin TU): **Surat Masuk → Catat Surat Masuk** → pilih jenis (format) → isi nomor surat asal, pengirim, tanggal surat/diterima, perihal, sifat, serta kolom khusus jenis itu → unggah pindaian (PDF/JPG/PNG, maks 2 MB) → **Simpan**. **Nomor agenda terbit otomatis** (contoh `AGD-2026/X/0148`, reset tiap tahun; pola dapat diubah di **Pengaturan → Format Nomor**). Surat yang sama (nomor asal + pengirim + tanggal) tidak dapat dicatat dua kali. Dekan, Wakil Dekan, dan Kaprodi dapat melihat daftar (surat *rahasia* hanya TU, Dekan, Wakil Dekan). Kolom tambahan per jenis surat masuk diatur di **Format Surat → tab Surat Masuk**.
 - Nomor surat **hanya terbit saat ditandatangani**. Surat yang dibatalkan **tidak** memakai ulang nomornya; QR-nya menampilkan **TIDAK BERLAKU**.
 
@@ -387,7 +418,7 @@ Kata sandi backup (`BACKUP_PASSWORD`) adalah **kunci semua cadangan**. Tanpa san
 
 ## Lampiran B — Keamanan yang sudah diterapkan
 
-- Login NIM/NIDN/NIP + kata sandi (di-hash), pembatasan 5 percobaan/menit, sesi di basis data.
+- Login NPM/NIDN + kata sandi (di-hash), pembatasan 5 percobaan/menit, sesi di basis data.
 - Peran & kewenangan diperiksa di server (Super Admin tidak dapat menandatangani; Kaprodi hanya prodi sendiri).
 - Unggahan hanya PDF/JPG/PNG ≤ 2 MB, disimpan di folder **privat** (tidak bisa dibuka lewat URL langsung).
 - Aplikasi hanya terbuka untuk IP jaringan lokal; dari internet **hanya** `/v/*`.

@@ -9,9 +9,12 @@
         @csrf @if ($s) @method('PUT') @endif
         <div class="space-y-5 lg:col-span-2">
             <x-kartu judul="Isian Surat" ikon="edit_note" deskripsi="Tanda * wajib diisi.">
+                <x-tanggal-surat :nilai="$s?->tgl_surat?->toDateString()" class="mb-space-md md:max-w-md" />
                 <x-isian-dinamis :fields="$j->field_formulir" :nilai="$nilai" />
             </x-kartu>
-            <div class="flex justify-end gap-2"><x-tombol :href="$s ? route('surat-keluar.show', $s) : route('surat-keluar.buat')" varian="sekunder">Batal</x-tombol><x-tombol type="submit" ikon="save">Simpan Draf & Lihat Pratinjau</x-tombol></div>
+            <div class="flex flex-wrap justify-end gap-2"><x-tombol :href="$s ? route('surat-keluar.show', $s) : route('surat-keluar.buat')" varian="sekunder">Batal</x-tombol>
+                <x-tombol varian="lembut" ikon="visibility" x-on:click="pratinjauSurat('{{ route('surat-keluar.pratinjau') }}', $el.closest('form'), { format: '{{ $j->kode }}' })">Lihat Tampilan Surat</x-tombol>
+                <x-tombol type="submit" ikon="save">Simpan Draf</x-tombol></div>
         </div>
         <aside class="space-y-5">
             <x-kartu judul="Ketentuan Format" ikon="info">
@@ -19,11 +22,12 @@
                     <div><dt class="text-on-surface-variant">Klasifikasi / nomor</dt><dd class="font-semibold">{{ $j->klasifikasi?->kode }} — {{ $j->klasifikasi?->nama }}</dd></div>
                     <div><dt class="text-on-surface-variant">Penandatangan</dt><dd class="font-semibold">{{ $j->penandatanganJabatan?->nama }}</dd></div>
                     <div><dt class="text-on-surface-variant">Alur</dt><dd class="font-semibold">Draf → {{ $alurParaf ? 'Paraf '.$alurParaf.' → ' : '' }}Tanda tangan → Nomor terbit</dd></div>
-                    <div><dt class="text-on-surface-variant">Bentuk surat</dt><dd class="flex items-center gap-1 font-semibold"><x-ikon :name="$j->mode_ttd === 'basah' ? 'print' : 'qr_code_2'" class="text-[16px] text-primary" />{{ $j->mode_ttd === 'basah' ? 'Tanpa QR — dicetak, tanda tangan basah + cap' : 'Ber-QR — tanda tangan elektronik, tanpa cap' }}</dd></div>
+                    <div><dt class="text-on-surface-variant">Bentuk surat</dt><dd class="flex items-center gap-1 font-semibold"><x-ikon :name="$j->mode_ttd === 'basah' ? 'print' : 'qr_code_2'" class="text-[16px] text-primary" />{{ $j->mode_ttd === 'basah' ? 'Tanpa QR — disiapkan kosong, tanda tangan & stempel manual' : 'Ber-QR — tanda tangan elektronik + spesimen & stempel' }}</dd></div>
                 </dl>
                 <p class="mt-3 rounded-lg bg-surface-container-low p-2.5 font-body-sm text-body-sm text-on-surface-variant">Nomor surat baru terbit saat surat ditandatangani.</p>
             </x-kartu>
         </aside>
     </form>
+<x-pratinjau-surat />
 </div>
 </x-layouts::app>

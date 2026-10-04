@@ -1,0 +1,4 @@
+﻿nomor_induk,nama,peran,prodi,email,no_hp,angkatan,tempat_lahir,tanggal_lahir,alamat,gelar_depan,gelar_belakang,password,aktif
+22650101,"Ahmad Fauzi",mahasiswa,STI,ahmad.fauzi@mhs.umbuton.ac.id,081234567890,2022,Baubau,2003-08-17,"Jl. Betoambari No. 5, Baubau",,,,ya
+0912099001,"Siti Aisyah",dosen_tendik,TS,siti.aisyah@umbuton.ac.id,,,Makassar,1985-02-11,,,"S.T., M.T.",,ya
+0912099002,"Budi Santoso",dosen_tendik|kaprodi,RSK,,,,,,,,"S.Kom., M.Kom.",,ya

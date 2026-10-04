@@ -44,7 +44,7 @@
                     <x-slot:aksi><span class="rounded-full bg-primary-fixed px-2.5 py-1 font-label-sm text-label-sm text-primary">Dari profil akun</span></x-slot:aksi>
                     <dl class="grid grid-cols-2 gap-4 rounded-lg bg-surface-container-low p-4 md:grid-cols-4">
                         <div><dt class="font-label-sm text-label-sm text-on-surface-variant">Nama Mahasiswa</dt><dd class="mt-0.5 font-label-lg text-label-lg">{{ $user->nama }}</dd></div>
-                        <div><dt class="font-label-sm text-label-sm text-on-surface-variant">Nomor Induk Mahasiswa (NIM)</dt><dd class="mt-0.5 font-label-lg text-label-lg tabular">{{ $user->nomor_induk }}</dd></div>
+                        <div><dt class="font-label-sm text-label-sm text-on-surface-variant">Nomor Pokok Mahasiswa (NPM)</dt><dd class="mt-0.5 font-label-lg text-label-lg tabular">{{ $user->nomor_induk }}</dd></div>
                         <div><dt class="font-label-sm text-label-sm text-on-surface-variant">Program Studi</dt><dd class="mt-0.5 font-label-lg text-label-lg">{{ $user->prodi?->nama }} ({{ $user->prodi?->jenjang }})</dd></div>
                         <div><dt class="font-label-sm text-label-sm text-on-surface-variant">Angkatan</dt><dd class="mt-0.5 font-label-lg text-label-lg">{{ $user->angkatan ?: '-' }}</dd></div>
                     </dl>
@@ -56,7 +56,7 @@
                         @foreach ($j->field_formulir as $f)
                             @php $n = 'isian.'.$f['nama']; $setengah = ($f['lebar'] ?? null) === 'setengah'; @endphp
                             <div class="{{ $setengah ? '' : 'md:col-span-2' }}">
-                                @if ($f['tipe'] === 'area')
+                                @if (in_array($f['tipe'], ['area', 'daftar'], true))
                                     <x-textarea :label="$f['label']" :name="$n" :wajib="$f['wajib'] ?? false" :maks="$f['maks'] ?? 250" rows="3" wire:model.blur="{{ $n }}" :placeholder="$f['placeholder'] ?? ''" />
                                 @elseif ($f['tipe'] === 'pilihan')
                                     <x-select :label="$f['label']" :name="$n" :wajib="$f['wajib'] ?? false" wire:model.live="{{ $n }}">
@@ -130,12 +130,13 @@
             </div>
 
             {{-- Tombol navigasi --}}
-            <div class="flex items-center justify-between gap-3 rounded-xl bg-surface-container-low p-space-md">
+            <div class="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-surface-container-low p-space-md">
                 @if ($langkah === 1)
                     <x-tombol :href="route('layanan.katalog')" varian="lembut" ikon="arrow_back">Kembali ke Katalog</x-tombol>
                 @else
                     <x-tombol wire:click="kembali" varian="lembut" ikon="arrow_back">Kembali</x-tombol>
                 @endif
+                <x-tombol wire:click="pratinjau" wire:loading.attr="disabled" varian="lembut" ikon="visibility">Lihat Tampilan Surat</x-tombol>
                 @if ($langkah < 3)
                     <x-tombol wire:click="lanjut" ikon-kanan="arrow_forward" class="min-w-44">{{ $langkah === 1 ? 'Lanjut ke Berkas' : 'Lanjut ke Konfirmasi' }}</x-tombol>
                 @else
@@ -173,4 +174,5 @@
             </x-kartu>
         </aside>
     </div>
+    <x-pratinjau-surat />
 </div>

@@ -26,9 +26,12 @@ class Jabatan extends Model
         return $this->belongsTo(Prodi::class);
     }
 
-    /** Spesimen: milik pejabat dulu, lalu cadangan di jabatan. */
-    public function spesimenPath(): ?string
+    /**
+     * Spesimen untuk surat ber-QR: tanda tangan + stempel bila ada ($stempel), lalu tanda tangan saja,
+     * lalu cadangan di jabatan.
+     */
+    public function spesimenPath(bool $stempel = false): ?string
     {
-        return $this->pejabat?->spesimen_ttd ?: $this->spesimen_ttd;
+        return ($stempel ? $this->pejabat?->spesimen_stempel : null) ?: $this->pejabat?->spesimen_ttd ?: $this->spesimen_ttd;
     }
 }

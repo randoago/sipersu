@@ -24,13 +24,13 @@ class MasterData
                 'model' => User::class, 'judul' => 'Pengguna', 'ikon' => 'groups', 'with' => ['prodi', 'roles'],
                 'cari' => ['nomor_induk', 'nama', 'email'],
                 'kolom' => [
-                    ['NIM/NIDN/NIP', fn ($m) => $m->nomor_induk, 'tabular'],
+                    ['NPM/NIDN', fn ($m) => $m->nomor_induk, 'tabular'],
                     ['Nama', fn ($m) => $m->namaLengkap()],
                     ['Peran', fn ($m) => $m->roles->map(fn ($r) => Peran::tryFrom($r->name)?->label() ?? $r->name)->implode(', ')],
                     ['Prodi', fn ($m) => $m->prodi?->nama ?? '-'],
                 ],
                 'field' => [
-                    ['nomor_induk', 'NIM / NIDN / NIP', 'teks', ['required', 'string', 'max:30', 'unique:users,nomor_induk,{id}'], 'lebar' => 'setengah'],
+                    ['nomor_induk', 'NPM / NIDN', 'teks', ['required', 'string', 'max:30', 'unique:users,nomor_induk,{id}'], 'lebar' => 'setengah'],
                     ['nama', 'Nama (tanpa gelar)', 'teks', ['required', 'string', 'max:120'], 'lebar' => 'setengah'],
                     ['gelar_depan', 'Gelar depan', 'teks', ['nullable', 'string', 'max:50'], 'lebar' => 'setengah'],
                     ['gelar_belakang', 'Gelar belakang', 'teks', ['nullable', 'string', 'max:80'], 'lebar' => 'setengah'],

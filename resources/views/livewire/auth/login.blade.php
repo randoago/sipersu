@@ -67,7 +67,7 @@
 
             <form wire:submit="masuk" class="space-y-5" novalidate>
                 <div>
-                    <label for="nomor_induk" class="mb-1.5 block text-sm font-semibold text-gray-700">NIM / NIDN / NIP <span class="text-rose-500">*</span></label>
+                    <label for="nomor_induk" class="mb-1.5 block text-sm font-semibold text-gray-700">NPM / NIDN <span class="text-rose-500">*</span></label>
                     <div class="relative rounded-lg shadow-sm">
                         <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400"><x-ikon name="person" class="text-[18px]" /></div>
                         <input type="text" id="nomor_induk" wire:model="nomor_induk" autocomplete="username" autofocus inputmode="numeric"
@@ -75,7 +75,7 @@
                                class="block w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-400 transition focus:border-umb-green focus:outline-none focus:ring-2 focus:ring-umb-green @error('nomor_induk') border-rose-400 @enderror">
                     </div>
                     @error('nomor_induk')<p class="mt-1 text-xs font-medium text-rose-600">{{ $message }}</p>
-                    @else<p class="mt-1 text-[11px] text-gray-400">Gunakan NIM untuk mahasiswa, NIDN untuk dosen, atau NIP/NIK untuk staf.</p>@enderror
+                    @else<p class="mt-1 text-[11px] text-gray-400">Gunakan NPM untuk mahasiswa dan NIDN untuk dosen/pejabat.</p>@enderror
                 </div>
 
                 <div>

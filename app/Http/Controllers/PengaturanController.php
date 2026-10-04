@@ -13,7 +13,7 @@ class PengaturanController extends Controller
     public function nomor(PenomoranService $nomor)
     {
         return view('pengaturan.nomor', [
-            'nilai' => collect(['format_nomor', 'panjang_urut', 'format_agenda', 'panjang_agenda', 'kota_surat', 'alamat_fakultas', 'email_fakultas', 'web_fakultas', 'tahun_akademik'])
+            'nilai' => collect(['format_nomor', 'panjang_urut', 'format_agenda', 'panjang_agenda', 'kota_surat', 'kop_alamat', 'alamat_fakultas', 'email_fakultas', 'web_fakultas', 'tahun_akademik', 'hijriah_koreksi'])
                 ->mapWithKeys(fn ($k) => [$k => Pengaturan::ambil($k)])->all(),
             'contoh' => $nomor->format(45, 'II.3.AU', now()),
             'agendaTahunIni' => (int) \DB::table('nomor_agenda')->where('tahun', now()->year)->value('nomor_terakhir'),
@@ -29,12 +29,16 @@ class PengaturanController extends Controller
             'format_agenda' => ['required', 'string', 'max:120', 'regex:/\{urut\}/'],
             'panjang_agenda' => ['required', 'integer', 'min:1', 'max:6'],
             'kota_surat' => ['required', 'string', 'max:60'],
+            'kop_alamat' => ['nullable', 'string', 'max:150'],
+            'hijriah_koreksi' => ['nullable', 'integer', 'in:-1,0,1'],
             'alamat_fakultas' => ['required', 'string', 'max:200'],
             'email_fakultas' => ['required', 'email', 'max:100'],
             'web_fakultas' => ['required', 'string', 'max:100'],
             'tahun_akademik' => ['nullable', 'string', 'max:30'],
         ], ['format_nomor.regex' => 'Format harus memuat {urut} dan {klasifikasi}.', 'format_agenda.regex' => 'Format agenda harus memuat {urut}.']);
 
+        $data['kop_alamat'] = $data['kop_alamat'] ?? Pengaturan::ambil('kop_alamat');
+        $data['hijriah_koreksi'] = (int) ($data['hijriah_koreksi'] ?? 0);
         foreach ($data as $k => $v) {
             Pengaturan::simpan($k, $v);
         }

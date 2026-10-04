@@ -31,7 +31,7 @@ class DasborController extends Controller
             ->filter(fn (Pengajuan $p) => $alur->bolehVerifikasi($p, $user) || $alur->bolehParaf($p, $user) || $alur->bolehTandatangan($p, $user))
             ->map(fn (Pengajuan $p) => (object) [
                 'kategori' => $p->jenis->kategori ?? 'Umum', 'judul' => $p->jenis->nama, 'ref' => $p->kode,
-                'nama' => $p->pemohon->nama, 'sub' => 'NIM: '.$p->pemohon->nomor_induk.' • '.$p->pemohon->prodi?->nama,
+                'nama' => $p->pemohon->nama, 'sub' => 'NPM: '.$p->pemohon->nomor_induk.' • '.$p->pemohon->prodi?->nama,
                 'waktu' => $p->created_at, 'status' => $p->status, 'filter' => $p->status->value,
                 'url' => in_array($p->status->value, ['diverifikasi', 'disetujui']) ? route('persetujuan.show', $p) : route('pengajuan.show', $p),
             ]);

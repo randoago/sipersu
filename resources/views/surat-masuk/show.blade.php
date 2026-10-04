@@ -19,7 +19,7 @@
                 @if ($s->jenis)
                     @foreach ($s->jenis->field_formulir as $f)
                         @php $isi = $d['isian'][$f['nama']] ?? ''; @endphp
-                        @if ($isi !== '' && $isi !== '-')<div><dt class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">{{ $f['label'] }}</dt><dd class="mt-0.5 whitespace-pre-line font-body-md text-body-md">{{ $isi }}</dd></div>@endif
+                        @if ($isi !== '' && $isi !== '-')<div><dt class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">{{ $f['label'] }}</dt><dd class="mt-0.5 whitespace-pre-line font-body-md text-body-md">@if (str_starts_with($isi, \App\Services\PenyusunSurat::TANDA_HTML)){!! substr($isi, strlen(\App\Services\PenyusunSurat::TANDA_HTML)) !!}@else{{ $isi }}@endif</dd></div>@endif
                     @endforeach
                 @endif
                 <div class="border-t border-surface-container pt-3"><dt class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Dicatat oleh</dt><dd class="mt-0.5 font-body-sm text-body-sm">{{ $s->pembuat?->nama }} • {{ $s->created_at->translatedFormat('j M Y, H:i') }} WITA</dd></div>

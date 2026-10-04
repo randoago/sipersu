@@ -1,6 +1,6 @@
 @php
     $valid = ! $batal && $signatureSah;
-    $nimSamar = $pemohon ? preg_replace('/^(\d{2})\d+(\d{3})$/', '$1•••$2', $pemohon['nim']) : null;
+    $nimSamar = $pemohon ? preg_replace('/^(\d{2})\d+(\d{3})$/', '$1•••$2', ($pemohon['npm'] ?? $pemohon['nim'])) : null;
 @endphp
 <x-layouts::guest title="Verifikasi Dokumen" :tanpa-livewire="true">
 <div class="relative min-h-screen overflow-hidden bg-surface px-4 font-jakarta py-8 sm:px-6 lg:px-8 lg:py-14">
@@ -75,7 +75,7 @@
                             <div class="rounded-lg bg-surface-container p-2 text-primary"><x-ikon name="school" class="text-lg" /></div>
                             <div><span class="block font-label-sm text-label-sm uppercase text-on-surface-variant">Pemohon / Mahasiswa</span>
                                 <p class="mt-1 font-label-lg text-label-lg">{{ \Illuminate\Support\Str::title(mb_strtolower($pemohon['nama'])) }}</p>
-                                <p class="font-body-sm text-body-sm text-on-surface-variant tabular">NIM: {{ $nimSamar }}</p>
+                                <p class="font-body-sm text-body-sm text-on-surface-variant tabular">NPM: {{ $nimSamar }}</p>
                                 <p class="mt-0.5 font-body-sm text-body-sm font-semibold text-primary">Program Studi {{ $pemohon['prodi'] }}</p></div>
                         </div>
                     @endif
@@ -90,6 +90,12 @@
                         <div><span class="block font-label-sm text-label-sm uppercase text-on-surface-variant">Penanda Tangan Sah</span>
                             <p class="mt-1 font-headline-sm text-headline-sm">{{ $surat->penandatangan_nama }}</p>
                             <p class="mt-1 font-body-sm text-body-sm font-medium text-primary">{{ $surat->penandatangan_jabatan }} Universitas Muhammadiyah Buton</p></div>
+                    </div>
+                    <div class="flex items-start gap-3 rounded-lg bg-surface p-4">
+                        <div class="rounded-lg bg-surface-container p-2 text-primary"><x-ikon name="calendar_today" class="text-lg" /></div>
+                        <div><span class="block font-label-sm text-label-sm uppercase text-on-surface-variant">Tanggal Surat</span>
+                            <p class="mt-1 font-headline-sm text-headline-sm">{{ $surat->tgl_surat?->translatedFormat('d F Y') }}</p>
+                            <p class="font-body-sm text-body-sm text-on-surface-variant">{{ \App\Support\TanggalHijriah::format($surat->tgl_surat) }}</p></div>
                     </div>
                     <div class="flex items-start gap-3 rounded-lg bg-surface p-4">
                         <div class="rounded-lg bg-surface-container p-2 text-tertiary"><x-ikon name="history_edu" class="text-lg" /></div>
@@ -150,7 +156,7 @@
             </button>
             <div x-show="buka" x-cloak x-transition class="mt-4 space-y-3 rounded-lg bg-surface p-4 font-body-sm text-body-sm text-on-surface-variant">
                 <p><strong>Cara kerja.</strong> Saat surat ditandatangani, sistem membuat tanda tangan digital (Ed25519) atas nomor, perihal, penanda tangan, jabatan, tanggal, dan ringkasan isi surat. Tanda tangan itu dicetak dalam kode QR dan diperiksa ulang setiap kali halaman ini dibuka.</p>
-                <p><strong>Surat ber-TTE tidak memakai cap basah.</strong> Keaslian ditentukan oleh hasil pemeriksaan di halaman ini, bukan oleh cap.</p>
+                <p><strong>Surat ber-TTE sah tanpa tanda tangan dan cap basah.</strong> Keaslian ditentukan oleh hasil pemeriksaan di halaman ini.</p>
                 <p><strong>Tanpa internet/server?</strong> Tanda tangan pada QR juga dapat diperiksa secara offline lewat berkas verifikasi statis fakultas @if ($urlOffline)(<a class="font-semibold text-primary underline" href="{{ $urlOffline }}">{{ $urlOffline }}</a>)@endif.</p>
             </div>
         </section>

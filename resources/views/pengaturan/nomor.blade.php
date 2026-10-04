@@ -24,10 +24,14 @@
             <x-kartu judul="Identitas Kop & Dokumen" ikon="apartment">
                 <div class="grid gap-4 md:grid-cols-2">
                     <x-input label="Kota penerbitan surat" name="kota_surat" wajib :value="old('kota_surat', $nilai['kota_surat'])" />
+                    <x-select label="Koreksi tanggal Hijriah" name="hijriah_koreksi" bantuan="Tanggal Hijriah dihitung otomatis (Umm al-Qura). Bila kalender yang dipakai fakultas berbeda sehari, atur di sini. Contoh hari ini: {{ \App\Support\TanggalHijriah::format(now()) }}.">
+                        @foreach ([-1 => 'Mundur 1 hari (−1)', 0 => 'Sesuai perhitungan (0)', 1 => 'Maju 1 hari (+1)'] as $k => $l)<option value="{{ $k }}" @selected((int) old('hijriah_koreksi', $nilai['hijriah_koreksi'] ?? 0) === $k)>{{ $l }}</option>@endforeach
+                    </x-select>
                     <x-input label="Tahun akademik (kosong = otomatis)" name="tahun_akademik" :value="old('tahun_akademik', $nilai['tahun_akademik'])" placeholder="2026/2027 Ganjil" />
-                    <x-input label="Alamat fakultas" name="alamat_fakultas" wajib class="md:col-span-2" :value="old('alamat_fakultas', $nilai['alamat_fakultas'])" />
-                    <x-input label="Pos-el" name="email_fakultas" type="email" wajib :value="old('email_fakultas', $nilai['email_fakultas'])" />
-                    <x-input label="Laman" name="web_fakultas" wajib :value="old('web_fakultas', $nilai['web_fakultas'])" />
+                    <x-input label="Baris alamat pada header hijau (baris ke-3 kop)" name="kop_alamat" class="md:col-span-2" :value="old('kop_alamat', $nilai['kop_alamat'])" bantuan="Kop surat: FAKULTAS TEKNIK / UNIVERSITAS MUHAMMADIYAH BUTON / baris alamat ini." />
+                    <x-input label="Alamat pada footer (setelah &quot;Alamat:&quot;)" name="alamat_fakultas" wajib class="md:col-span-2" :value="old('alamat_fakultas', $nilai['alamat_fakultas'])" />
+                    <x-input label="E-mail (footer)" name="email_fakultas" type="email" wajib :value="old('email_fakultas', $nilai['email_fakultas'])" />
+                    <x-input label="Laman / page (footer)" name="web_fakultas" wajib :value="old('web_fakultas', $nilai['web_fakultas'])" />
                 </div>
             </x-kartu>
             <div class="flex justify-end"><x-tombol type="submit" ikon="save">Simpan Pengaturan</x-tombol></div>

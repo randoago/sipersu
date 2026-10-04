@@ -11,6 +11,7 @@
                 <x-select label="Sifat surat" name="sifat" wajib>@foreach (['biasa' => 'Biasa', 'penting' => 'Penting', 'segera' => 'Segera', 'rahasia' => 'Rahasia'] as $k => $l)<option value="{{ $k }}" @selected($v('sifat', 'biasa') === $k)>{{ $l }}</option>@endforeach</x-select>
                 <x-textarea label="Tujuan surat (Yth.)" name="tujuan" wajib rows="3" class="md:col-span-2" bantuan="Satu baris per baris alamat. Contoh: Kepala Dinas Pendidikan Kota Baubau, di Tempat">{{ $v('tujuan') }}</x-textarea>
                 <x-input label="Perihal" name="perihal" wajib class="md:col-span-2" :value="$v('perihal')" />
+                <x-tanggal-surat :nilai="$s?->tgl_surat?->toDateString()" />
                 <x-input label="Lampiran" name="lampiran" :value="$v('lampiran')" placeholder="Contoh: 1 (satu) berkas — kosongkan bila tidak ada" />
                 <label class="flex items-end gap-2 pb-2 font-label-lg text-label-lg"><input type="checkbox" name="salam" value="1" @checked($v('salam', true)) class="h-4 w-4 rounded border-outline-variant text-primary focus:ring-primary">Sertakan salam pembuka & penutup</label>
                 <x-textarea label="Isi surat" name="isi" wajib rows="12" class="md:col-span-2" bantuan="Pisahkan paragraf dengan satu baris kosong.">{{ $v('isi') }}</x-textarea>
@@ -19,7 +20,7 @@
         <x-kartu judul="Bentuk Surat" ikon="qr_code_2" deskripsi="Pilih cara surat ini disahkan.">
             <div class="grid gap-3 md:grid-cols-2" x-data="{ m: @js($v('mode_ttd', 'qr')) }">
                 @foreach ([
-                    'qr' => ['Surat ber-QR (TTE)', 'Ditandatangani secara elektronik oleh pejabat. PDF memuat kode QR + spesimen tanda tangan, dapat diverifikasi publik. Tanpa cap basah.', 'qr_code_2'],
+                    'qr' => ['Surat ber-QR (TTE)', 'Ditandatangani secara elektronik oleh pejabat. PDF memuat kode QR + spesimen tanda tangan & stempel pejabat, dapat diverifikasi publik.', 'qr_code_2'],
                     'basah' => ['Surat tanpa QR', 'Nomor tetap terbit otomatis, tetapi PDF tanpa QR: dicetak lalu ditandatangani basah dan dibubuhi cap. Tidak ada verifikasi online.', 'print'],
                 ] as $k => [$j, $d2, $i])
                     <label class="flex cursor-pointer gap-3 rounded-xl border-2 p-4 transition" :class="m === '{{ $k }}' ? 'border-primary-container bg-primary-fixed/20' : 'border-outline-variant bg-surface-container-lowest hover:bg-surface-container-low'">
@@ -36,7 +37,10 @@
                 <x-select label="Paraf sebelum tanda tangan" name="paraf_role" bantuan="Nomor surat baru terbit saat surat ditandatangani."><option value="">Tanpa paraf</option><option value="wakil_dekan" @selected($v('paraf_role') === 'wakil_dekan')>Wakil Dekan</option><option value="kaprodi" @selected($v('paraf_role') === 'kaprodi')>Kaprodi</option></x-select>
             </div>
         </x-kartu>
-        <div class="flex justify-end gap-2"><x-tombol :href="$s ? route('surat-keluar.show', $s) : route('surat-keluar.index')" varian="sekunder">Batal</x-tombol><x-tombol type="submit" ikon="save">Simpan Draf</x-tombol></div>
+        <div class="flex flex-wrap justify-end gap-2"><x-tombol :href="$s ? route('surat-keluar.show', $s) : route('surat-keluar.index')" varian="sekunder">Batal</x-tombol>
+            <x-tombol varian="lembut" ikon="visibility" x-on:click="pratinjauSurat('{{ route('surat-keluar.pratinjau') }}', $el.closest('form'))">Lihat Tampilan Surat</x-tombol>
+            <x-tombol type="submit" ikon="save">Simpan Draf</x-tombol></div>
     </form>
+    <x-pratinjau-surat />
 </div>
 </x-layouts::app>
