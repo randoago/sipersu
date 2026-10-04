@@ -50,7 +50,7 @@ class MasterDanProfilTest extends TestCase
     {
         $this->actingAs($this->u('198701012010011001'))->post('/master/pengguna', [
             'nomor_induk' => '22650099', 'nama' => 'Mahasiswa Baru', 'peran' => ['mahasiswa'], 'password' => 'rahasia123', 'aktif' => '1',
-        ])->assertRedirect('/master/pengguna');
+        ])->assertRedirect('/master/pengguna?kelompok=mahasiswa');
 
         $u = $this->u('22650099');
         $this->assertTrue($u->hasRole('mahasiswa'));

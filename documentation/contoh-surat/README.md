@@ -33,6 +33,8 @@ sehingga tampilannya sama persis dengan surat yang terbit di aplikasi.
 - Surat **ber-QR** memuat QR + spesimen **tanda tangan dengan stempel** (`template/img/ttd-dekan/ttd-dekan-stempel.png`).
 - Surat **tanpa QR** disiapkan **kosong**: tanpa QR, tanda tangan, maupun stempel — ruang di atas nama pejabat dikosongkan untuk dibubuhi manual.
 
+> Penjelasan lengkap isi QR, tanda tangan digital, batasan, dan referensi: `documentation/penjelasan-qrcode.pdf`.
+
 ## Membuat ulang
 
 ```bash

@@ -4,7 +4,7 @@
     <x-kartu>
         <div class="flex items-center gap-4">
             <span class="flex h-16 w-16 items-center justify-center rounded-full bg-primary-container font-headline-md text-headline-md text-on-primary-container">{{ $u->inisial() }}</span>
-            <div><p class="font-headline-md text-headline-md">{{ $u->namaLengkap() }}</p><p class="font-body-md text-body-md text-on-surface-variant tabular">{{ $u->nomor_induk }}</p>
+            <div><p class="font-headline-md text-headline-md">{{ $u->namaLengkap() }}</p><p class="font-body-md text-body-md text-on-surface-variant tabular">{{ $u->labelNomorInduk() }}: {{ $u->nomor_induk }}</p>
                 <p class="mt-1 flex flex-wrap gap-1.5">@foreach ($u->roles as $r)<span class="rounded-full bg-primary-fixed px-2.5 py-0.5 font-label-sm text-label-sm text-primary">{{ \App\Enums\Peran::tryFrom($r->name)?->label() ?? $r->name }}</span>@endforeach</p></div>
         </div>
         <dl class="mt-5 grid gap-4 sm:grid-cols-3">

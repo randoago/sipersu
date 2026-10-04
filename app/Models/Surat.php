@@ -83,9 +83,10 @@ class Surat extends Model
         return $this->sifat === 'rahasia';
     }
 
+    /** Verifikasi lengkap di dalam aplikasi (status batal, cocokkan hash PDF) — untuk petugas TU di jaringan lokal. */
     public function urlVerifikasi(): string
     {
-        return rtrim(config('app.public_url'), '/').'/v/'.$this->qr_token;
+        return rtrim((string) config('app.url'), '/').'/v/'.$this->qr_token;
     }
 
     /**

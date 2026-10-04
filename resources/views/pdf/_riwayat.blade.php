@@ -28,7 +28,7 @@
 
     <div class="rw-bagian">Keaslian dokumen</div>
     <table class="rw-info" width="100%" cellspacing="0" cellpadding="0">
-        <tr><td width="22%">Verifikasi online</td><td width="2%">:</td><td>{{ $urlVerifikasi }}</td></tr>
+        <tr><td width="22%">Alamat verifikasi</td><td width="2%">:</td><td>{{ $urlVerifikasi }}</td></tr>
         <tr><td>Ringkasan isi (SHA-256)</td><td>:</td><td class="rw-mono">{{ $digest }}</td></tr>
         <tr><td>Algoritma tanda tangan</td><td>:</td><td>Ed25519 (kunci Fakultas Teknik UM Buton)</td></tr>
     </table>

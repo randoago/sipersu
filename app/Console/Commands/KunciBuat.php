@@ -26,7 +26,7 @@ class KunciBuat extends Command
         $this->info('Kunci dibuat di '.config('sipersu.kunci_path'));
         $this->line('Kunci publik (base64): '.$k['public']);
         $this->warn('Segera jalankan: php artisan kunci:cadangkan <folder-tujuan>  — dan simpan salinannya di tempat aman.');
-        $this->line('Lalu: php artisan kunci:publikasi  untuk membuat verifikasi-offline/verifikasi.html');
+        $this->line('Lalu: php artisan kunci:publikasi  untuk membuat verifikasi-statis/index.html');
 
         return self::SUCCESS;
     }

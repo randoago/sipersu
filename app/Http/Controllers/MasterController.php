@@ -21,12 +21,14 @@ class MasterController extends Controller
     {
         $d = $this->def($entitas);
         $q = trim((string) $request->query('q', ''));
+        $kelompok = $entitas === 'pengguna' && $request->query('kelompok') === 'mahasiswa' ? 'mahasiswa' : 'dosen';
         $daftar = $d['model']::with($d['with'])
+            ->when($entitas === 'pengguna', fn ($w) => $kelompok === 'mahasiswa' ? $w->mahasiswa() : $w->bukanMahasiswa())
             ->when($q !== '', fn ($w) => $w->where(fn ($x) => collect($d['cari'])->each(fn ($c) => $x->orWhere($c, 'like', "%$q%"))))
             ->orderBy($entitas === 'jenis-surat' ? 'urutan' : ($d['cari'][0]))
             ->paginate(15)->withQueryString();
 
-        return view('master.daftar', ['entitas' => $entitas, 'd' => $d, 'daftar' => $daftar, 'q' => $q, 'semua' => MasterData::semua()]);
+        return view('master.daftar', ['entitas' => $entitas, 'd' => $d, 'daftar' => $daftar, 'q' => $q, 'kelompok' => $kelompok, 'semua' => MasterData::semua()]);
     }
 
     public function buat(string $entitas)
@@ -84,7 +86,9 @@ class MasterController extends Controller
         }
         LogAktivitas::catat($id ? 'master_ubah' : 'master_buat', ($id ? 'Mengubah ' : 'Menambah ').$d['judul'].': '.($m->nama ?? $m->kode ?? $m->id), $m);
 
-        return redirect()->route('master.daftar', $entitas)->with('sukses', $d['judul'].' berhasil disimpan.');
+        $arah = $entitas === 'pengguna' ? ['entitas' => $entitas, 'kelompok' => $m->adalahMahasiswa() ? 'mahasiswa' : 'dosen'] : $entitas;
+
+        return redirect()->route('master.daftar', $arah)->with('sukses', $d['judul'].' berhasil disimpan.');
     }
 
     public function aktif(string $entitas, int $id)

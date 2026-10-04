@@ -7,7 +7,7 @@
         <div class="mt-2 flex flex-wrap items-center gap-2">
             <span class="inline-flex items-center gap-1.5 rounded-full bg-secondary-container/40 px-3 py-1 font-label-md text-label-md text-on-secondary-fixed-variant"><span class="h-2 w-2 rounded-full bg-secondary"></span>{{ $tahap }}</span>
             <x-lencana-status :status="$p->status" />
-            <span class="font-body-sm text-body-sm text-on-surface-variant">Pemohon: <strong>{{ $p->pemohon->nama }}</strong> ({{ $p->pemohon->nomor_induk }})</span>
+            <span class="font-body-sm text-body-sm text-on-surface-variant">Pemohon: <strong>{{ $p->pemohon->nama }}</strong> (NPM: {{ $p->pemohon->nomor_induk }})</span>
         </div>
     </header>
 

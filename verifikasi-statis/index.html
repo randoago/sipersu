@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Verifikasi Offline — SIPERSU FT-UMB</title>
+<title>Verifikasi Keaslian Surat — SIPERSU FT-UMB</title>
 <style>
   :root { --hijau:#0F6B3E; --hijau-tua:#00512c; --emas:#F2B705; --merah:#ba1a1a; --bg:#faf8ff; --teks:#131b2e; --abu:#3f4941; }
   * { box-sizing: border-box; }
@@ -37,14 +37,14 @@
 <body>
 <main>
   <header>
-    <span class="lencana">Verifikasi Offline</span>
+    <span class="lencana">Verifikasi Keaslian Surat</span>
     <h1>SIPERSU FT-UMB — Universitas Muhammadiyah Buton</h1>
     <p>Memeriksa tanda tangan elektronik pada QR surat. Berjalan sepenuhnya di peramban Anda; tidak ada data yang dikirim ke mana pun.</p>
   </header>
 
   <section class="kartu">
     <label for="isi">Tempel tautan/isi kode QR surat</label>
-    <textarea id="isi" placeholder="https://…/v/…#eyJ2IjoxLC…" spellcheck="false"></textarea>
+    <textarea id="isi" placeholder="https://…/verifikasi#eyJ2IjoxLC…" spellcheck="false"></textarea>
     <div class="baris">
       <button class="utama" id="periksa">Periksa Keaslian</button>
       <button class="sekunder" id="pindai" hidden>Pindai dengan Kamera</button>
@@ -55,6 +55,8 @@
   </section>
 
   <section class="kartu hasil" id="hasil" hidden></section>
+
+  <p class="kecil" style="text-align:center">Untuk salinan PDF asli, hubungi TU Fakultas Teknik UM Buton.</p>
 
   <section class="kartu">
     <p class="kecil" style="margin:0"><strong>Kunci publik fakultas (Ed25519)</strong><br>

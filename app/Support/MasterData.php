@@ -17,20 +17,20 @@ class MasterData
         $prodi = fn () => ['' => '— tidak ada —'] + Prodi::orderBy('nama')->pluck('nama', 'id')->all();
         $klas = fn () => ['' => '— pilih —'] + KlasifikasiSurat::orderBy('kode')->get()->mapWithKeys(fn ($k) => [$k->id => $k->kode.' — '.$k->nama])->all();
         $jabatan = fn () => ['' => '— pilih —'] + Jabatan::orderBy('nama')->pluck('nama', 'id')->all();
-        $pejabat = fn () => ['' => '— kosong —'] + User::where('aktif', true)->orderBy('nama')->get()->mapWithKeys(fn ($u) => [$u->id => $u->namaLengkap().' ('.$u->nomor_induk.')'])->all();
+        $pejabat = fn () => ['' => '— kosong —'] + User::bukanMahasiswa()->where('aktif', true)->orderBy('nama')->get()->mapWithKeys(fn ($u) => [$u->id => $u->namaLengkap().' (NIDN '.$u->nomor_induk.')'])->all();
 
         return [
             'pengguna' => [
                 'model' => User::class, 'judul' => 'Pengguna', 'ikon' => 'groups', 'with' => ['prodi', 'roles'],
                 'cari' => ['nomor_induk', 'nama', 'email'],
                 'kolom' => [
-                    ['NPM/NIDN', fn ($m) => $m->nomor_induk, 'tabular'],
+                    ['Nomor Induk', fn ($m) => $m->labelNomorInduk().' '.$m->nomor_induk, 'tabular'],
                     ['Nama', fn ($m) => $m->namaLengkap()],
                     ['Peran', fn ($m) => $m->roles->map(fn ($r) => Peran::tryFrom($r->name)?->label() ?? $r->name)->implode(', ')],
                     ['Prodi', fn ($m) => $m->prodi?->nama ?? '-'],
                 ],
                 'field' => [
-                    ['nomor_induk', 'NPM / NIDN', 'teks', ['required', 'string', 'max:30', 'unique:users,nomor_induk,{id}'], 'lebar' => 'setengah'],
+                    ['nomor_induk', 'NPM (mahasiswa) / NIDN (dosen)', 'teks', ['required', 'string', 'max:30', 'unique:users,nomor_induk,{id}'], 'lebar' => 'setengah'],
                     ['nama', 'Nama (tanpa gelar)', 'teks', ['required', 'string', 'max:120'], 'lebar' => 'setengah'],
                     ['gelar_depan', 'Gelar depan', 'teks', ['nullable', 'string', 'max:50'], 'lebar' => 'setengah'],
                     ['gelar_belakang', 'Gelar belakang', 'teks', ['nullable', 'string', 'max:80'], 'lebar' => 'setengah'],
@@ -65,7 +65,7 @@ class MasterData
                     ['kode', 'Kode (unik)', 'teks', ['required', 'string', 'max:30', 'regex:/^[a-z0-9\-]+$/', 'unique:jabatan,kode,{id}'], 'bantuan' => 'Huruf kecil, angka, strip. Contoh: kaprodi-ts', 'lebar' => 'setengah'],
                     ['prodi_id', 'Program studi (bila Kaprodi)', 'pilihan', ['nullable', 'exists:prodi,id'], 'opsi' => $prodi, 'lebar' => 'setengah'],
                     ['nama', 'Nama jabatan', 'teks', ['required', 'string', 'max:150'], 'bantuan' => 'Tercetak pada surat. Contoh: Dekan Fakultas Teknik'],
-                    ['user_id', 'Pejabat aktif', 'pilihan', ['nullable', 'exists:users,id'], 'opsi' => $pejabat],
+                    ['user_id', 'Pejabat aktif', 'pilihan', ['nullable', 'exists:users,id', fn ($a, $v, $gagal) => $v && User::mahasiswa()->whereKey($v)->exists() ? $gagal('Mahasiswa tidak dapat menjadi pejabat penandatangan.') : null], 'opsi' => $pejabat, 'bantuan' => 'Hanya dosen/tendik; mahasiswa tidak ditampilkan.'],
                     ['periode_mulai', 'Periode mulai', 'tanggal', ['nullable', 'date'], 'lebar' => 'setengah'],
                     ['periode_selesai', 'Periode selesai', 'tanggal', ['nullable', 'date', 'after_or_equal:periode_mulai'], 'lebar' => 'setengah'],
                     ['aktif', 'Aktif', 'ya_tidak', ['boolean']],

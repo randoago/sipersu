@@ -69,7 +69,8 @@ return [
 
     'versi' => env('APP_VERSI', '0.1.0'),
 
-    'public_url' => env('APP_PUBLIC_URL', env('APP_URL')),
+    // Paksa https:// pada semua tautan bila server dipasangi sertifikat (INSTALL.md, mode HTTPS).
+    'force_https' => (bool) env('APP_FORCE_HTTPS', false),
 
     /*
     |--------------------------------------------------------------------------

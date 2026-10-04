@@ -47,9 +47,9 @@ Catatan: nama Wakil Dekan dan semua nomor induk di atas adalah **contoh**; ganti
 | `BACKUP_PASSWORD` | Membuka semua backup ZIP terenkripsi | Amplop tertutup di brankas Dekanat + salinan terpisah | ……… |
 | Kunci tanda tangan `storage\keys\ed25519.secret` | Tanda tangan elektronik fakultas | Server + salinan `kunci:cadangkan` di flashdisk/brankas | ……… |
 | Sandi aplikasi email (`MAIL_PASSWORD`) | Mengirim notifikasi email | `.env` di server | ……… |
-| Akun Google fakultas (rclone) | Backup mingguan ke Google Drive | Pengelola kata sandi | ……… |
-| Akun Cloudflare | Tunnel verifikasi QR | Pengelola kata sandi | ……… |
-| Akun GitHub | Hosting `verifikasi.html` | Pengelola kata sandi | ……… |
+| Akun Google fakultas (rclone) | *Opsional:* backup mingguan ke Google Drive | Pengelola kata sandi | ……… |
+| Akun GitHub | *Opsional:* hosting halaman verifikasi QR (`verifikasi-statis/index.html`) | Pengelola kata sandi | ……… |
+| Akses router (Winbox/WebFig) | Mengatur DNS statis `sipersu.ft.umbuton.ac.id` | Pengelola jaringan | ……… |
 | Akun Windows server (Administrator) | Menjalankan Laragon & Task Scheduler | Pengelola kata sandi | ……… |
 
 Prosedur lengkap penyimpanan sandi backup ada di **INSTALL.md → bagian 12 (SOP penyimpanan kata sandi backup)**.

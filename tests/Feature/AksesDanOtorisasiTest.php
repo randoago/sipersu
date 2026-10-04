@@ -140,13 +140,22 @@ class AksesDanOtorisasiTest extends TestCase
         $this->actingAs($this->u('198701012010011001'))->get("/lampiran/{$l->id}")->assertOk();
     }
 
-    public function test_pembatas_jaringan_internet_hanya_ke_v_dan_lan_ke_semua(): void
+    public function test_fase_1_hanya_jaringan_lokal_ip_lain_ditolak_di_semua_rute(): void
     {
-        $this->withHeaders(['CF-Connecting-IP' => '8.8.8.8'])->get('/login')->assertNotFound();           // lewat tunnel: rute non-publik disembunyikan
-        $this->withHeaders(['CF-Connecting-IP' => '8.8.8.8'])->get('/dasbor')->assertNotFound();
-        $this->withHeaders(['CF-Connecting-IP' => '8.8.8.8'])->get('/v/'.str_repeat('z', 43))->assertSee('Tidak Ditemukan', false)->assertNotFound(); // rute /v/* diizinkan (404 dari aplikasi)
-        $this->flushHeaders();
-        $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.9'])->get('/login')->assertForbidden();
-        $this->withServerVariables(['REMOTE_ADDR' => '192.168.1.20'])->get('/login')->assertOk();
+        foreach (['10.1.2.3', '172.20.5.5', '192.168.1.20', '127.0.0.1', '100.100.1.1'] as $ip) {   // privat + loopback + Tailscale
+            $this->withServerVariables(['REMOTE_ADDR' => $ip])->get('/login')->assertOk();
+        }
+        foreach (['203.0.113.9', '8.8.8.8', '100.63.255.255', '172.32.0.1'] as $ip) {
+            foreach (['/login', '/verifikasi', '/v/'.str_repeat('z', 43), '/dasbor'] as $path) {
+                $this->withServerVariables(['REMOTE_ADDR' => $ip])->get($path)->assertForbidden();
+            }
+        }
+    }
+
+    public function test_header_proksi_tidak_dapat_memalsukan_alamat_lokal(): void
+    {
+        $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.9'])
+            ->withHeaders(['X-Forwarded-For' => '192.168.1.5', 'CF-Connecting-IP' => '192.168.1.5'])
+            ->get('/login')->assertForbidden();
     }
 }

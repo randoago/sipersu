@@ -81,6 +81,23 @@ class User extends Authenticatable
         return $this->peranUtama()?->label() ?? 'Pengguna';
     }
 
+    public function scopeMahasiswa($q)
+    {
+        return $q->whereHas('roles', fn ($r) => $r->where('name', Peran::Mahasiswa->value));
+    }
+
+    /** Dosen, tendik, dan pejabat (semua yang bukan mahasiswa). */
+    public function scopeBukanMahasiswa($q)
+    {
+        return $q->whereDoesntHave('roles', fn ($r) => $r->where('name', Peran::Mahasiswa->value));
+    }
+
+    /** Mahasiswa memakai NPM; selain mahasiswa (dosen, pejabat, tendik) memakai NIDN. */
+    public function labelNomorInduk(): string
+    {
+        return $this->adalahMahasiswa() ? 'NPM' : 'NIDN';
+    }
+
     public function adalahMahasiswa(): bool
     {
         return $this->hasRole(Peran::Mahasiswa->value);

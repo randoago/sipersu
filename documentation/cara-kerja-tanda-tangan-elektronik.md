@@ -45,7 +45,7 @@ Jadi: **QR = tanda tangan digital + hash**, bukan enkripsi.
 | | Kunci privat | Kunci publik |
 |---|---|---|
 | Fungsi | **Membuat** tanda tangan | **Memeriksa** tanda tangan |
-| Lokasi | `storage\keys\ed25519.secret` | `storage\keys\ed25519.public` dan tertanam di `verifikasi.html` |
+| Lokasi | `storage\keys\ed25519.secret` | `storage\keys\ed25519.public` dan tertanam di `verifikasi-statis/index.html` |
 | Ukuran | 64 byte (disimpan sebagai base64, 88 karakter) | 32 byte (44 karakter) |
 | Rahasia? | **YA, mutlak** | Tidak (aman dipublikasikan) |
 | Dibuat oleh | `php artisan kunci:buat` (sekali, saat instalasi) | ikut dibuat bersamaan |
@@ -106,41 +106,42 @@ Yang ditandatangani adalah **byte persis dari teks JSON di atas**. Mengubah satu
 ## 6. Isi QR (anatomi tautan)
 
 ```
-https://verifikasi.umbuton.ac.id/v/PR8pNDuDVCSF4gmXzcQNnqy38FfiSS7DSIol8R2LpC7#eyJ2IjoxLCJu…IiwidCI6…ifQ.C0hioENjzZTKOz_NYM0It…
-└───────────────┬──────────────┘└──────────────┬───────────────────────────┘ └────────┬────────┘ └─────────┬────────┘
-  alamat publik (APP_PUBLIC_URL)         token acak 43 karakter             payload (base64url)     signature (base64url)
+http://sipersu.ft.umbuton.ac.id/verifikasi#eyJ2IjoxLCJu…IiwidCI6…ifQ.C0hioENjzZTKOz_NYM0It…
+└─────────────────┬──────────────────────┘ └──────────────┬─────────────┘ └────────┬────────┘
+       halaman verifikasi statis (VERIFIKASI_URL)      payload (base64url)     signature (base64url)
 ```
 
-- Bagian sebelum `#` dibaca **server** (untuk verifikasi online).
-- Bagian setelah `#` (**fragment**) **tidak pernah dikirim browser ke server** — dipakai untuk verifikasi **offline** dan tidak muncul di log server.
-- Panjang total ±460 karakter; kode QR berukuran sedang, tetap terbaca ponsel.
+- Bagian sebelum `#` adalah alamat **halaman statis** (HTML + JavaScript murni). QR **tidak memuat token** dan tidak memerlukan server/basis data untuk diperiksa.
+- Bagian setelah `#` (**fragment**) **tidak pernah dikirim browser ke server**; diperiksa di peramban pengguna dan tidak muncul di log server.
+- Panjang total ±430 karakter; kode QR berukuran sedang, tetap terbaca ponsel.
+- Penjelasan lengkap tentang QR code, kapasitas, koreksi galat, dan referensinya: `documentation/penjelasan-qrcode.pdf`.
 
 ---
 
 ## 7. Dua cara memeriksa
 
-### A. Verifikasi online — `https://…/v/{token}`
+### A. Halaman verifikasi statis — tujuan QR (`VERIFIKASI_URL`)
 
-Dipakai bila server menyala dan Cloudflare Tunnel aktif.
+Dipakai siapa pun yang memindai QR. Bawaannya dilayani aplikasi di `/verifikasi` (jaringan lokal); opsional dapat diunggah ke GitHub Pages (INSTALL.md bagian 8).
+
+1. Berkas statis (HTML + JavaScript murni). **Kunci publik tertanam** di dalamnya (`php artisan kunci:publikasi`).
+2. Peramban membaca bagian setelah `#`, memeriksa signature **di perangkat pengguna sendiri**. Tidak ada data yang dikirim ke mana pun.
+3. Hasil: **Dokumen Asli** (dengan data dari payload) atau **Tidak Valid**.
+4. Halaman menampilkan **sidik jari kunci publik** (SHA-256). Fakultas sebaiknya mengumumkan sidik jari ini; bila berbeda, jangan percaya hasil halaman itu.
+5. Halaman juga menuliskan: *"Untuk salinan PDF asli, hubungi TU Fakultas Teknik UM Buton."*
+
+### B. Verifikasi lengkap di aplikasi — `http://sipersu.ft.umbuton.ac.id/v/{token}`
+
+Untuk **petugas TU** di jaringan lokal (dibuka dari tombol pada halaman surat/pengajuan).
 
 1. Server mencari surat berdasarkan **token**.
 2. Server **menyusun ulang payload dari basis data** lalu **memeriksa signature** dengan kunci publik.
    → Bila data surat di basis data diubah diam-diam, **pemeriksaan gagal** ("Tanda Tangan Tidak Cocok").
-3. Menampilkan: **Dokumen Asli**, atau **TIDAK BERLAKU** (bila surat dibatalkan), plus metadata (nomor, perihal, penanda tangan, waktu) dan **Riwayat Surat**.
+3. Menampilkan: **Dokumen Asli**, atau **TIDAK BERLAKU** (bila surat dibatalkan), plus metadata dan **Riwayat Surat**.
 4. Form **Cek Integritas Berkas PDF**: unggah PDF → server menghitung SHA-256 dan membandingkannya dengan hash PDF final yang tersimpan → **cocok / tidak cocok**.
 5. Setiap pemindaian **dicatat** di Log Aktivitas. Surat berklasifikasi *rahasia* hanya menampilkan metadata minimal.
 
-### B. Verifikasi offline — `verifikasi.html`
-
-Dipakai bila server/internet fakultas mati.
-
-1. Berkas statis (HTML + JavaScript murni), dihosting gratis (mis. GitHub Pages). **Kunci publik tertanam** di dalamnya.
-2. Pengguna menempelkan tautan QR. Peramban membaca bagian setelah `#`, memeriksa signature **di komputer pengguna sendiri** — tidak ada data yang dikirim ke mana pun.
-3. Hasil: **Dokumen Asli** (dengan data dari payload) atau **Tidak Valid**.
-4. Halaman menampilkan **sidik jari kunci publik** (SHA-256). Fakultas sebaiknya mengumumkan sidik jari ini; bila berbeda, jangan percaya hasil halaman itu.
-
-| | Online | Offline |
-|---|---|---|
+---|---|---|
 | Butuh server fakultas | Ya | **Tidak** |
 | Tahu surat **dibatalkan** | **Ya** | Tidak |
 | Cek PDF dengan unggah | **Ya** | Tidak |
@@ -171,7 +172,7 @@ Mengapa tidak satu hash saja? Karena **QR berada di dalam PDF**. PDF final tidak
 **TIDAK dijamin / perlu kewaspadaan:**
 - **Kerahasiaan isi.** Isi PDF tidak dienkripsi.
 - **Menyalin QR asli ke surat palsu.** QR asli tetap "asli" — tetapi halaman verifikasi menampilkan **data surat yang sebenarnya**. Pemeriksa harus **mencocokkan nomor, perihal, dan nama** pada surat yang dipegang dengan yang tampil di halaman verifikasi, dan sebaiknya mengunggah PDF-nya untuk uji hash.
-- **Pembatalan saat offline.** Surat yang sudah dibatalkan tetap lolos pemeriksaan offline; hanya halaman online yang menampilkan "TIDAK BERLAKU".
+- **Pembatalan pada halaman statis.** Surat yang sudah dibatalkan tetap lolos pemeriksaan di halaman statis; hanya verifikasi lengkap di aplikasi yang menampilkan "TIDAK BERLAKU".
 - **Waktu tanda tangan.** Yang ditandatangani hanya **tanggal** (`t`); jam pada halaman verifikasi berasal dari basis data.
 - **Bocornya kunci privat.** Siapa pun yang memegangnya dapat menerbitkan tanda tangan palsu yang tampak sah (lihat bagian 11).
 - **Hasil cetak/foto/pindaian.** Tidak ada perlindungan bila surat dicetak lalu dipindai ulang dengan isi diubah — selalu verifikasi lewat QR.
@@ -185,7 +186,7 @@ Mengapa tidak satu hash saja? Karena **QR berada di dalam PDF**. PDF final tidak
 | **Backup** | ZIP **AES-256** dengan `BACKUP_PASSWORD` + checksum SHA-256 | Kehilangan sandi = backup **tidak bisa dibuka** siapa pun (SOP: INSTALL.md bagian 12) |
 | **Kata sandi akun** | **bcrypt** (hash satu arah) | Admin tidak dapat melihatnya, hanya mengatur ulang |
 | **Lampiran & PDF** | Disimpan di folder **privat** (tidak bisa diakses lewat URL langsung) | **Tidak dienkripsi** di disk — lindungi server (lihat saran BitLocker di bawah) |
-| **Lalu lintas jaringan** | Akses publik `/v/*` lewat **HTTPS** Cloudflare Tunnel; di jaringan lokal memakai HTTP biasa | Pertimbangkan HTTPS lokal bila jaringan tidak dipercaya |
+| **Lalu lintas jaringan** | Aplikasi hanya menerima IP jaringan lokal (selain itu 403); HTTP biasa secara bawaan | HTTPS lokal opsional (INSTALL.md bagian 5.4) bila jaringan tidak dipercaya |
 
 ---
 
@@ -201,7 +202,7 @@ Mengapa tidak satu hash saja? Karena **QR berada di dalam PDF**. PDF final tidak
 **Bila kunci diduga bocor**
 1. Hentikan penerbitan surat ber-QR sementara.
 2. `php artisan kunci:buat --force` (membuat pasangan baru).
-3. `php artisan kunci:publikasi` lalu unggah ulang `verifikasi.html` ke GitHub Pages; umumkan sidik jari kunci baru.
+3. `php artisan kunci:publikasi` lalu unggah ulang `verifikasi-statis/index.html` bila dipakai di GitHub Pages; umumkan sidik jari kunci baru.
 4. Surat lama: verifikasi **online** tetap menunjukkan data sebenarnya dari basis data, tetapi pemeriksaan tanda tangan terhadap kunci baru akan gagal untuk surat yang ditandatangani kunci lama. Tentukan kebijakan (mis. terbitkan ulang surat penting) sebelum melakukannya.
 
 **Pemulihan saat laptop rusak:** pulihkan dari backup dengan `--termasuk-env` → kunci ikut kembali, sehingga **QR lama tetap valid**. Lihat INSTALL.md bagian 11.
@@ -239,7 +240,7 @@ Kunci publik: Zds45eiDOsPj9RdUfsgxuT7ClMg1Hom8m4VCmoLbCuI=
 **b. Uji kerusakan:** ubah **satu huruf** pada tautan lalu jalankan lagi →
 `✘ TIDAK VALID — tanda tangan tidak cocok`
 
-**c. Dari peramban, tanpa server:** buka `verifikasi.html` (lokal atau GitHub Pages), tempel tautan QR, klik **Periksa Keaslian**. Ubah satu huruf dan lihat hasilnya berubah menjadi **Tidak Valid**.
+**c. Dari peramban, tanpa server:** buka halaman verifikasi statis (`/verifikasi` atau GitHub Pages), tempel tautan QR, klik **Periksa Keaslian**. Ubah satu huruf dan lihat hasilnya berubah menjadi **Tidak Valid**.
 
 **d. Dari kode PHP** (inti pemeriksaannya hanya satu baris):
 
@@ -284,5 +285,5 @@ sodium_crypto_sign_verify_detached($signature, $payloadJson, $kunciPublik); // t
 ---
 
 *Kode terkait:* `app/Services/KunciTte.php` (kunci & tanda tangan), `app/Services/TandaTanganService.php` (alur penandatanganan, payload, QR, PDF),
-`app/Http/Controllers/VerifikasiController.php` (verifikasi online), `resources/stubs/verifikasi.html` (verifikasi offline),
+`app/Http/Controllers/VerifikasiController.php` (verifikasi lengkap TU), `resources/stubs/verifikasi.html` (halaman verifikasi statis),
 `app/Console/Commands/TtePeriksa.php` (`tte:periksa`), `app/Services/Backup.php` (enkripsi backup).

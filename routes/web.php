@@ -11,7 +11,15 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dasbor');
 
-// Verifikasi publik — satu-satunya rute yang dibuka ke internet (Cloudflare Tunnel).
+// Halaman verifikasi statis (salinan lokal untuk QR bila VERIFIKASI_URL kosong); semua rute hanya untuk jaringan lokal.
+Route::get('/verifikasi', function () {
+    $berkas = config('sipersu.verifikasi_berkas');
+    abort_unless(is_file($berkas), 404, 'Halaman verifikasi belum dibuat. Jalankan: php artisan kunci:publikasi');
+
+    return response()->file($berkas, ['Content-Type' => 'text/html; charset=UTF-8']);
+})->name('verifikasi.statis');
+
+// Verifikasi lengkap di dalam aplikasi (status batal, cocokkan hash PDF) untuk petugas TU.
 Route::get('/v/{token}', [VerifikasiController::class, 'tampil'])->name('verifikasi.show')->middleware('throttle:60,1');
 Route::post('/v/{token}/cek', [VerifikasiController::class, 'cekBerkas'])->name('verifikasi.cek')->middleware('throttle:20,1');
 

@@ -111,12 +111,13 @@ class VerifikasiQrTest extends TestCase
         $this->assertFalse(KunciTte::verifikasi($payload, 'bukan-base64url!!'));
     }
 
-    public function test_qr_memuat_url_token_dan_fragment_payload_signature_yang_bisa_diverifikasi_offline(): void
+    public function test_qr_memuat_url_halaman_statis_dan_fragment_payload_signature_yang_bisa_diverifikasi_offline(): void
     {
         $tte = app(TandaTanganService::class);
         $url = $tte->urlQr($this->surat);
 
-        $this->assertStringStartsWith(rtrim(config('app.public_url'), '/').'/v/'.$this->surat->qr_token.'#', $url);
+        $this->assertStringStartsWith(config('sipersu.verifikasi_url').'#', $url);
+        $this->assertStringNotContainsString($this->surat->qr_token, $url, 'QR tidak memuat token: verifikasi dilakukan oleh halaman statis');
         [$b64, $sig] = explode('.', explode('#', $url, 2)[1]);
         $payload = KunciTte::dariB64url($b64);
         $data = json_decode($payload, true);
@@ -169,5 +170,43 @@ class VerifikasiQrTest extends TestCase
         $rusak = substr($b64, 0, 30).($b64[30] === 'A' ? 'B' : 'A').substr($b64, 31);
         $this->artisan('tte:periksa', ['isi' => "$rusak.$sig"])->expectsOutputToContain('TIDAK VALID')->assertExitCode(1);
         $this->artisan('tte:periksa', ['isi' => 'bukan-format'])->expectsOutputToContain('Format tidak dikenali')->assertExitCode(1);
+    }
+
+    public function test_halaman_statis_dilayani_lokal_dan_memuat_kunci_publik_serta_kontak_tu(): void
+    {
+        $dir = sys_get_temp_dir().DIRECTORY_SEPARATOR.'verif-'.uniqid();
+        config(['sipersu.verifikasi_berkas' => $dir.DIRECTORY_SEPARATOR.'index.html']);
+        $this->get('/verifikasi')->assertNotFound();                       // belum dibuat
+
+        $this->artisan('kunci:publikasi', ['--tujuan' => $dir])->assertSuccessful();
+        $html = $this->get('/verifikasi')->assertOk()->baseResponse->getFile()->getContent();
+
+        $this->assertStringContainsString(KunciTte::publik(), $html);
+        $this->assertStringContainsString('Untuk salinan PDF asli, hubungi TU Fakultas Teknik UM Buton.', $html);
+        @unlink($dir.DIRECTORY_SEPARATOR.'index.html');
+        @rmdir($dir);
+    }
+
+    public function test_pdf_penjelasan_qr_dibuat_dengan_qr_contoh_yang_valid(): void
+    {
+        $berkas = sys_get_temp_dir().DIRECTORY_SEPARATOR.'penjelasan-'.uniqid().'.pdf';
+
+        $this->artisan('dokumentasi:qrcode', ['--tujuan' => $berkas])->assertSuccessful();
+
+        $this->assertStringStartsWith('%PDF', file_get_contents($berkas));
+        $this->assertGreaterThan(20_000, filesize($berkas));
+        @unlink($berkas);
+    }
+
+    public function test_pdf_presentasi_qr_berisi_15_slide_16_banding_9(): void
+    {
+        $berkas = sys_get_temp_dir().DIRECTORY_SEPARATOR.'presentasi-'.uniqid().'.pdf';
+
+        $this->artisan('dokumentasi:presentasi-qr', ['--tujuan' => $berkas])->assertSuccessful();
+
+        $pdf = file_get_contents($berkas);
+        $this->assertStringStartsWith('%PDF', $pdf);
+        $this->assertSame(15, preg_match_all('#/Type\s*/Page[^s]#', $pdf));
+        @unlink($berkas);
     }
 }

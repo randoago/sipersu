@@ -13,19 +13,19 @@ Tanda ☐ adalah kotak centang untuk Anda pakai sendiri.
 | Komputer server | 1 laptop / PC AIO Windows 10/11 yang menyala terus selama jam kerja |
 | Perangkat lunak | **Laragon** (berisi Apache + PHP) — gratis. Tanpa Docker, tanpa Node.js |
 | Basis data | 1 berkas SQLite: `database\sipersu.sqlite` |
-| Akses pengguna | Dari perangkat lain di jaringan kampus: `http://192.168.1.10` (contoh) |
-| Internet | Hanya dipakai untuk: pemasangan awal, email, Google Drive (backup mingguan), dan verifikasi QR publik |
-| Cadangan | Harian ke HDD eksternal, mingguan ke Google Drive |
+| Akses pengguna | **Hanya jaringan lokal kampus (Fase 1):** `http://sipersu.ft.umbuton.ac.id`; alamat cadangan `http://192.168.1.10` (IP laptop server). Tidak ada rute yang dibuka ke internet |
+| Internet | **Tidak wajib.** Hanya untuk pemasangan awal; email, Google Drive, dan halaman verifikasi GitHub Pages bersifat opsional dan otomatis dilewati bila tidak ada internet |
+| Cadangan | Harian ke HDD eksternal, arsip tiap semester ke flashdisk; Google Drive opsional |
 
 **Yang disiapkan sebelum mulai**
 
 - ☐ Laptop/PC server dengan akun Windows **Administrator**
 - ☐ Folder proyek `sipersu` (dari flashdisk / GitHub / ZIP)
-- ☐ HDD eksternal atau flashdisk besar (≥ 16 GB) khusus backup
-- ☐ Akun Google fakultas (untuk backup mingguan) — opsional tetapi sangat disarankan
-- ☐ Akun email untuk pengirim notifikasi (contoh: Gmail fakultas) — opsional
-- ☐ Akun Cloudflare gratis dan sebuah domain (contoh: `umbuton.ac.id`) — untuk QR publik
-- ☐ Akun GitHub gratis — untuk halaman verifikasi offline
+- ☐ HDD eksternal (backup harian) dan flashdisk (arsip semester), masing-masing ≥ 16 GB
+- ☐ Akses ke router/DNS kampus untuk membuat nama `sipersu.ft.umbuton.ac.id` (bagian 5.3), atau minta bantuan TI kampus
+- ☐ Akun Google fakultas (backup Google Drive) — **opsional**, bisa menyusul saat ada internet
+- ☐ Akun email pengirim notifikasi (mis. Gmail fakultas) — **opsional**
+- ☐ Akun GitHub gratis — **opsional**, untuk halaman verifikasi QR di internet (bagian 7)
 
 ---
 
@@ -61,7 +61,8 @@ Tanda ☐ adalah kotak centang untuk Anda pakai sendiri.
 
 ```ini
 APP_URL=http://sipersu.ft.umbuton.ac.id   # alamat server di jaringan lokal (bagian 5.3)
-APP_PUBLIC_URL=https://verifikasi.umbuton.ac.id   # alamat PUBLIK untuk QR (bagian 7)
+APP_FORCE_HTTPS=false                   # true hanya bila memakai mode HTTPS (bagian 5.4)
+VERIFIKASI_URL=                         # kosong = halaman verifikasi di server sendiri (bagian 7)
 APP_DEBUG=false                         # JANGAN diubah ke true di server
 
 BACKUP_PASSWORD=GantiDenganSandiPanjangYangKuat   # bagian 9 & SOP di bagian 12
@@ -92,7 +93,7 @@ MAIL_FROM_ADDRESS="persuratan.ft@gmail.com"
    - memasang pustaka (perlu internet **sekali** ini saja),
    - membuat basis data dan mengisi data awal,
    - membuat **kunci tanda tangan elektronik fakultas**,
-   - membuat berkas `verifikasi-offline\verifikasi.html`.
+   - membuat halaman verifikasi statis `verifikasi-statis\index.html`.
 3. Buka peramban: `http://localhost` → muncul halaman **masuk SIPERSU**.
 
 ### Akun contoh (kata sandi semuanya `password`)
@@ -140,32 +141,81 @@ MAIL_FROM_ADDRESS="persuratan.ft@gmail.com"
 2. Pastikan jaringan diatur sebagai **Private**: *Settings → Network → Properties → Network profile type → Private*.
 3. Uji dari HP/laptop lain di Wi-Fi yang sama: buka `http://192.168.1.10` (atau `http://sipersu.ft.umbuton.ac.id` setelah bagian 5.3).
 
-### 5.3 Alamat nama lokal: `sipersu.ft.umbuton.ac.id`
+### 5.3 Alamat nama lokal: `sipersu.ft.umbuton.ac.id` (split DNS di router)
 
-Agar pengguna cukup mengetik `http://sipersu.ft.umbuton.ac.id` (bukan angka IP), nama itu harus mengarah ke IP server **hanya di jaringan lokal**. Pilih salah satu:
+Pada Fase 1, aplikasi **hanya** dipakai dari LAN/Wi-Fi fakultas. Pengguna cukup mengetik `http://sipersu.ft.umbuton.ac.id`. Nama itu **diarahkan ke IP lokal laptop server oleh DNS statis di router** (*split DNS*: nama ini hanya dikenal di dalam jaringan kampus; di internet nama tersebut tidak mengarah ke mana pun). **Alamat cadangan:** `http://<IP-laptop>` (mis. `http://192.168.1.10`), yang selalu berfungsi walau DNS bermasalah.
 
-**A. Disarankan: catatan DNS internal.** Minta pengelola jaringan/DNS kampus (mis. UPT TIK) menambahkan catatan **A**:
+**A. MikroTik** (Winbox → *New Terminal*, atau WebFig → *Terminal*). Pastikan router dipakai sebagai DNS klien (DHCP membagikan IP router sebagai DNS):
 
-| Nama | Tipe | Nilai |
+```
+/ip dns set allow-remote-requests=yes
+/ip dns static add name=sipersu.ft.umbuton.ac.id address=192.168.1.10 comment="SIPERSU FT-UMB"
+/ip dns cache flush
+```
+
+Periksa: `/ip dns static print`. Bila klien memakai DNS selain router (mis. 8.8.8.8), paksa semua DNS klien ke router:
+
+```
+/ip firewall nat add chain=dstnat protocol=udp dst-port=53 in-interface-list=LAN action=redirect to-ports=53 comment="Paksa DNS ke router"
+/ip firewall nat add chain=dstnat protocol=tcp dst-port=53 in-interface-list=LAN action=redirect to-ports=53
+```
+
+**B. Router lain (TP-Link, Tenda, ASUS, Ubiquiti, pfSense, OpenWrt, dll.).** Namanya berbeda-beda, cari menu salah satu dari: *Local DNS*, *DNS Host / Static DNS*, *Host Override*, *Hostname Mapping*, atau *DNS Rewrite* di pengaturan **LAN/DHCP/DNS**. Isi:
+
+| Kolom | Nilai |
+|---|---|
+| Hostname / Domain | `sipersu.ft.umbuton.ac.id` |
+| IP address | `192.168.1.10` (IP statis server) |
+
+Pada **OpenWrt**: *Network → DHCP and DNS → Hostnames*. Pada **pfSense**: *Services → DNS Resolver → Host Overrides*. Bila router tidak punya fitur ini, minta TI kampus menambahkannya di DNS internal kampus (catatan **A** ke IP server), **atau** gunakan cadangan **C**.
+
+**C. Cadangan tanpa akses router: berkas `hosts` di tiap komputer.**
+1. Buka Notepad **sebagai Administrator**, buka `C:\Windows\System32\drivers\etc\hosts`.
+2. Tambahkan baris di paling bawah lalu simpan: `192.168.1.10   sipersu.ft.umbuton.ac.id`
+
+**Di server:** isi `.env` `APP_URL=http://sipersu.ft.umbuton.ac.id`, lalu `php artisan config:cache`.
+
+**Uji** dari laptop/HP lain di Wi-Fi yang sama: buka `http://sipersu.ft.umbuton.ac.id` → muncul halaman masuk. Di komputer Windows: `nslookup sipersu.ft.umbuton.ac.id` harus menjawab `192.168.1.10`.
+
+#### Bila nama tidak terbuka padahal DNS router sudah benar
+
+Perangkat yang memakai **DNS terenkripsi** akan melewati DNS router sehingga nama lokal tidak dikenal. Matikan di perangkat pengguna:
+
+| Perangkat | Cara |
+|---|---|
+| **Android** (*Private DNS*) | *Setelan → Jaringan & internet → DNS pribadi (Private DNS)* → pilih **Mati** atau **Otomatis** (bukan nama host penyedia DNS). |
+| **Chrome / Edge** (*Secure DNS*) | *Setelan → Privasi dan keamanan → Keamanan → Gunakan DNS aman* → **matikan**, atau pilih "Dengan penyedia layanan Anda saat ini". |
+| **Firefox** (*DNS over HTTPS*) | *Setelan → Privasi & Keamanan → DNS over HTTPS* → **Nonaktif**. |
+| **iPhone** | Lepas profil VPN/DNS pihak ketiga (*Setelan → Umum → VPN & Manajemen Perangkat*). |
+| **VPN / aplikasi pemblokir iklan** | Matikan saat mengakses SIPERSU. |
+
+Selama itu belum beres, pakai **alamat cadangan** `http://<IP-laptop>`.
+
+> Akses dibatasi di dalam aplikasi: hanya IP privat (10.x, 172.16–31.x, 192.168.x), `127.0.0.1`, dan Tailscale (100.64.0.0/10, opsional untuk admin jarak jauh) yang diterima. IP lain mendapat **403**. Tidak ada tunnel atau VPS.
+
+### 5.4 Mode HTTP atau HTTPS (opsional)
+
+| Mode | Kapan | Pengaturan |
 |---|---|---|
-| `sipersu.ft.umbuton.ac.id` | A | `192.168.1.10` (IP statis server) |
+| **HTTP lokal** (bawaan) | Cukup untuk Fase 1: lalu lintas hanya di LAN/Wi-Fi fakultas | `APP_URL=http://sipersu.ft.umbuton.ac.id`, `APP_FORCE_HTTPS=false` |
+| **HTTPS** | Bila ingin gembok di peramban dan sandi terenkripsi di jaringan | Sertifikat Let's Encrypt (di bawah), `APP_URL=https://sipersu.ft.umbuton.ac.id`, `APP_FORCE_HTTPS=true` |
 
-Catatan ini cukup ada di DNS **internal** kampus; tidak perlu dibuka ke internet (alamat IP lokal memang tidak dapat dipakai dari luar).
+**HTTPS dengan Let's Encrypt (validasi DNS-01, tanpa membuka server ke internet):**
 
-**B. Cadangan, tanpa pengelola DNS: berkas `hosts` di tiap komputer pengguna.**
-1. Buka Notepad **sebagai Administrator**, lalu buka `C:\Windows\System32\drivers\etc\hosts`.
-2. Tambahkan satu baris di paling bawah, lalu simpan:
-   ```
-   192.168.1.10   sipersu.ft.umbuton.ac.id
-   ```
+Server tidak perlu terlihat dari internet karena Let's Encrypt cukup memastikan Anda **mengendalikan domain** lewat sebuah record **TXT**.
 
-**Lalu di server:**
-1. Isi `.env`: `APP_URL=http://sipersu.ft.umbuton.ac.id`, kemudian `php artisan config:cache`.
-2. Uji dari komputer lain di jaringan yang sama: buka `http://sipersu.ft.umbuton.ac.id` → muncul halaman masuk. Alamat `http://192.168.1.10` tetap berfungsi.
+1. Unduh **win-acme** (<https://www.win-acme.com>) dan ekstrak ke `C:\win-acme`.
+2. Jalankan `wacs.exe` sebagai Administrator → **N** (buat sertifikat, opsi penuh) → **Manual input** → host `sipersu.ft.umbuton.ac.id`.
+3. Pada pertanyaan metode validasi pilih **[manual] Create records manually (DNS-01)**. win-acme menampilkan record yang harus dibuat, misalnya:
+   `_acme-challenge.sipersu.ft.umbuton.ac.id  TXT  "kode-acak-dari-win-acme"`
+4. **Kirim record itu ke TI kampus** (pengelola DNS publik `umbuton.ac.id`) untuk ditambahkan, tunggu sampai terlihat (`nslookup -type=TXT _acme-challenge.sipersu.ft.umbuton.ac.id 8.8.8.8`), lalu lanjutkan di win-acme.
+5. Pada langkah penyimpanan pilih **PEM files** (mis. folder `C:\laragon\etc\ssl\sipersu`) lalu pasang di Apache Laragon (*Menu → Apache → SSL*; arahkan `SSLCertificateFile` dan `SSLCertificateKeyFile` ke berkas tersebut) dan aktifkan port 443 (bagian 5.2: tambahkan aturan firewall 443 hanya untuk jaringan lokal).
+6. Isi `.env`: `APP_URL=https://sipersu.ft.umbuton.ac.id` dan `APP_FORCE_HTTPS=true`, lalu `php artisan config:cache`.
+7. Sertifikat berlaku 90 hari. Karena DNS-01 manual, **perpanjangan juga memerlukan record TXT baru dari TI kampus**: catat tanggal kedaluwarsa dan minta TI memakai skrip DNS atau API bila tersedia (win-acme mendukung banyak penyedia DNS). Bila TI tidak bisa, tetap gunakan mode HTTP.
 
-> Alamat ini **hanya `http`** dan **hanya untuk jaringan lokal**; aplikasi tetap menolak akses dari luar jaringan lokal. Alamat publik untuk QR adalah hal terpisah (`verifikasi.umbuton.ac.id`, bagian 7).
+> Tanda "tidak aman" pada mode HTTP di jaringan lokal wajar; yang penting server tidak terbuka ke internet.
 
-### 5.4 Nonaktifkan sleep
+### 5.5 Nonaktifkan sleep
 
 **Klik kanan `scripts\nonaktifkan-sleep.bat` → Run as administrator.**
 Setelah itu laptop tidak tidur/hibernasi saat tersambung listrik, termasuk saat layar laptop ditutup.
@@ -196,64 +246,53 @@ Yang dikerjakan scheduler:
 | Tiap menit | Mengirim email yang antre |
 | Harian 08.00 | Memeriksa kesehatan backup → email ke Admin bila bermasalah |
 | Harian **16.30** | Backup ke `BACKUP_LOCAL_PATH` (simpan 30 terakhir) |
-| Jumat **17.30** | Backup ke Google Drive via rclone (simpan 12 terakhir; dilewati bila belum dikonfigurasi) |
+| Jumat **17.30** | Backup ke Google Drive via rclone — **opsional**; dilewati otomatis bila rclone belum diatur atau **tidak ada internet** |
 
 Uji: jalankan `scripts\backup-sekarang.bat` lalu lihat di **Pengaturan → Backup** pada aplikasi.
 
 ---
 
-## 7. Verifikasi QR dari internet (Cloudflare Tunnel)
+## 7. Verifikasi QR (Fase 1: jaringan lokal)
 
-Server ada di jaringan lokal dan **tidak bisa** diakses dari luar. Dengan **Cloudflare Tunnel**, **hanya** alamat `/v/…` (halaman verifikasi QR) yang dibuka ke internet; halaman lain tetap hanya untuk jaringan lokal. Ada dua lapis pengaman: aturan di Cloudflare dan pemeriksaan di dalam aplikasi.
+> Ingin memahami cara kerja tanda tangan elektronik, kunci, dan QR? Baca `documentation/cara-kerja-tanda-tangan-elektronik.md` `documentation/penjelasan-qrcode.pdf`, serta slide presentasi `documentation/presentasi-qr-persuratan.pdf`.
 
-1. Daftar/masuk ke <https://dash.cloudflare.com> dan siapkan domain untuk alamat publik verifikasi, yaitu `verifikasi.umbuton.ac.id`.
-   > **Koordinasikan dengan pengelola DNS `umbuton.ac.id`** (mis. UPT TIK universitas). Agar hostname tunnel bisa dibuat, domain/zone-nya harus aktif di Cloudflare: mintalah pengelola DNS menambahkan `umbuton.ac.id` ke akun Cloudflare, atau menyiapkan subdomain `verifikasi` sesuai kebijakan mereka. Bila tidak memungkinkan, pakai domain lain milik fakultas dan cukup ubah `APP_PUBLIC_URL`.
-2. Buka **Zero Trust → Networks → Tunnels → Create a tunnel → Cloudflared**. Beri nama `sipersu`.
-3. Pilih **Windows**, salin dan jalankan perintah yang ditampilkan di *Command Prompt (Administrator)*. Perintah ini memasang **cloudflared sebagai Windows Service** sehingga berjalan otomatis.
-4. Tab **Public Hostname → Add**:
-   - Subdomain/Domain: `verifikasi` + `umbuton.ac.id`
-   - **Path:** `^/(v/.*|css/.*|fonts/.*|images/.*|js/.*)$`   *(hanya ini yang boleh lewat)*
-   - Service: **HTTP** → `localhost:80`
-5. (Disarankan) Tambahkan satu aturan lagi di bawahnya: hostname yang sama, path kosong, Service **HTTP Status → 404**, agar jalur lain ditolak oleh Cloudflare.
-6. Isi `.env`:
+Setiap surat ber-QR memuat tanda tangan digital (Ed25519). QR berisi alamat **halaman verifikasi statis** diikuti `#payload.signature`. Bagian setelah `#` tidak pernah dikirim ke server; halaman statis memeriksa tanda tangan **di peramban** memakai kunci publik fakultas yang tertanam di dalamnya.
 
-```ini
-APP_PUBLIC_URL=https://verifikasi.umbuton.ac.id
+| Halaman | Alamat | Untuk siapa | Fungsi |
+|---|---|---|---|
+| **Verifikasi statis** | `VERIFIKASI_URL` (bawaan: `http://sipersu.ft.umbuton.ac.id/verifikasi`) | Siapa pun yang memindai QR | Memeriksa tanda tangan di peramban; tanpa server/basis data. Menampilkan: *"Untuk salinan PDF asli, hubungi TU Fakultas Teknik UM Buton."* |
+| **Verifikasi lengkap** | `http://sipersu.ft.umbuton.ac.id/v/{token}` | Petugas TU (jaringan lokal) | Status batal, riwayat dokumen, dan **cocokkan hash PDF** (unggah berkas). Dibuka dari tombol pada halaman surat/pengajuan |
+
+Pembuatan halaman statis (dilakukan otomatis oleh `pasang.bat`; ulangi bila kunci berubah):
+
 ```
-   lalu jalankan `php artisan config:cache`.
-7. **Uji:**
-   - Dari HP dengan **data seluler** (bukan Wi-Fi kampus), buka `https://verifikasi.umbuton.ac.id/login` → harus **404**.
-   - Terbitkan satu surat ber-QR, pindai QR-nya dengan HP (data seluler) → halaman **Dokumen Asli** tampil.
-8. Perhatikan: hanya surat yang diterbitkan **setelah** `APP_PUBLIC_URL` benar yang QR-nya menuju alamat publik. QR pada surat lama tidak berubah sendiri.
+php artisan kunci:publikasi
+```
 
-> Bila internet/server mati, QR tidak bisa dibuka — gunakan **verifikasi offline** (bagian 8).
+Hasilnya `verifikasi-statis\index.html` (satu berkas, tanpa server, tanpa internet). Selama `VERIFIKASI_URL` kosong, berkas ini dilayani aplikasi di `/verifikasi` sehingga QR dapat dipindai dari perangkat di jaringan lokal fakultas. **Uji:** pindai QR surat dengan HP yang tersambung Wi-Fi fakultas → halaman verifikasi terbuka → **Dokumen Asli**. Ubah satu huruf pada tautan → **Tidak Valid**.
+
+> Berkas ini hanya berisi **kunci publik** — aman dibagikan. **Kunci privat** (`storage\keys\ed25519.secret`) tidak pernah boleh keluar dari server dan cadangan terenkripsi. Bila kunci dibuat ulang (`kunci:buat --force`), jalankan `kunci:publikasi` lagi dan QR lama **tidak lagi valid**.
 
 ---
 
-## 8. Verifikasi offline (GitHub Pages, gratis)
+## 8. Halaman verifikasi di internet (opsional, GitHub Pages)
 
-> Ingin memahami cara kerja tanda tangan elektronik, kunci, dan QR? Baca `documentation/cara-kerja-tanda-tangan-elektronik.md`.
+**Tidak diperlukan pada Fase 1.** Bila nanti QR ingin dapat dipindai dari luar kampus (tanpa membuka server ke internet), unggah **hanya** halaman statis ke hosting gratis:
 
-Setiap QR memuat tanda tangan digital (Ed25519). Berkas `verifikasi.html` (kunci publik sudah tertanam) dapat memeriksanya **tanpa server fakultas**.
+1. Di <https://github.com> buat repositori **publik** baru, misalnya `verifikasi-ft-umb`.
+2. **Add file → Upload files**: unggah `verifikasi-statis\index.html`.
+3. **Settings → Pages → Source: Deploy from a branch → Branch: main / (root) → Save**. Setelah ±1 menit alamatnya menjadi `https://NAMA-ANDA.github.io/verifikasi-ft-umb/`.
+4. Isi `.env`: `VERIFIKASI_URL=https://NAMA-ANDA.github.io/verifikasi-ft-umb/` lalu `php artisan config:cache`.
+5. Hanya surat yang diterbitkan **setelah** `VERIFIKASI_URL` diubah yang QR-nya memakai alamat baru; QR lama tetap menuju alamat lama.
 
-1. Pastikan berkas ada: `C:\laragon\www\sipersu\verifikasi-offline\verifikasi.html`
-   (dibuat otomatis oleh `pasang.bat`; ulangi dengan `php artisan kunci:publikasi`).
-2. Di <https://github.com> buat repositori **publik** baru, misalnya `verifikasi-ft-umb`.
-3. Klik **Add file → Upload files**, unggah `verifikasi.html` dan ubah namanya menjadi **`index.html`** (agar alamat lebih pendek).
-4. **Settings → Pages → Source: Deploy from a branch → Branch: main / (root) → Save**.
-5. Setelah ±1 menit alamatnya menjadi `https://NAMA-ANDA.github.io/verifikasi-ft-umb/`.
-6. Isi `.env`: `VERIFIKASI_OFFLINE_URL=https://NAMA-ANDA.github.io/verifikasi-ft-umb/` lalu `php artisan config:cache`.
-7. **Uji:** salin tautan QR sebuah surat (hasil pindai), tempel di halaman itu → **Dokumen Asli**. Ubah satu huruf → **Tidak Valid**.
-
-> Berkas ini hanya berisi **kunci publik** — aman dipublikasikan. **Kunci privat** (`storage\keys\ed25519.secret`) tidak pernah boleh keluar dari server dan cadangan terenkripsi.
-> Bila kunci dibuat ulang (`kunci:buat --force`), `verifikasi.html` harus diunggah ulang dan QR lama **tidak lagi valid secara offline**.
+Halaman itu tidak memuat data surat apa pun selain yang ada di QR, jadi aman dipublikasikan. Server SIPERSU tetap tertutup dari internet.
 
 ---
 
 ## 9. Backup (aturan 3-2-1)
 
 3 salinan data · 2 media berbeda · 1 di luar lokasi.
-**Salinan 1** = data aktif di server, **2** = HDD eksternal (harian), **3** = Google Drive (mingguan).
+**Salinan 1** = data aktif di server, **2** = HDD eksternal (harian), **3** = flashdisk arsip semester yang disimpan di brankas Dekanat. Google Drive (mingguan) adalah salinan tambahan **opsional** yang dilewati bila tidak ada internet.
 
 Isi tiap backup: salinan SQLite yang konsisten (`VACUUM INTO`), folder `storage\app` (berkas & PDF), `storage\keys` (kunci), dan `.env`.
 Dibungkus **ZIP terenkripsi AES-256** dengan sandi `BACKUP_PASSWORD`, beserta berkas checksum SHA-256. Contoh nama: `sipersu-2026-10-04-1630.zip`.
@@ -268,7 +307,18 @@ Dibungkus **ZIP terenkripsi AES-256** dengan sandi `BACKUP_PASSWORD`, beserta be
 5. **Jangan cabut HDD** pada jam 16.30. Bila HDD tidak tercolok / penuh / backup lebih dari 2 hari tidak berhasil, **banner merah** muncul di dasbor Admin dan **email** dikirim.
 6. Rutin (mingguan): bawa HDD pulang bergantian dengan HDD kedua bila ada, supaya salinan tidak ikut rusak bersama laptop.
 
-### 9.2 Google Drive dengan rclone (backup mingguan)
+### 9.2 Flashdisk arsip semester
+
+Tiap **akhir semester** (dan sebelum perubahan besar), simpan arsip ke flashdisk yang disimpan terpisah dari laptop server:
+
+1. Colokkan flashdisk, klik dua kali `scripts\arsip-semester.bat`, ketik huruf drive (mis. `E`).
+2. Skrip membuat backup terenkripsi ke `E:\arsip-sipersu` dan menyalin **kunci tanda tangan** ke `E:\arsip-sipersu\kunci`.
+3. Beri label *"Arsip SIPERSU — Semester Ganjil/Genap 20xx"*, simpan di brankas Dekanat. Catat sandi backup sesuai SOP (bagian 12).
+4. Uji sekali setahun: pulihkan arsip dengan `scripts\uji-pemulihan.bat`.
+
+### 9.3 Google Drive dengan rclone (opsional, perlu internet)
+
+> Lewati bagian ini bila belum ada internet. Backup ke Google Drive **dilewati tanpa galat** bila rclone belum diatur atau internet terputus; backup HDD dan flashdisk tetap berjalan.
 
 1. Unduh **rclone** dari <https://rclone.org/downloads/> (Windows, 64-bit). Ekstrak ke `C:\rclone` lalu tambahkan `C:\rclone` ke **PATH**
    (*Start → "Edit the system environment variables" → Environment Variables → Path → New*). Tutup-buka ulang Command Prompt.
@@ -286,12 +336,13 @@ Dibungkus **ZIP terenkripsi AES-256** dengan sandi `BACKUP_PASSWORD`, beserta be
    ubah tugas "SIPERSU Scheduler" agar berjalan sebagai akun Windows yang sama dengan yang memasang rclone.
 7. Bila rclone belum ada/diatur, backup mingguan **dilewati tanpa galat**.
 
-### 9.3 Perintah backup
+### 9.4 Perintah backup
 
 | Perintah | Fungsi |
 |---|---|
 | `php artisan backup:run --jenis=harian` | Backup sekarang ke HDD eksternal |
 | `php artisan backup:run` | Backup manual ke folder internal (`storage\backups`) |
+| `php artisan backup:run --tujuan=E:\arsip-sipersu` | Arsip ke flashdisk (atau pakai `scripts\arsip-semester.bat`) |
 | `php artisan backup:list` | Riwayat backup |
 | `php artisan backup:verify [berkas.zip]` | Periksa checksum + coba buka ZIP |
 | `php artisan backup:restore berkas.zip --uji-saja` | **Uji pemulihan** (tidak menimpa data aktif) |
@@ -299,7 +350,7 @@ Dibungkus **ZIP terenkripsi AES-256** dengan sandi `BACKUP_PASSWORD`, beserta be
 
 Menu di aplikasi: **Pengaturan → Backup** (hanya Super Admin & Admin TU): tombol *Backup Sekarang*, unduh, riwayat, status.
 
-### 9.4 Uji pemulihan bulanan ⚠️
+### 9.5 Uji pemulihan bulanan ⚠️
 
 Backup yang tidak pernah diuji belum tentu bisa dipulihkan. Dasbor Admin menampilkan pengingat **"Lakukan uji pemulihan backup"** tiap 30 hari.
 Cara: klik dua kali `scripts\uji-pemulihan.bat`, tarik berkas backup ke jendelanya, Enter. Hasil "Uji pemulihan selesai" = aman.
@@ -353,10 +404,10 @@ Siapkan: (a) berkas backup `.zip` terbaru (+ `.sha256`) dari HDD/Google Drive, (
    ```
    Ketik `yes` saat diminta konfirmasi. Sistem otomatis membuat backup kondisi saat ini sebelum menimpa.
 7. ☐ Sesuaikan `.env` bila alamat berubah (`APP_URL` = IP statis laptop baru). Lalu `php artisan config:cache`.
-   Jalankan juga `php artisan kunci:publikasi` — hasilnya **harus sama** dengan `verifikasi.html` yang sudah ada di GitHub Pages
-   (kunci publik identik karena kunci lama ikut dipulihkan). Bila berbeda, jangan lanjut: pulihkan ulang dengan backup yang benar.
-8. ☐ Atur ulang: **IP statis, firewall, anti-sleep** (bagian 5), **Task Scheduler** (bagian 6), HDD eksternal & rclone (bagian 9).
-9. ☐ **Cloudflare Tunnel**: pasang ulang `cloudflared` di laptop baru dengan token tunnel yang sama (Zero Trust → Tunnels → *sipersu* → Configure → perintah pemasangan Windows).
+   Jalankan juga `php artisan kunci:publikasi` — kunci publik di `verifikasi-statis\index.html` **harus sama** dengan sebelumnya
+   (kunci lama ikut dipulihkan; bandingkan sidik jarinya dengan halaman verifikasi lama atau GitHub Pages bila dipakai). Bila berbeda, jangan lanjut: pulihkan ulang dengan backup yang benar.
+8. ☐ Atur ulang: **IP statis, firewall, anti-sleep** (bagian 5), **Task Scheduler** (bagian 6), HDD eksternal (bagian 9). Bila IP laptop baru berbeda, **ubah catatan DNS statis di router** (bagian 5.3) agar `sipersu.ft.umbuton.ac.id` menuju IP baru.
+9. ☐ (Opsional) rclone / Google Drive bila internet tersedia.
 10. ☐ Verifikasi hasil:
     - login sebagai Admin TU, buka beberapa pengajuan & surat lama, unduh satu PDF;
     - pindai QR surat **lama** → harus **Dokumen Asli** (membuktikan kunci tanda tangan ikut pulih);
@@ -391,7 +442,9 @@ Kata sandi backup (`BACKUP_PASSWORD`) adalah **kunci semua cadangan**. Tanpa san
 | Banner merah backup | Cek HDD tercolok & huruf drive sama dengan `BACKUP_LOCAL_PATH`; lihat **Pengaturan → Backup → Riwayat**. |
 | "BACKUP_PASSWORD belum diisi" | Isi di `.env` (≥ 8 karakter) lalu `php artisan config:cache`. |
 | Email tidak terkirim | Pastikan `MAIL_*` benar dan tugas scheduler berjalan (cek `storage\logs\scheduler.log`). Gmail butuh *Sandi Aplikasi*. |
-| QR dibuka dari internet tidak jalan | Cek layanan `cloudflared` berjalan (Services.msc), `APP_PUBLIC_URL`, dan aturan path di Cloudflare (bagian 7). |
+| `sipersu.ft.umbuton.ac.id` tidak terbuka, tetapi IP terbuka | DNS statis di router belum benar, atau perangkat memakai Private DNS/Secure DNS (bagian 5.3). Pakai alamat IP sementara. |
+| Muncul 403 "hanya dapat diakses dari jaringan lokal" | Perangkat berada di luar jaringan lokal (mis. data seluler atau VPN). Sambungkan ke Wi-Fi fakultas. |
+| QR tidak membuka halaman verifikasi | Perangkat harus berada di jaringan fakultas (selama `VERIFIKASI_URL` kosong), atau terbitkan halaman statis di internet (bagian 8). |
 | QR menampilkan "Tidak ditemukan" | Surat berstatus draf/tanpa QR, atau QR dari server lain. Surat **tanpa QR** memang tidak punya halaman verifikasi. |
 | Setelah mengubah `.env` tidak berpengaruh | Jalankan `php artisan config:cache` (atau `config:clear`). |
 
@@ -411,7 +464,10 @@ Kata sandi backup (`BACKUP_PASSWORD`) adalah **kunci semua cadangan**. Tanpa san
 |---|---|
 | `kunci:buat [--force]` | Membuat pasangan kunci Ed25519 (**`--force` membuat QR lama tidak valid offline**) |
 | `kunci:cadangkan <folder>` | Menyalin kunci ke folder lain (flashdisk/brankas) |
-| `kunci:publikasi` | Membuat `verifikasi-offline\verifikasi.html` |
+| `kunci:publikasi` | Membuat `verifikasi-statis\index.html` (halaman verifikasi QR) |
+| `dokumentasi:qrcode` | Membuat ulang `documentation\penjelasan-qrcode.pdf` (penjelasan QR + referensi) |
+| `dokumentasi:presentasi-qr` | Membuat ulang `documentation\presentasi-qr-persuratan.pdf` (15 slide) |
+| `dokumentasi:contoh-surat` | Membuat ulang 14 PDF contoh surat |
 | `backup:run / list / verify / restore / periksa` | Lihat bagian 9.3 |
 | `schedule:run` | Dipanggil Task Scheduler tiap menit |
 | `config:cache` | Terapkan perubahan `.env` |
@@ -421,5 +477,5 @@ Kata sandi backup (`BACKUP_PASSWORD`) adalah **kunci semua cadangan**. Tanpa san
 - Login NPM/NIDN + kata sandi (di-hash), pembatasan 5 percobaan/menit, sesi di basis data.
 - Peran & kewenangan diperiksa di server (Super Admin tidak dapat menandatangani; Kaprodi hanya prodi sendiri).
 - Unggahan hanya PDF/JPG/PNG ≤ 2 MB, disimpan di folder **privat** (tidak bisa dibuka lewat URL langsung).
-- Aplikasi hanya terbuka untuk IP jaringan lokal; dari internet **hanya** `/v/*`.
+- Aplikasi hanya terbuka untuk IP privat/loopback/Tailscale; **semua** IP lain ditolak 403 (tanpa pengecualian, tanpa Cloudflare Tunnel/VPS). Header proksi diabaikan sehingga tidak dapat dipalsukan.
 - `APP_DEBUG=false` untuk produksi. Semua aksi penting dan setiap pemindaian QR tercatat di **Pengaturan → Log Aktivitas**.

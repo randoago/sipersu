@@ -157,7 +157,7 @@
             <div x-show="buka" x-cloak x-transition class="mt-4 space-y-3 rounded-lg bg-surface p-4 font-body-sm text-body-sm text-on-surface-variant">
                 <p><strong>Cara kerja.</strong> Saat surat ditandatangani, sistem membuat tanda tangan digital (Ed25519) atas nomor, perihal, penanda tangan, jabatan, tanggal, dan ringkasan isi surat. Tanda tangan itu dicetak dalam kode QR dan diperiksa ulang setiap kali halaman ini dibuka.</p>
                 <p><strong>Surat ber-TTE sah tanpa tanda tangan dan cap basah.</strong> Keaslian ditentukan oleh hasil pemeriksaan di halaman ini.</p>
-                <p><strong>Tanpa internet/server?</strong> Tanda tangan pada QR juga dapat diperiksa secara offline lewat berkas verifikasi statis fakultas @if ($urlOffline)(<a class="font-semibold text-primary underline" href="{{ $urlOffline }}">{{ $urlOffline }}</a>)@endif.</p>
+                <p><strong>Dari luar jaringan fakultas?</strong> Tanda tangan pada QR dapat diperiksa di halaman verifikasi statis (<a class="font-semibold text-primary underline" href="{{ $urlStatis }}">{{ $urlStatis }}</a>) tanpa memerlukan server fakultas. Untuk salinan PDF asli, hubungi TU Fakultas Teknik UM Buton.</p>
             </div>
         </section>
 

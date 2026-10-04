@@ -100,13 +100,13 @@ class TandaTanganService
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
-    /** URL pada QR: {APP_PUBLIC_URL}/v/{token}#{payload-b64url}.{signature-b64url} */
+    /** URL pada QR: {VERIFIKASI_URL}#{payload-b64url}.{signature-b64url} — halaman statis, tanpa token/server. */
     public function urlQr(Surat $s, ?string $payload = null): string
     {
         abort_unless($s->pakaiQr(), 404);
         $payload ??= $this->payload($s);
 
-        return $s->urlVerifikasi().'#'.KunciTte::b64url($payload).'.'.$s->signature;
+        return config('sipersu.verifikasi_url').'#'.KunciTte::b64url($payload).'.'.$s->signature;
     }
 
     public function svgQr(string $url): string
@@ -120,7 +120,7 @@ class TandaTanganService
         $dokumen = $this->penyusun->dataDokumen($segar, true, $urlQr ? $this->svgQr($urlQr) : null);
         if ($urlQr) {
             // Surat ber-QR: lembar riwayat dokumen sebagai halaman terakhir (A4).
-            $dokumen += ['riwayat' => $segar->riwayatPublik(), 'urlVerifikasi' => $segar->urlVerifikasi(), 'digest' => json_decode($this->payload($segar), true)['h']];
+            $dokumen += ['riwayat' => $segar->riwayatPublik(), 'urlVerifikasi' => config('sipersu.verifikasi_url'), 'digest' => json_decode($this->payload($segar), true)['h']];
         }
 
         return Pdf::loadView('pdf.surat', ['dokumen' => $dokumen, 'nomor' => $s->nomor])

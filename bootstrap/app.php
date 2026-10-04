@@ -11,8 +11,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Batasi akses: internet hanya /v/*, selain itu hanya jaringan lokal (lihat HanyaJaringanLokal).
-        $middleware->prepend(\App\Http\Middleware\HanyaJaringanLokal::class);
+        // Fase 1: seluruh aplikasi hanya untuk jaringan lokal (lihat AksesJalur).
+        $middleware->prepend(\App\Http\Middleware\AksesJalur::class);
         $middleware->alias(['role' => \Spatie\Permission\Middleware\RoleMiddleware::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

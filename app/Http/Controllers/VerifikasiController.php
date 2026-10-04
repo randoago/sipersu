@@ -64,7 +64,7 @@ class VerifikasiController extends Controller
             'pemohon' => $s->data['pemohon'] ?? null,
             'tujuan' => $s->data['isian']['instansi'] ?? ($s->data['isian']['kepada'] ?? null),
             'riwayat' => $s->riwayatPublik(),
-            'urlOffline' => config('sipersu.verifikasi_offline_url'),
+            'urlStatis' => config('sipersu.verifikasi_url'),
         ];
     }
 }
