@@ -20,7 +20,7 @@ class ContohIsian
             'PENGANTAR-KP' => ['kepada' => 'Pimpinan PT Telekomunikasi Indonesia Witel Baubau', 'instansi' => 'PT Telekomunikasi Indonesia, Tbk. Witel Baubau',
                 'alamat_instansi' => 'Jl. Betoambari No. 20, Kota Baubau', 'tgl_mulai' => '2026-12-01', 'tgl_selesai' => '2027-01-30',
                 'anggota' => "1. La Ode Rizky – 20650021\n2. Siti Rahmawati – 21650077"],
-            'CUTI-AKADEMIK' => ['semester_cuti' => 'Genap 2026/2027', 'lama' => '1 (satu) semester', 'alasan' => 'Mengikuti pelatihan kerja di luar daerah selama satu semester'],
+            'CUTI-AKADEMIK' => ['semester_cuti' => 'Genap 2026/2027', 'alasan' => 'Mengikuti pelatihan kerja di luar daerah'],
             'REKOM-BEASISWA' => ['nama_beasiswa' => 'Beasiswa Prestasi Muhammadiyah', 'penyelenggara' => 'Majelis Pendidikan Tinggi PP Muhammadiyah', 'semester' => '7', 'ipk' => '3,72', 'prestasi' => ''],
         ];
     }
@@ -86,12 +86,12 @@ class ContohIsian
     public static function skCuti(): array
     {
         return ['nama_mhs' => 'AHMAD SYAHRIR', 'npm' => '21650034', 'prodi' => 'Teknik Sipil (S1)', 'semester_cuti' => 'Genap 2026/2027', 'lama' => '1 (satu) semester',
-            'alasan' => 'Mengikuti pelatihan kerja di luar daerah selama satu semester'];
+            'alasan' => 'Mengikuti pelatihan kerja di luar daerah'];
     }
 
     public static function skAktifKembali(): array
     {
-        return ['nama_mhs' => 'AHMAD SYAHRIR', 'npm' => '21650034', 'prodi' => 'Teknik Sipil (S1)', 'semester_aktif' => 'Ganjil 2027/2028', 'masa_cuti' => 'Genap 2026/2027 (1 semester)', 'keperluan' => 'Pendaftaran ulang dan pengisian KRS'];
+        return ['nama_mhs' => 'AHMAD SYAHRIR', 'npm' => '21650034', 'prodi' => 'Teknik Sipil (S1)', 'semester_aktif' => 'Ganjil 2027/2028', 'masa_cuti' => 'Genap 2026/2027', 'keperluan' => 'Pendaftaran ulang dan pengisian KRS'];
     }
 
     public static function pencairan(): array

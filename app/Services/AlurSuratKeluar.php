@@ -6,6 +6,7 @@ use App\Enums\Peran;
 use App\Models\Jabatan;
 use App\Models\LogAktivitas;
 use App\Models\Surat;
+use App\Support\NomorManual;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
@@ -104,9 +105,43 @@ class AlurSuratKeluar
         return $surat;
     }
 
+    /** TU/Admin mengetik nomor surat sendiri (penomoran mandiri). Kosong = nomor otomatis saat terbit. Hanya sebelum surat terbit. */
+    public function aturNomor(Surat $s, User $oleh, ?string $nomor): Surat
+    {
+        $this->wajib($oleh->adalahAdmin(), 'Hanya Admin TU yang dapat mengisi nomor surat.');
+        if (in_array($s->status, ['ditandatangani', 'batal'], true)) {
+            throw ValidationException::withMessages(['nomor_manual' => 'Surat sudah terbit; nomor tidak dapat diubah.']);
+        }
+        $nomor = NomorManual::bersihkan($nomor);
+        $lengkap = null;
+        if ($nomor !== null) {
+            if (! ctype_digit($nomor) || strlen($nomor) > 6) {
+                throw ValidationException::withMessages(['nomor_manual' => 'Isi nomor urut saja, berupa angka (contoh: 009).']);
+            }
+            $lengkap = NomorManual::lengkapUntuk($nomor, $s->klasifikasi, $s->tgl_surat);
+            if ($lengkap && NomorManual::bentrok($lengkap, $s->id)) {
+                throw ValidationException::withMessages(['nomor_manual' => "Nomor {$lengkap} sudah dipakai surat lain."]);
+            }
+        }
+        $lama = $s->nomor_manual;
+        $s->update(['nomor_manual' => $nomor]);
+        LogAktivitas::catat('nomor_manual', $nomor ? "Mengisi nomor urut surat manual: {$nomor} ({$lengkap})" : 'Mengosongkan nomor urut manual (kembali otomatis)', $s, ['sebelumnya' => $lama], $oleh->id);
+
+        return $s->refresh();
+    }
+
+    /** Mode penomoran manual: nomor harus sudah diisi TU sebelum surat berjalan ke persetujuan/terbit. */
+    private function pastikanNomor(Surat $s): void
+    {
+        if (NomorManual::wajib() && NomorManual::bersihkan($s->nomor_manual) === null) {
+            throw ValidationException::withMessages(['nomor_manual' => 'Penomoran manual: nomor urut surat belum diisi. Minta Admin TU mengisi nomor urut terlebih dahulu.']);
+        }
+    }
+
     public function ajukan(Surat $s, User $oleh): Surat
     {
         $this->wajib($this->bolehAjukan($s, $oleh), 'Anda tidak berwenang mengajukan surat ini.');
+        $this->pastikanNomor($s);
 
         if ($s->langsungTerbit()) {
             // Tanpa QR + tanpa persetujuan: tidak ada paraf maupun tanda tangan elektronik; nomor & PDF terbit sekarang.
@@ -151,6 +186,7 @@ class AlurSuratKeluar
     public function tandatangani(Surat $s, User $oleh): Surat
     {
         $this->wajib($this->bolehTandatangan($s, $oleh), 'Anda bukan penandatangan yang berwenang untuk surat ini.');
+        $this->pastikanNomor($s);
 
         return DB::transaction(function () use ($s, $oleh) {
             $surat = $this->tte->tandatangani($s, $oleh);

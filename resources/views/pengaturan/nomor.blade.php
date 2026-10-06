@@ -6,6 +6,12 @@
     <div class="grid gap-5 lg:grid-cols-3">
         <form method="post" action="{{ route('pengaturan.nomor.simpan') }}" class="space-y-5 lg:col-span-2">@csrf
             <x-kartu judul="Format Nomor Surat" ikon="numbers" deskripsi="Nomor terbit otomatis HANYA saat surat ditandatangani.">
+                <fieldset class="mb-4 rounded-lg border border-outline-variant p-3">
+                    <legend class="px-1 font-label-lg text-label-lg">Cara penomoran surat keluar</legend>
+                    @foreach (['otomatis' => ['Otomatis', 'Nomor urut dibuat sistem saat surat terbit. TU tetap boleh mengetik nomor urut sendiri pada surat tertentu (kosongkan = otomatis).'], 'manual' => ['Manual (diisi TU)', 'TU hanya mengetik NOMOR URUT depan (mis. 009); sisanya (klasifikasi, FT-UMB, bulan romawi, tahun) mengikuti pola di bawah. Nomor urut wajib diisi sebelum surat diajukan, diverifikasi, atau ditandatangani. Penghitung otomatis menyesuaikan nomor manual yang terbit.']] as $k => [$j, $ket])
+                        <label class="flex cursor-pointer items-start gap-3 py-1.5"><input type="radio" name="penomoran_mode" value="{{ $k }}" @checked(old('penomoran_mode', $nilai['penomoran_mode'] ?? 'otomatis') === $k) class="mt-1 text-primary focus:ring-primary"><span><span class="font-label-lg text-label-lg">{{ $j }}</span><span class="block font-body-sm text-body-sm text-on-surface-variant">{{ $ket }}</span></span></label>
+                    @endforeach
+                </fieldset>
                 <div class="space-y-4" x-data="{ f: @js(old('format_nomor', $nilai['format_nomor'])), p: {{ (int) old('panjang_urut', $nilai['panjang_urut']) }} }">
                     <x-input label="Pola nomor" name="format_nomor" wajib x-model="f" :value="old('format_nomor', $nilai['format_nomor'])" bantuan="Token: {urut} {klasifikasi} {bulan_romawi} {bulan} {tahun}" />
                     <x-input label="Jumlah digit nomor urut" name="panjang_urut" type="number" wajib x-model.number="p" :value="old('panjang_urut', $nilai['panjang_urut'])" class="max-w-40" />

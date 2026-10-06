@@ -113,14 +113,13 @@ HTML,
                 'verifikator_role' => 'kaprodi', 'perlu_paraf' => true, 'paraf_role' => 'wakil_dekan', 'sla_hari' => 5,
                 'field_formulir' => [
                     ['nama' => 'semester_cuti', 'label' => 'Semester yang Dicutikan', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => 'Contoh: Ganjil 2026/2027'],
-                    ['nama' => 'lama', 'label' => 'Lama Cuti', 'tipe' => 'pilihan', 'wajib' => true, 'opsi' => ['1 (satu) semester', '2 (dua) semester']],
                     ['nama' => 'alasan', 'label' => 'Alasan Cuti', 'tipe' => 'area', 'wajib' => true, 'maks' => 250],
                 ],
                 'syarat' => [$ktm, ['label' => 'Bukti Lunas Administrasi Keuangan', 'wajib' => true], ['label' => 'Surat Pernyataan Orang Tua/Wali', 'wajib' => false]],
                 'template_html' => <<<'HTML'
 <p>Yang bertanda tangan di bawah ini, {{ penandatangan.jabatan }} Universitas Muhammadiyah Buton, memberikan persetujuan cuti akademik kepada:</p>
 HTML.self::TABEL_PEMOHON.<<<'HTML'
-<p>untuk <strong>{{ isian.lama }}</strong> pada Semester {{ isian.semester_cuti }} dengan alasan: {{ isian.alasan }}.</p>
+<p>untuk cuti akademik pada Semester <strong>{{ isian.semester_cuti }}</strong> dengan alasan: {{ isian.alasan }}.</p>
 <p>Selama masa cuti, mahasiswa yang bersangkutan tidak mengikuti kegiatan akademik dan masa cuti tidak dihitung sebagai masa studi. Mahasiswa wajib melapor dan mendaftar ulang pada semester berikutnya sesuai ketentuan yang berlaku.</p>
 <p>Demikian surat ini dibuat untuk dapat dipergunakan sebagaimana mestinya.</p>
 HTML,
@@ -304,7 +303,6 @@ HTML,
                     ['nama' => 'npm', 'label' => 'NPM', 'tipe' => 'teks', 'wajib' => true, 'lebar' => 'setengah'],
                     ['nama' => 'prodi', 'label' => 'Program studi', 'tipe' => 'teks', 'wajib' => true, 'lebar' => 'setengah'],
                     ['nama' => 'semester_cuti', 'label' => 'Semester yang dicutikan', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => 'Genap 2026/2027', 'lebar' => 'setengah'],
-                    ['nama' => 'lama', 'label' => 'Lama cuti', 'tipe' => 'pilihan', 'wajib' => true, 'opsi' => ['1 (satu) semester', '2 (dua) semester']],
                     ['nama' => 'alasan', 'label' => 'Alasan cuti', 'tipe' => 'area', 'wajib' => true, 'maks' => 250],
                 ],
                 'template_html' => <<<'HTML'
@@ -314,7 +312,7 @@ HTML,
   <tr><td>NPM</td><td>:</td><td>{{ isian.npm }}</td></tr>
   <tr><td>Program Studi</td><td>:</td><td>{{ isian.prodi }}</td></tr>
 </table>
-<p>telah diberikan cuti akademik selama <strong>{{ isian.lama }}</strong> pada Semester {{ isian.semester_cuti }} dengan alasan: {{ isian.alasan }}.</p>
+<p>telah diberikan cuti akademik pada Semester <strong>{{ isian.semester_cuti }}</strong> dengan alasan: {{ isian.alasan }}.</p>
 <p>Selama masa cuti, mahasiswa yang bersangkutan tidak mengikuti kegiatan akademik dan masa cuti tidak dihitung sebagai masa studi. Mahasiswa wajib melapor dan mendaftar ulang pada semester berikutnya sesuai ketentuan yang berlaku.</p>
 <p>Demikian surat keterangan ini dibuat untuk dapat dipergunakan sebagaimana mestinya.</p>
 {%ttd%}
@@ -330,7 +328,7 @@ HTML,
                     ['nama' => 'npm', 'label' => 'NPM', 'tipe' => 'teks', 'wajib' => true, 'lebar' => 'setengah'],
                     ['nama' => 'prodi', 'label' => 'Program studi', 'tipe' => 'teks', 'wajib' => true, 'lebar' => 'setengah'],
                     ['nama' => 'semester_aktif', 'label' => 'Semester aktif kembali', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => 'Ganjil 2027/2028', 'lebar' => 'setengah'],
-                    ['nama' => 'masa_cuti', 'label' => 'Masa cuti sebelumnya', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => 'Genap 2026/2027 (1 semester)'],
+                    ['nama' => 'masa_cuti', 'label' => 'Masa cuti sebelumnya', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => 'Genap 2026/2027'],
                     ['nama' => 'keperluan', 'label' => 'Keperluan', 'tipe' => 'teks', 'wajib' => false, 'placeholder' => 'Pendaftaran ulang / pengisian KRS'],
                 ],
                 'template_html' => <<<'HTML'

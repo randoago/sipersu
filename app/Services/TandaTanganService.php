@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Jabatan;
 use App\Models\LogAktivitas;
 use App\Models\Surat;
+use App\Support\NomorManual;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
@@ -89,7 +90,21 @@ class TandaTanganService
         $sekarang = now();
         // Tanggal surat: yang dipilih pembuat; bila tidak dipilih = hari penerbitan. Nomor (bulan/tahun) mengikutinya.
         $tglSurat = $s->tgl_surat ? $s->tgl_surat->copy()->startOfDay() : $sekarang->copy()->startOfDay();
-        $s->nomor = $this->penomoran->terbitkan($s->klasifikasi, $tglSurat);
+        $urut = NomorManual::bersihkan($s->nomor_manual);
+        if ($urut === null && NomorManual::wajib()) {
+            throw new RuntimeException('Penomoran manual: nomor urut surat belum diisi oleh TU.');
+        }
+        if ($urut !== null) {
+            // TU hanya mengetik nomor urut; bagian lain nomor mengikuti pola penomoran (klasifikasi, bulan romawi, tahun).
+            $nomor = NomorManual::lengkapUntuk($urut, $s->klasifikasi, $tglSurat);
+            if (! $nomor || NomorManual::bentrok($nomor, $s->id)) {
+                throw new RuntimeException("Nomor surat {$nomor} tidak dapat dipakai (kosong atau sudah dipakai surat lain).");
+            }
+            $s->nomor = $nomor;
+            $this->penomoran->selaraskan($s->klasifikasi, $tglSurat, (int) $urut);
+        } else {
+            $s->nomor = $this->penomoran->terbitkan($s->klasifikasi, $tglSurat);
+        }
         $s->qr_token = Str::random(43);
         $s->tgl_surat = $tglSurat->toDateString();
         $s->penandatangan_id = $penandatangan?->id;
@@ -146,6 +161,15 @@ class TandaTanganService
         $payload ??= $this->payload($s);
 
         return config('sipersu.verifikasi_url').'#'.KunciTte::b64url($payload).'.'.$s->signature;
+    }
+
+    /** Data dokumen untuk pratinjau web (bisa langsung dicetak): QR ikut tampil bila surat ber-QR sudah terbit. */
+    public function dokumenWeb(Surat $s): array
+    {
+        $s->loadMissing('jabatan.pejabat', 'jenis.penandatanganJabatan.pejabat', 'penandatangan');
+        $qr = $s->pakaiQr() && in_array($s->status, ['ditandatangani', 'batal'], true) && $s->signature ? $this->svgQr($this->urlQr($s)) : null;
+
+        return $this->penyusun->dataDokumen($s, false, $qr);
     }
 
     public function svgQr(string $url): string

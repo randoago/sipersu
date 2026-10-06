@@ -52,6 +52,7 @@
             <div class="flex flex-wrap items-center gap-3">
                 @if ($bolehV)
                     <form method="post" action="{{ route('pengajuan.verifikasi', $p) }}" class="flex flex-1 flex-wrap items-center gap-3">@csrf
+                        <input name="nomor_surat" value="{{ old('nomor_surat') }}" placeholder="Nomor urut surat, mis. 009{{ \App\Support\NomorManual::wajib() ? ' (wajib)' : ' (opsional)' }}" inputmode="numeric" @required(\App\Support\NomorManual::wajib()) class="h-10 min-w-56 flex-1 rounded-lg border-outline-variant font-body-md text-body-md focus:ring-2 focus:ring-primary">
                         <input name="catatan" placeholder="Catatan verifikasi (opsional)" class="h-10 min-w-56 flex-1 rounded-lg border-outline-variant font-body-md text-body-md focus:ring-2 focus:ring-primary">
                         <x-tombol type="submit" ikon="task_alt">Verifikasi & Teruskan</x-tombol>
                     </form>
@@ -112,6 +113,32 @@
                 </x-kartu>
             @endif
         </div>
+
+        {{-- Nomor surat (diisi TU) sebelum terbit --}}
+        @if ($p->surat && $user->adalahAdmin() && ! in_array($p->surat->status, ['ditandatangani', 'batal'], true))
+            <div class="lg:col-span-5">
+                <x-kartu judul="Nomor Surat" deskripsi="{{ \App\Support\NomorManual::wajib() ? 'Penomoran manual: nomor urut wajib diisi sebelum Dekan menandatangani.' : 'Ketik nomor urut depan; kosongkan untuk nomor otomatis.' }}" ikon="numbers">
+                    <form method="post" action="{{ route('pengajuan.nomor', $p) }}" class="flex flex-col gap-2 sm:flex-row sm:items-end">@csrf
+                        <x-input label="Nomor urut surat" name="nomor_manual" :value="old('nomor_manual', $p->surat->nomor_manual)" placeholder="009" inputmode="numeric" class="flex-1" :bantuan="\App\Support\NomorManual::lengkap($p->surat) ? 'Nomor lengkap: '.\App\Support\NomorManual::lengkap($p->surat) : 'Contoh: '.\App\Support\NomorManual::contoh()" />
+                        <x-tombol type="submit" varian="sekunder" ikon="save">Simpan Nomor</x-tombol>
+                    </form>
+                </x-kartu>
+            </div>
+        @endif
+
+        {{-- Pratinjau web surat (bisa langsung dicetak) --}}
+        @if ($p->surat && ($p->user_id !== $user->id || in_array($p->surat->status, ['ditandatangani', 'batal'], true)))
+            @php $dokumenWeb = app(\App\Services\TandaTanganService::class)->dokumenWeb($p->surat); @endphp
+            <div class="lg:col-span-5">
+                <x-kartu judul="Pratinjau Surat" deskripsi="Tampilan A4 yang sama dengan PDF; dapat langsung dicetak." ikon="description">
+                    <x-cetak-surat :dokumen="$dokumenWeb" />
+                    <div class="rounded-xl bg-surface-container-high/60 p-3 sm:p-6">
+                        <style>@include('pdf._gaya')</style>
+                        <div id="kertas-cetak" class="relative mx-auto min-h-[1123px] w-full max-w-[794px] aspect-[210/297] bg-white px-[8%] pb-20 pt-12 shadow-md">@include('pdf._surat', $dokumenWeb)</div>
+                    </div>
+                </x-kartu>
+            </div>
+        @endif
 
         {{-- Garis waktu --}}
         <div class="lg:col-span-3">

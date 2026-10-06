@@ -19,6 +19,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Navigasi halaman: ikon panah + keterangan Indonesia (bukan tulisan "Previous/Next").
+        \Illuminate\Pagination\Paginator::defaultView('pagination.sipersu');
+        \Illuminate\Pagination\Paginator::defaultSimpleView('pagination.ringkas');
+
         if (config('app.force_https')) {
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }

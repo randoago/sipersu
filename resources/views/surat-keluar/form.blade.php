@@ -1,4 +1,4 @@
-@php $d = $s?->data ?? []; $v = fn ($k, $b = null) => old($k, match ($k) { 'klasifikasi_id' => $s?->klasifikasi_id, 'sifat' => $s?->sifat, 'perihal' => $s?->perihal, 'jabatan_id' => $s?->jabatan_id, 'mode_ttd' => $s?->mode_ttd ?? $b, default => $d[$k] ?? $b }); @endphp
+@php $d = $s?->data ?? []; $v = fn ($k, $b = null) => old($k, match ($k) { 'klasifikasi_id' => $s?->klasifikasi_id, 'sifat' => $s?->sifat, 'perihal' => $s?->perihal, 'jabatan_id' => $s?->jabatan_id, 'mode_ttd' => $s?->mode_ttd ?? $b, 'nomor_manual' => $s?->nomor_manual, default => $d[$k] ?? $b }); @endphp
 <x-layouts::app :title="$s ? 'Ubah Draf Surat' : 'Buat Surat'" :cari="false">
 <div class="mx-auto max-w-4xl">
     <nav class="mb-2 flex items-center gap-1.5 font-label-sm text-label-sm text-on-surface-variant"><a href="{{ route('surat-keluar.index') }}" class="hover:text-primary">Surat Keluar</a><x-ikon name="chevron_right" class="text-[14px]" /><span>{{ $s ? 'Ubah draf' : 'Buat surat' }}</span></nav>
@@ -10,6 +10,9 @@
                 <x-select label="Klasifikasi (untuk nomor)" name="klasifikasi_id" wajib>@foreach ($klasifikasi as $k)<option value="{{ $k->id }}" @selected($v('klasifikasi_id') == $k->id)>{{ $k->kode }} — {{ $k->nama }}</option>@endforeach</x-select>
                 <x-select label="Sifat surat" name="sifat" wajib>@foreach (['biasa' => 'Biasa', 'penting' => 'Penting', 'segera' => 'Segera', 'rahasia' => 'Rahasia'] as $k => $l)<option value="{{ $k }}" @selected($v('sifat', 'biasa') === $k)>{{ $l }}</option>@endforeach</x-select>
                 <x-textarea label="Tujuan surat (Yth.)" name="tujuan" wajib rows="3" class="md:col-span-2" bantuan="Satu baris per baris alamat. Contoh: Kepala Dinas Pendidikan Kota Baubau, di Tempat">{{ $v('tujuan') }}</x-textarea>
+                @if (auth()->user()->adalahAdmin())
+                <x-input label="Nomor urut surat (diisi TU)" name="nomor_manual" :value="old('nomor_manual', $s?->nomor_manual)" :wajib="\App\Support\NomorManual::wajib()" placeholder="009" inputmode="numeric" class="md:col-span-2" :bantuan="'Cukup nomor urut depan, mis. 009. Sisanya mengikuti aturan penomoran, contoh: '.\App\Support\NomorManual::contoh().'. '.(\App\Support\NomorManual::wajib() ? 'Penomoran manual aktif: nomor urut wajib diisi sebelum surat diajukan.' : 'Kosongkan untuk nomor otomatis.')" />
+                @endif
                 <x-input label="Perihal" name="perihal" wajib class="md:col-span-2" :value="$v('perihal')" />
                 <x-tanggal-surat :nilai="$s?->tgl_surat?->toDateString()" />
                 <x-input label="Lampiran" name="lampiran" :value="$v('lampiran')" placeholder="Contoh: 1 (satu) berkas — kosongkan bila tidak ada" />
@@ -31,11 +34,13 @@
             </div>
             @error('mode_ttd')<p class="mt-1 font-body-sm text-body-sm text-[#e11d48]">{{ $message }}</p>@enderror
         </x-kartu>
-        <x-kartu judul="Alur Persetujuan" ikon="alt_route" x-data="{ basah: @js($v('mode_ttd', request('bentuk') === 'basah' ? 'basah' : 'qr') === 'basah') }" x-on:mode-ttd.window="basah = $event.detail === 'basah'">
+        <x-kartu judul="Alur Persetujuan" ikon="alt_route">
+            <div x-data="{ basah: {{ $v('mode_ttd', request('bentuk') === 'basah' ? 'basah' : 'qr') === 'basah' ? 'true' : 'false' }} }" x-on:mode-ttd.window="basah = $event.detail === 'basah'">
             <p x-show="basah" x-cloak class="mb-3 rounded-lg bg-surface-container p-3 font-body-sm text-body-sm text-on-surface-variant">Surat <strong>tanpa QR tidak memerlukan persetujuan</strong>: tidak ada paraf maupun tanda tangan elektronik. Saat tombol <em>Terbitkan</em> ditekan, nomor surat dan PDF langsung dibuat untuk dicetak, ditandatangani basah, dan dicap. Hanya surat ber-QR yang melalui persetujuan.</p>
             <div class="grid gap-space-md md:grid-cols-2">
                 <x-select label="Penandatangan" name="jabatan_id" wajib>@foreach ($jabatan as $j)<option value="{{ $j->id }}" @selected($v('jabatan_id') == $j->id)>{{ $j->nama }} — {{ $j->pejabat?->namaLengkap() }}</option>@endforeach</x-select>
                 <x-select x-show="!basah" label="Paraf sebelum tanda tangan" name="paraf_role" bantuan="Nomor surat baru terbit saat surat ditandatangani."><option value="">Tanpa paraf</option><option value="wakil_dekan" @selected($v('paraf_role') === 'wakil_dekan')>Wakil Dekan</option><option value="kaprodi" @selected($v('paraf_role') === 'kaprodi')>Kaprodi</option></x-select>
+            </div>
             </div>
         </x-kartu>
         <div class="flex flex-wrap justify-end gap-2"><x-tombol :href="$s ? route('surat-keluar.show', $s) : route('surat-keluar.index')" varian="sekunder">Batal</x-tombol>

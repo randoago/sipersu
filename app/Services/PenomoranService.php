@@ -54,6 +54,18 @@ class PenomoranService
         });
     }
 
+    /** Nomor urut yang diketik TU menjadi acuan: penghitung otomatis tidak pernah lebih kecil dari nomor manual yang sudah terbit. */
+    public function selaraskan(KlasifikasiSurat $klasifikasi, CarbonInterface $tanggal, int $urut): void
+    {
+        DB::transaction(function () use ($klasifikasi, $tanggal, $urut) {
+            $baris = Penomoran::where(['klasifikasi_id' => $klasifikasi->id, 'tahun' => $tanggal->year])->lockForUpdate()->first()
+                ?? Penomoran::create(['klasifikasi_id' => $klasifikasi->id, 'tahun' => $tanggal->year, 'nomor_terakhir' => 0]);
+            if ($urut > $baris->nomor_terakhir) {
+                $baris->update(['nomor_terakhir' => $urut]);
+            }
+        });
+    }
+
     public function format(int $urut, string $kodeKlasifikasi, CarbonInterface $tanggal): string
     {
         $pola = Pengaturan::ambil('format_nomor', '{urut}/{klasifikasi}/FT-UMB/{bulan_romawi}/{tahun}');

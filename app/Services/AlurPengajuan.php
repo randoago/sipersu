@@ -9,6 +9,7 @@ use App\Models\LogAktivitas;
 use App\Models\Pengajuan;
 use App\Models\Persetujuan;
 use App\Models\User;
+use App\Support\NomorManual;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -97,14 +98,55 @@ class AlurPengajuan
 
     // ---- transisi ---------------------------------------------------------------------------------------
 
-    public function verifikasi(Pengajuan $p, User $oleh, ?string $catatan = null): Pengajuan
+    /** TU mengetik nomor surat pengajuan (penomoran mandiri) sebelum surat terbit. */
+    public function aturNomor(Pengajuan $p, User $oleh, ?string $nomor): Pengajuan
+    {
+        $this->wajib($oleh->adalahAdmin(), 'Hanya Admin TU yang dapat mengisi nomor surat.');
+        $surat = $p->surat;
+        if (! $surat || in_array($surat->status, ['ditandatangani', 'batal'], true)) {
+            throw ValidationException::withMessages(['nomor_manual' => 'Surat belum disusun atau sudah terbit; nomor tidak dapat diubah.']);
+        }
+        $nomor = NomorManual::bersihkan($nomor);
+        $lengkap = null;
+        if ($nomor !== null) {
+            if (! ctype_digit($nomor) || strlen($nomor) > 6) {
+                throw ValidationException::withMessages(['nomor_manual' => 'Isi nomor urut saja, berupa angka (contoh: 009).']);
+            }
+            $lengkap = NomorManual::lengkapUntuk($nomor, $surat->klasifikasi, $surat->tgl_surat);
+            if ($lengkap && NomorManual::bentrok($lengkap, $surat->id)) {
+                throw ValidationException::withMessages(['nomor_manual' => "Nomor {$lengkap} sudah dipakai surat lain."]);
+            }
+        }
+        $surat->update(['nomor_manual' => $nomor]);
+        LogAktivitas::catat('nomor_manual', $nomor ? "Mengisi nomor urut surat manual {$p->kode}: {$nomor} ({$lengkap})" : "Mengosongkan nomor urut manual {$p->kode}", $surat, [], $oleh->id);
+
+        return $p->refresh();
+    }
+
+    public function verifikasi(Pengajuan $p, User $oleh, ?string $catatan = null, ?string $nomor = null): Pengajuan
     {
         $this->wajib($this->bolehVerifikasi($p, $oleh), 'Anda tidak berwenang memverifikasi pengajuan ini.');
+        $nomor = NomorManual::bersihkan($nomor);
+        if ($nomor === null && NomorManual::wajib() && NomorManual::bersihkan($p->surat?->nomor_manual) === null) {
+            throw ValidationException::withMessages(['nomor_surat' => 'Penomoran manual: isi nomor urut surat sebelum memverifikasi.']);
+        }
+        if ($nomor !== null) {
+            if (! ctype_digit($nomor) || strlen($nomor) > 6) {
+                throw ValidationException::withMessages(['nomor_surat' => 'Isi nomor urut saja, berupa angka (contoh: 009).']);
+            }
+            $lengkap = NomorManual::lengkapUntuk($nomor, $p->surat?->klasifikasi ?? $p->jenis->klasifikasi);
+            if ($lengkap && NomorManual::bentrok($lengkap, $p->surat?->id)) {
+                throw ValidationException::withMessages(['nomor_surat' => "Nomor {$lengkap} sudah dipakai surat lain."]);
+            }
+        }
 
-        return DB::transaction(function () use ($p, $oleh, $catatan) {
+        return DB::transaction(function () use ($p, $oleh, $catatan, $nomor) {
             $this->putuskan($p, 'verifikasi', $oleh, 'disetujui', $catatan);
             $p->update(['diverifikasi_oleh' => $oleh->id, 'diverifikasi_pada' => now()]);
             $surat = $p->surat ?? $this->penyusun->buatSuratDariPengajuan($p);
+            if ($nomor !== null) {
+                $surat->update(['nomor_manual' => $nomor]);
+            }
 
             if ($p->jenis->langsungTerbit()) {
                 // Tanpa QR + tanpa persetujuan: setelah verifikasi TU surat langsung terbit (nomor + PDF) untuk dicetak.
@@ -141,6 +183,9 @@ class AlurPengajuan
     public function tandatangani(Pengajuan $p, User $oleh): Pengajuan
     {
         $this->wajib($this->bolehTandatangan($p, $oleh), 'Anda bukan penandatangan yang berwenang untuk pengajuan ini.');
+        if (NomorManual::wajib() && NomorManual::bersihkan($p->surat?->nomor_manual) === null) {
+            throw ValidationException::withMessages(['nomor_manual' => 'Penomoran manual: nomor urut surat belum diisi oleh TU.']);
+        }
 
         return DB::transaction(function () use ($p, $oleh) {
             $surat = $this->tte->tandatangani($p->surat, $oleh);

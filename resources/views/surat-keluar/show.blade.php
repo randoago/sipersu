@@ -14,12 +14,21 @@
 
     <div class="grid items-start gap-6 xl:grid-cols-3">
         <div class="xl:col-span-2">
+            <x-cetak-surat :dokumen="$dokumen" />
             <div class="rounded-xl bg-surface-container-high/60 p-3 sm:p-6">
                 <style>@include('pdf._gaya')</style>
-                <div class="relative mx-auto min-h-[1123px] w-full max-w-[794px] aspect-[210/297] bg-white px-[8%] pb-20 pt-12 shadow-md">@include('pdf._surat', $dokumen)</div>
+                <div id="kertas-cetak" class="relative mx-auto min-h-[1123px] w-full max-w-[794px] aspect-[210/297] bg-white px-[8%] pb-20 pt-12 shadow-md">@include('pdf._surat', $dokumen)</div>
             </div>
         </div>
         <aside class="space-y-5">
+            @if (auth()->user()->adalahAdmin() && ! in_array($s->status, ['ditandatangani', 'batal'], true))
+                <x-kartu judul="Nomor Surat" ikon="numbers" deskripsi="{{ \App\Support\NomorManual::wajib() ? 'Penomoran manual: nomor urut wajib diisi TU.' : 'Ketik nomor urut depan; kosongkan untuk nomor otomatis.' }}">
+                    <form method="post" action="{{ route('surat-keluar.nomor', $s) }}" class="space-y-2">@csrf
+                        <x-input label="Nomor urut surat" name="nomor_manual" :value="old('nomor_manual', $s->nomor_manual)" placeholder="009" inputmode="numeric" :bantuan="\App\Support\NomorManual::lengkap($s) ? 'Nomor lengkap: '.\App\Support\NomorManual::lengkap($s) : 'Contoh: '.\App\Support\NomorManual::contoh()" />
+                        <x-tombol type="submit" varian="sekunder" ikon="save" class="w-full">Simpan Nomor</x-tombol>
+                    </form>
+                </x-kartu>
+            @endif
             @if ($izin['ubah'] || $izin['paraf'] || $izin['ttd'] || $izin['batal'])
                 <x-kartu judul="Tindakan" ikon="gavel">
                     <div class="space-y-3">

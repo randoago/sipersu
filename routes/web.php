@@ -59,6 +59,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/pengajuan', [PengajuanController::class, 'index'])->name('pengajuan.index');
     Route::get('/pengajuan/{pengajuan}', [PengajuanController::class, 'show'])->name('pengajuan.show');
     Route::post('/pengajuan/{pengajuan}/verifikasi', [PengajuanController::class, 'verifikasi'])->name('pengajuan.verifikasi');
+    Route::post('/pengajuan/{pengajuan}/nomor', [PengajuanController::class, 'nomor'])->name('pengajuan.nomor');
     Route::post('/pengajuan/{pengajuan}/tolak', [PengajuanController::class, 'tolak'])->name('pengajuan.tolak');
     Route::post('/pengajuan/{pengajuan}/selesai', [PengajuanController::class, 'selesai'])->name('pengajuan.selesai');
 
@@ -148,6 +149,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/surat-keluar/{surat}', [$sk, 'perbarui'])->name('surat-keluar.perbarui');
     Route::delete('/surat-keluar/{surat}', [$sk, 'hapus'])->name('surat-keluar.hapus');
     Route::post('/surat-keluar/{surat}/ajukan', [$sk, 'ajukan'])->name('surat-keluar.ajukan');
+    Route::post('/surat-keluar/{surat}/nomor', [$sk, 'nomor'])->name('surat-keluar.nomor');
     Route::post('/surat-keluar/{surat}/paraf', [$sk, 'paraf'])->name('surat-keluar.paraf');
     Route::post('/surat-keluar/{surat}/tandatangani', [$sk, 'tandatangani'])->name('surat-keluar.tandatangani');
     Route::post('/surat-keluar/{surat}/kembalikan', [$sk, 'kembalikan'])->name('surat-keluar.kembalikan');

@@ -36,12 +36,13 @@
             @if ($modeQr && $terbit && $qrSvg)
                 <table cellspacing="0" cellpadding="0"><tr>
                     <td width="94" valign="top"><img src="data:image/svg+xml;base64,{{ base64_encode($qrSvg) }}" width="92" height="92" alt="QR"></td>
-                    <td valign="middle" style="padding-left:0">@if ($spesimen)<img src="{{ $spesimen }}" height="102" style="margin-left:-14pt" alt="">@endif</td>
+                    <td valign="middle" style="padding-left:0">@if ($spesimen)<img class="ttd-spesimen" src="{{ $spesimen }}" height="88" style="margin-left:-12pt" alt="">@endif</td>
                 </tr></table>
             @elseif ($modeQr)
                 <div class="qr-kosong">QR tanda tangan elektronik<br>muncul setelah surat ditandatangani</div>
             @elseif (! $untukPdf)
-                <div class="qr-kosong">Ruang tanda tangan basah &amp; cap<br>(surat dicetak, tanpa QR)</div>
+                <div class="qr-kosong ttd-kosong">Ruang tanda tangan basah &amp; cap<br>(surat dicetak, tanpa QR)</div>
+                @if (! empty($spesimenWeb))<img class="ttd-spesimen" src="{{ $spesimenWeb }}" height="88" style="display:none" alt="">@endif
             @endif
         </td></tr>
         <tr><td style="{{ $geser }}"><strong class="nama-pejabat">{{ $namaPejabat }}</strong><br>@if ($nidn)NIDN. {{ $nidn }}@endif</td></tr>

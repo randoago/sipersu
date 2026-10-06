@@ -14,9 +14,10 @@
     <div class="grid items-start gap-6 xl:grid-cols-3">
         {{-- Pratinjau surat (A4) --}}
         <div class="xl:col-span-2">
+            <x-cetak-surat :dokumen="$dokumen" />
             <div class="rounded-xl bg-surface-container-high/60 p-3 sm:p-6">
                 <style>@include('pdf._gaya')</style>
-                <div class="relative mx-auto min-h-[1123px] w-full max-w-[794px] aspect-[210/297] bg-white px-[8%] pb-20 pt-12 shadow-md">
+                <div id="kertas-cetak" class="relative mx-auto min-h-[1123px] w-full max-w-[794px] aspect-[210/297] bg-white px-[8%] pb-20 pt-12 shadow-md">
                     @include('pdf._surat', $dokumen)
                 </div>
             </div>

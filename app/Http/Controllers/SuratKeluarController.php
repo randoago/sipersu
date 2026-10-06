@@ -8,6 +8,7 @@ use App\Models\KlasifikasiSurat;
 use App\Models\Surat;
 use App\Services\AlurSuratKeluar;
 use App\Services\PenyusunSurat;
+use App\Support\NomorManual;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -67,8 +68,9 @@ class SuratKeluarController extends Controller
     public function simpanFormat(Request $request, JenisSurat $jenis)
     {
         abort_unless($this->alur->bolehMembuat($request->user()) && $jenis->aktif && $jenis->adalahUntukStaf(), 404);
-        $data = $request->validate($jenis->aturanIsian() + $this->aturanTanggal() + ['mode_ttd' => ['nullable', Rule::in(['qr', 'basah'])]], $this->pesanTanggal(), $jenis->atributIsian() + ['tanggal_surat' => 'tanggal surat']);
+        $data = $request->validate($jenis->aturanIsian() + $this->aturanTanggal() + ['mode_ttd' => ['nullable', Rule::in(['qr', 'basah'])]] + $this->aturanNomor($request, null, $jenis->klasifikasi_id), $this->pesanTanggal() + NomorManual::PESAN, $jenis->atributIsian() + ['tanggal_surat' => 'tanggal surat', 'nomor_manual' => 'nomor urut surat']);
         $s = $this->alur->simpanDariFormat($request->user(), $jenis, $data['isian'] ?? [], null, $data['tanggal_surat'] ?? null, $data['mode_ttd'] ?? null);
+        $this->simpanNomor($request, $s);
 
         return redirect()->route('surat-keluar.show', $s)->with('sukses', 'Draf surat disimpan. Periksa pratinjau, lalu '.($s->langsungTerbit() ? 'terbitkan (tanpa QR tidak perlu persetujuan).' : 'ajukan untuk '.(($s->data['paraf_role'] ?? null) ? 'paraf' : 'tanda tangan').'.'));
     }
@@ -77,6 +79,7 @@ class SuratKeluarController extends Controller
     {
         abort_unless($this->alur->bolehMembuat($request->user()), 403);
         $s = $this->alur->simpan($request->user(), $this->validasi($request));
+        $this->simpanNomor($request, $s);
 
         return redirect()->route('surat-keluar.show', $s)->with('sukses', 'Draf surat disimpan. Periksa pratinjau, lalu ajukan untuk '.(($s->data['paraf_role'] ?? null) ? 'paraf' : 'tanda tangan').'.');
     }
@@ -121,11 +124,12 @@ class SuratKeluarController extends Controller
         abort_unless($this->alur->bolehMengubah($surat, $request->user()), 403);
         if ($surat->jenis_surat_id) {
             $jenis = $surat->jenis;
-            $data = $request->validate($jenis->aturanIsian() + $this->aturanTanggal(), $this->pesanTanggal(), $jenis->atributIsian() + ['tanggal_surat' => 'tanggal surat']);
+            $data = $request->validate($jenis->aturanIsian() + $this->aturanTanggal() + $this->aturanNomor($request, $surat->id, $surat->klasifikasi_id), $this->pesanTanggal() + NomorManual::PESAN, $jenis->atributIsian() + ['tanggal_surat' => 'tanggal surat', 'nomor_manual' => 'nomor urut surat']);
             $this->alur->simpanDariFormat($request->user(), $jenis, $data['isian'] ?? [], $surat, $data['tanggal_surat'] ?? null);
         } else {
-            $this->alur->simpan($request->user(), $this->validasi($request), $surat);
+            $this->alur->simpan($request->user(), $this->validasi($request, $surat->id), $surat);
         }
+        $this->simpanNomor($request, $surat);
 
         return redirect()->route('surat-keluar.show', $surat)->with('sukses', 'Draf diperbarui.');
     }
@@ -246,7 +250,30 @@ class SuratKeluarController extends Controller
         ];
     }
 
-    private function validasi(Request $request): array
+    /** Aturan isian nomor surat (hanya Admin TU yang mengetik nomor). */
+    private function aturanNomor(Request $request, ?int $suratId, ?int $klasifikasiId): array
+    {
+        return $request->user()->adalahAdmin() ? ['nomor_manual' => NomorManual::aturan($suratId, $klasifikasiId, $request->input('tanggal_surat'), NomorManual::wajib())] : [];
+    }
+
+    private function simpanNomor(Request $request, Surat $s): void
+    {
+        if ($request->user()->adalahAdmin() && $request->exists('nomor_manual')) {
+            $this->alur->aturNomor($s, $request->user(), $request->input('nomor_manual'));
+        }
+    }
+
+    /** Admin TU mengisi / mengubah nomor surat dari halaman surat (sebelum terbit). */
+    public function nomor(Request $request, Surat $surat)
+    {
+        $this->milik($surat);
+        $request->validate(['nomor_manual' => NomorManual::aturan($surat->id, $surat->klasifikasi_id, $surat->tgl_surat?->toDateString())], NomorManual::PESAN, ['nomor_manual' => 'nomor urut surat']);
+        $this->alur->aturNomor($surat, $request->user(), $request->input('nomor_manual'));
+
+        return redirect()->route('surat-keluar.show', $surat)->with('sukses', $request->filled('nomor_manual') ? 'Nomor urut disimpan.' : 'Nomor urut manual dikosongkan; nomor otomatis dipakai saat terbit.');
+    }
+
+    private function validasi(Request $request, ?int $suratId = null): array
     {
         return $request->validate([
             'klasifikasi_id' => ['required', 'exists:klasifikasi_surat,id'],
@@ -259,7 +286,7 @@ class SuratKeluarController extends Controller
             'jabatan_id' => ['required', Rule::exists('jabatan', 'id')->where('aktif', true)->whereNotNull('user_id')],
             'paraf_role' => ['nullable', Rule::in(['wakil_dekan', 'kaprodi'])],
             'mode_ttd' => ['required', Rule::in(['qr', 'basah'])],
-        ] + $this->aturanTanggal(), $this->pesanTanggal() + [
+        ] + $this->aturanTanggal() + $this->aturanNomor($request, $suratId, (int) $request->input('klasifikasi_id') ?: null), $this->pesanTanggal() + NomorManual::PESAN + [
             'tujuan.required' => 'Tujuan surat wajib diisi.', 'perihal.required' => 'Perihal wajib diisi.', 'isi.required' => 'Isi surat wajib diisi.',
             'jabatan_id.required' => 'Pilih penandatangan.', 'klasifikasi_id.required' => 'Pilih klasifikasi.',
         ]);

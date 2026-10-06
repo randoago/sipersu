@@ -254,7 +254,7 @@ class PenyusunSurat
             'isiAtas' => explode(self::PENANDA_TTD, (string) $surat->isi_html, 2)[0],
             'isiBawah' => explode(self::PENANDA_TTD, (string) $surat->isi_html, 2)[1] ?? '',
             'judul' => $surat->jenis?->judul_surat ? mb_strtoupper($surat->jenis->judul_surat) : null,
-            'nomor' => $surat->nomor,
+            'nomor' => $surat->nomor ?? \App\Support\NomorManual::lengkap($surat),
             'terbit' => $terbit,
             'kota' => Pengaturan::ambil('kota_surat', 'Baubau'),
             'tanggal' => ($surat->tgl_surat ?? now())->translatedFormat('j F Y'),
@@ -271,6 +271,8 @@ class PenyusunSurat
             'web' => Pengaturan::ambil('web_fakultas'),
             'header' => $untukPdf ? public_path('images/header-undangan.png') : asset('images/header-undangan.png'),
             'spesimen' => $this->spesimenSrc($spesimen, $untukPdf, $terbit),
+            // Pratinjau web surat tanpa QR: tanda tangan (tanpa stempel) yang dapat ditambahkan lewat tombol sebelum dicetak.
+            'spesimenWeb' => $untukPdf ? null : $this->spesimenSrc($jabatan?->spesimenPath(false), false, true),
             'qrSvg' => $qrSvg,
             'modeQr' => $surat->pakaiQr(),
             'untukPdf' => $untukPdf,
