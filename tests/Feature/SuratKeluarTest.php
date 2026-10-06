@@ -149,11 +149,11 @@ class SuratKeluarTest extends TestCase
         $this->actingAs($tu)->post('/surat-keluar', $this->data(['mode_ttd' => 'basah', 'perihal' => 'Surat Tanpa QR']));
         $s = Surat::firstOrFail();
         $this->assertSame('basah', $s->mode_ttd);
-        $this->actingAs($tu)->post("/surat-keluar/{$s->id}/ajukan");
-        $this->actingAs($this->u('0912038401'))->post("/surat-keluar/{$s->id}/tandatangani", ['password' => 'password'])->assertRedirect();
+        $this->actingAs($tu)->post("/surat-keluar/{$s->id}/ajukan")->assertRedirect();      // tanpa QR: tidak ada persetujuan, langsung terbit
 
         $s->refresh();
         $this->assertSame('ditandatangani', $s->status);
+        $this->assertSame(0, $s->persetujuan()->count(), 'tanpa QR tidak memiliki tahap persetujuan');
         $this->assertMatchesRegularExpression('#^001/II\.3\.AU/FT-UMB/[IVX]+/\d{4}$#', $s->nomor, 'nomor tetap otomatis');
         $this->assertNull($s->qr_token);
         $this->assertNull($s->signature);
@@ -181,10 +181,10 @@ class SuratKeluarTest extends TestCase
         $jenis = \App\Models\JenisSurat::where('kode', 'KET-AKTIF')->first();
         $jenis->update(['mode_ttd' => 'basah']);
         $alur = app(\App\Services\AlurPengajuan::class);
-        $p = $alur->ajukan($this->u('21650012'), $jenis, ['keperluan' => 'BPJS', 'semester' => '7', 'tahun_akademik' => 'x', 'keterangan' => '']);
+        $p = $alur->ajukan($this->u('21650012'), $jenis, ['semester' => '7', 'tahun_akademik' => 'x', 'keterangan' => '']);
         $p = $alur->verifikasi($p, $this->u('198701012010011001'));
         $this->assertSame('basah', $p->surat->mode_ttd);
-        $p = $alur->tandatangani($p, $this->u('0912038401'));
+        $this->assertSame('ditandatangani', $p->status->value, 'tanpa QR: terbit setelah verifikasi TU, tanpa Dekan');
 
         $this->assertNull($p->surat->qr_token);
         $this->actingAs($this->u('21650012'))->get("/pengajuan/{$p->id}")->assertOk()->assertDontSee('Verifikasi QR')->assertSee('tanda tangan basah');

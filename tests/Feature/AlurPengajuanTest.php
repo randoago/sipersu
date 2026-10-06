@@ -45,7 +45,7 @@ class AlurPengajuanTest extends TestCase
     private function ajukan(string $kode = 'KET-AKTIF'): Pengajuan
     {
         $jenis = JenisSurat::where('kode', $kode)->firstOrFail();
-        $isian = ['keperluan' => 'Beasiswa / KIP Kuliah', 'semester' => '7', 'tahun_akademik' => '2026/2027 Ganjil', 'keterangan' => ''];
+        $isian = ['semester' => '7', 'tahun_akademik' => '2026/2027 Ganjil', 'keterangan' => ''];
 
         return app(AlurPengajuan::class)->ajukan($this->pengguna('21650012'), $jenis, $isian);
     }

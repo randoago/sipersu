@@ -85,14 +85,14 @@ class AlurSuratKeluar
         return $surat;
     }
 
-    /** Surat dari format TU: isian dirender ke templat; klasifikasi, penandatangan, paraf, dan bentuk QR mengikuti format. */
-    public function simpanDariFormat(User $pembuat, \App\Models\JenisSurat $jenis, array $isian, ?Surat $surat = null, ?string $tanggalSurat = null): Surat
+    /** Surat dari format TU: isian dirender ke templat; klasifikasi, penandatangan, dan paraf mengikuti format. Bentuk (ber-QR/tanpa QR) dipilih pembuat; bawaannya mengikuti format. */
+    public function simpanDariFormat(User $pembuat, \App\Models\JenisSurat $jenis, array $isian, ?Surat $surat = null, ?string $tanggalSurat = null, ?string $mode = null): Surat
     {
         $h = $this->penyusun->dariFormat($jenis, $isian, $pembuat);
         $atribut = [
             'arah' => 'keluar', 'klasifikasi_id' => $jenis->klasifikasi_id, 'perihal' => $h['perihal'], 'sifat' => 'biasa',
             'asal_tujuan' => preg_split('/\R/', trim(strip_tags($h['tujuan'])))[0] ?: '-', 'isi_html' => $h['isi'], 'data' => $h['data'],
-            'jabatan_id' => $jenis->penandatangan_jabatan_id, 'mode_ttd' => $jenis->mode_ttd ?? 'qr', 'jenis_surat_id' => $jenis->id, 'gaya_tanggal' => $jenis->gaya_tanggal ?? 'dikeluarkan', 'tgl_surat' => self::tanggalPilihan($tanggalSurat),
+            'jabatan_id' => $jenis->penandatangan_jabatan_id, 'mode_ttd' => $mode ?? $surat?->mode_ttd ?? $jenis->mode_ttd ?? 'qr', 'jenis_surat_id' => $jenis->id, 'gaya_tanggal' => $jenis->gaya_tanggal ?? 'dikeluarkan', 'tgl_surat' => self::tanggalPilihan($tanggalSurat),
         ];
         if ($surat) {
             $surat->update($atribut);
@@ -107,6 +107,17 @@ class AlurSuratKeluar
     public function ajukan(Surat $s, User $oleh): Surat
     {
         $this->wajib($this->bolehAjukan($s, $oleh), 'Anda tidak berwenang mengajukan surat ini.');
+
+        if ($s->langsungTerbit()) {
+            // Tanpa QR + tanpa persetujuan: tidak ada paraf maupun tanda tangan elektronik; nomor & PDF terbit sekarang.
+            $s->persetujuan()->delete();
+            $surat = $this->tte->terbitkanLangsung($s, $oleh);
+            if ($surat->pembuat && $surat->pembuat->id !== $oleh->id) {
+                Notifikator::kirim($surat->pembuat, 'Surat telah diterbitkan', "Surat \"{$surat->perihal}\" bernomor {$surat->nomor} sudah terbit; cetak untuk ditandatangani basah dan dicap.", route('surat-keluar.show', $surat), 'sukses');
+            }
+
+            return $surat;
+        }
 
         return DB::transaction(function () use ($s, $oleh) {
             $s->persetujuan()->delete();

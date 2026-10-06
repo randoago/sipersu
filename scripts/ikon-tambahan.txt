@@ -49,3 +49,7 @@ edit_note
 upload_file
 file_download
 file_present
+payments
+play_circle
+play_arrow
+checklist

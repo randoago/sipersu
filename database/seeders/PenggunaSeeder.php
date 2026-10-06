@@ -24,8 +24,8 @@ class PenggunaSeeder extends Seeder
             return $u;
         };
 
-        $buat(['nomor_induk' => '0000000001', 'nama' => 'Super Admin', 'email' => 'superadmin@umbuton.ac.id'], Peran::SuperAdmin);
-        $buat(['nomor_induk' => '198701012010011001', 'nama' => 'Admin Tata Usaha', 'email' => 'tu.teknik@umbuton.ac.id'], Peran::AdminTu);
+        $buat(['nomor_induk' => '0000000001', 'username' => 'superadmin', 'nama' => 'Super Admin', 'email' => 'superadmin@umbuton.ac.id'], Peran::SuperAdmin);
+        $buat(['nomor_induk' => '198701012010011001', 'username' => 'TU', 'nama' => 'Admin Tata Usaha', 'email' => 'tu.teknik@umbuton.ac.id'], Peran::AdminTu);
 
         $dekan = $buat(['nomor_induk' => '0912038401', 'nama' => 'Agusman', 'gelar_belakang' => 'S.T., MM.', 'email' => 'dekan.teknik@umbuton.ac.id'], Peran::Dekan);
         $wadek = $buat(['nomor_induk' => '0912048102', 'nama' => 'Wakil Dekan (Contoh)', 'email' => 'wadek.teknik@umbuton.ac.id'], Peran::WakilDekan);

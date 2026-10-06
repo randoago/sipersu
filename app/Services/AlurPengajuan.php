@@ -37,10 +37,12 @@ class AlurPengajuan
             ]);
 
             $p->persetujuan()->create(['tahap' => 'verifikasi', 'urutan' => 1, 'peran' => $jenis->verifikator_role]);
-            if ($jenis->perlu_paraf) {
-                $p->persetujuan()->create(['tahap' => 'paraf', 'urutan' => 2, 'peran' => $jenis->paraf_role]);
+            if (! $jenis->langsungTerbit()) {            // tanpa QR + tanpa persetujuan: hanya verifikasi TU
+                if ($jenis->perlu_paraf) {
+                    $p->persetujuan()->create(['tahap' => 'paraf', 'urutan' => 2, 'peran' => $jenis->paraf_role]);
+                }
+                $p->persetujuan()->create(['tahap' => 'ttd', 'urutan' => 3, 'peran' => 'penandatangan', 'jabatan_id' => $jenis->penandatangan_jabatan_id]);
             }
-            $p->persetujuan()->create(['tahap' => 'ttd', 'urutan' => 3, 'peran' => 'penandatangan', 'jabatan_id' => $jenis->penandatangan_jabatan_id]);
 
             LogAktivitas::catat('pengajuan_dibuat', "Mengajukan {$jenis->nama} ({$p->kode})", $p, [], $pemohon->id);
             Notifikator::kirim(
@@ -104,7 +106,12 @@ class AlurPengajuan
             $p->update(['diverifikasi_oleh' => $oleh->id, 'diverifikasi_pada' => now()]);
             $surat = $p->surat ?? $this->penyusun->buatSuratDariPengajuan($p);
 
-            if ($p->jenis->perlu_paraf) {
+            if ($p->jenis->langsungTerbit()) {
+                // Tanpa QR + tanpa persetujuan: setelah verifikasi TU surat langsung terbit (nomor + PDF) untuk dicetak.
+                $surat = $this->tte->terbitkanLangsung($surat->refresh(), $oleh);
+                $p->update(['status' => S::Ditandatangani]);
+                Notifikator::kirim($p->pemohon, 'Surat Anda telah terbit', "{$p->jenis->nama} bernomor {$surat->nomor} sudah terbit dan dapat diunduh untuk dicetak.", route('pengajuan.show', $p), 'sukses');
+            } elseif ($p->jenis->perlu_paraf) {
                 $p->update(['status' => S::Diverifikasi]);
                 Notifikator::kirim(Notifikator::penggunaPeran([$p->jenis->paraf_role]), 'Menunggu paraf: '.$p->jenis->nama,
                     "Pengajuan {$p->kode} telah diverifikasi dan menunggu paraf Anda.", route('persetujuan.show', $p), 'tugas');

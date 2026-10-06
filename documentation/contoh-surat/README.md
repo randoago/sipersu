@@ -3,22 +3,27 @@
 PDF di folder ini dibuat langsung oleh mesin PDF SIPERSU (kop, nomor, QR, spesimen tanda tangan Dekan),
 sehingga tampilannya sama persis dengan surat yang terbit di aplikasi.
 
-| Berkas | Jenis | Bentuk |
-|---|---|---|
-| `01-surat-keterangan-aktif-kuliah.pdf` | Surat Keterangan Aktif Kuliah | Ber-QR (TTE) |
-| `02-surat-izin-penelitian.pdf` | Surat Izin Penelitian (dengan paraf Wakil Dekan) | Ber-QR (TTE) |
-| `03-surat-pengantar-kerja-praktik.pdf` | Surat Pengantar Kerja Praktik (diverifikasi Kaprodi) | Ber-QR (TTE) |
-| `04-surat-cuti-akademik.pdf` | Surat Cuti Akademik | Ber-QR (TTE) |
-| `05-surat-rekomendasi-beasiswa.pdf` | Surat Rekomendasi Beasiswa | Ber-QR (TTE) |
-| `06-surat-keterangan-aktif-kuliah-TANPA-QR.pdf` | Surat Keterangan Aktif Kuliah | **Tanpa QR** — dicetak, tanda tangan basah + cap |
-| `07-surat-keluar-undangan-ber-QR.pdf` | Surat keluar umum (undangan) | Ber-QR (TTE) |
-| `08-surat-keluar-undangan-TANPA-QR.pdf` | Surat keluar umum (undangan) | **Tanpa QR** |
-| `09-surat-undangan-dari-format.pdf` | Surat Undangan dari **format buatan TU** (tanggal Hijriah + Masehi sejajar) | Ber-QR (TTE) |
-| `10-surat-undangan-dari-format-TANPA-QR.pdf` | idem | **Tanpa QR** |
-| `11-surat-tugas-dari-format.pdf` | Surat Tugas penugasan: **tabel** yang ditugaskan, tema/mitra/waktu, tembusan | Ber-QR (TTE) |
-| `12-surat-tugas-dari-format-TANPA-QR.pdf` | idem | **Tanpa QR** |
-| `13-surat-tugas-rekomendasi-dari-format.pdf` | Surat Tugas Rekomendasi (penandatangan + yang direkomendasikan, tanggal Hijriah) | Ber-QR (TTE) |
-| `14-surat-tugas-rekomendasi-dari-format-TANPA-QR.pdf` | idem | **Tanpa QR** |
+Setiap jenis surat tersedia **berpasangan**: **BER-QR** (tanda tangan elektronik) dan **TANPA-QR** (tanda tangan basah + cap).
+
+| No | Jenis surat | Ber-QR (2 halaman) | Tanpa QR (1 halaman) |
+|---|---|---|---|
+| 01 | Surat Keterangan Aktif Kuliah | `01-surat-keterangan-aktif-kuliah-BER-QR.pdf` | `01-surat-keterangan-aktif-kuliah-TANPA-QR.pdf` |
+| 02 | Surat Izin Penelitian (dengan paraf Wakil Dekan) | `02-surat-izin-penelitian-BER-QR.pdf` | `02-surat-izin-penelitian-TANPA-QR.pdf` |
+| 03 | Surat Pengantar Kerja Praktik (diverifikasi Kaprodi) | `03-surat-pengantar-kerja-praktik-BER-QR.pdf` | `03-surat-pengantar-kerja-praktik-TANPA-QR.pdf` |
+| 04 | Surat Cuti Akademik | `04-surat-cuti-akademik-BER-QR.pdf` | `04-surat-cuti-akademik-TANPA-QR.pdf` |
+| 05 | Surat Rekomendasi Beasiswa | `05-surat-rekomendasi-beasiswa-BER-QR.pdf` | `05-surat-rekomendasi-beasiswa-TANPA-QR.pdf` |
+| 06 | Surat keluar umum (undangan rapat koordinasi) | `06-surat-keluar-umum-BER-QR.pdf` | `06-surat-keluar-umum-TANPA-QR.pdf` |
+| 07 | Surat Undangan dari format buatan TU (tanggal Hijriah + Masehi) | `07-surat-undangan-dari-format-BER-QR.pdf` | `07-surat-undangan-dari-format-TANPA-QR.pdf` |
+| 08 | Surat Tugas dari format (tabel yang ditugaskan, tema/mitra/waktu, tembusan) | `08-surat-tugas-dari-format-BER-QR.pdf` | `08-surat-tugas-dari-format-TANPA-QR.pdf` |
+| 09 | Surat Tugas Rekomendasi dari format (tanggal Hijriah) | `09-surat-tugas-rekomendasi-dari-format-BER-QR.pdf` | `09-surat-tugas-rekomendasi-dari-format-TANPA-QR.pdf` |
+| 10 | Surat Pemberitahuan dari format | `10-surat-pemberitahuan-dari-format-BER-QR.pdf` | `10-surat-pemberitahuan-dari-format-TANPA-QR.pdf` |
+| 11 | Surat Keterangan Aktif Kuliah (dibuat TU dari format) | `11-surat-keterangan-aktif-kuliah-dari-format-BER-QR.pdf` | `11-surat-keterangan-aktif-kuliah-dari-format-TANPA-QR.pdf` |
+| 12 | Surat Keterangan Cuti Akademik (format; paraf Wakil Dekan) | `12-surat-keterangan-cuti-dari-format-BER-QR.pdf` | `12-surat-keterangan-cuti-dari-format-TANPA-QR.pdf` |
+| 13 | Surat Keterangan Aktif Kembali Setelah Cuti (format) | `13-surat-keterangan-aktif-kembali-dari-format-BER-QR.pdf` | `13-surat-keterangan-aktif-kembali-dari-format-TANPA-QR.pdf` |
+| 14 | Surat Permohonan Pencairan Anggaran (format; tabel rincian) | `14-surat-pencairan-anggaran-dari-format-BER-QR.pdf` | `14-surat-pencairan-anggaran-dari-format-TANPA-QR.pdf` |
+| 15 | Surat Izin Penelitian (dibuat TU dari format) | `15-surat-izin-penelitian-dari-format-BER-QR.pdf` | `15-surat-izin-penelitian-dari-format-TANPA-QR.pdf` |
+
+Surat masuk (SM-UMUM, SM-UNDANGAN, SM-PERMOHONAN) adalah catatan surat dari pihak luar, bukan surat yang diterbitkan fakultas, sehingga tidak dibuatkan contoh PDF.
 
 ## Catatan
 

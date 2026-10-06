@@ -190,7 +190,7 @@ class SuratMasukTest extends TestCase
         $this->assertNull($f->penandatangan_jabatan_id);
 
         $tu->get('/surat-masuk/catat')->assertSee('Surat Pemberitahuan Hibah')->assertSee('Surat Masuk Umum');
-        $tu->get('/surat-keluar/buat')->assertDontSee('Surat Pemberitahuan Hibah');             // format masuk tidak muncul di surat keluar
+        $tu->get('/surat-keluar/buat?bentuk=qr')->assertDontSee('Surat Pemberitahuan Hibah');             // format masuk tidak muncul di surat keluar
         $this->actingAs($this->u('21650012'))->get('/layanan')->assertDontSee('Surat Pemberitahuan Hibah');
         $this->actingAs($this->u('198701012010011001'))->get('/surat-keluar/format/'.$f->kode)->assertNotFound();
         $this->actingAs($this->u('198701012010011001'))->get('/format-surat?sasaran=masuk')->assertSee('Surat Pemberitahuan Hibah')->assertDontSee('Surat Tugas');

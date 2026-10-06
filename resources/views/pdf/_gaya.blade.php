@@ -9,6 +9,8 @@
 .surat .isi p { text-align: justify; margin: 0 0 6px; }
 .surat table.data { border-collapse: collapse; margin: 4px 0 8px 18px; width: 92%; }
 .surat table.data td { padding: 1px 2px; vertical-align: top; }
+/* Blok agenda (hari, waktu, tempat, tema, mitra): menjorok satu tab ke dalam */
+.surat table.data.agenda { margin-left: 50pt; width: 86%; }
 .surat .ttd { margin-top: 8px; font-size: 11.5pt; page-break-inside: avoid; }
 .surat .qr-kosong { border: 1px dashed #888; font-size: 8pt; color: #666; text-align: center; padding: 30px 6px; font-family: Helvetica, Arial, sans-serif; }
 .surat .catatan-tte { font-family: Helvetica, Arial, sans-serif; font-size: 7.5pt; line-height: 1.3; color: #333; padding-top: 5px; }

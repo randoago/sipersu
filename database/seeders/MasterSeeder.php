@@ -28,6 +28,7 @@ class MasterSeeder extends Seeder
             ['II.4.PN', 'Penelitian dan Pengabdian', 'Izin penelitian, pengabdian kepada masyarakat'],
             ['II.5.KP', 'Kerja Praktik dan Magang', 'Pengantar kerja praktik, magang, kunjungan industri'],
             ['II.6.SK', 'Surat Keputusan', 'SK Dekan dan surat tugas'],
+            ['II.7.KU', 'Keuangan', 'Permohonan pencairan anggaran dan administrasi keuangan fakultas'],
         ] as [$kode, $nama, $ket]) {
             KlasifikasiSurat::updateOrCreate(['kode' => $kode], ['nama' => $nama, 'keterangan' => $ket]);
         }

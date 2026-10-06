@@ -120,7 +120,7 @@ class Pengajuan extends Model
             'oleh' => 'Oleh: '.$this->pemohon->nama.' (Mahasiswa)', 'catatan' => null,
         ]];
 
-        $judul = ['verifikasi' => 'Verifikasi Kelayakan & Tata Usaha', 'paraf' => 'Persetujuan & Paraf', 'ttd' => 'Penandatanganan Digital'];
+        $judul = ['verifikasi' => 'Verifikasi Kelayakan & Tata Usaha', 'paraf' => 'Persetujuan & Paraf', 'ttd' => $this->jenis->mode_ttd === 'basah' ? 'Persetujuan Pejabat' : 'Penandatanganan Digital'];
         $sekarangDitemukan = false;
         foreach ($this->persetujuan as $ps) {
             $status = match ($ps->status) {
@@ -143,6 +143,17 @@ class Pengajuan extends Model
                 'oleh' => $ps->user ? 'Oleh: '.$ps->user->namaLengkap() : null,
                 'catatan' => $ps->catatan,
             ];
+        }
+
+        $surat = $this->surat;
+        if ($this->jenis->langsungTerbit()) {
+            $terbit = $surat?->ditandatangani_pada !== null;
+            $tahap[] = ['judul' => 'Surat Terbit Langsung (tanpa paraf dan tanda tangan elektronik)', 'status' => $terbit ? 'selesai' : 'menunggu', 'waktu' => $surat?->ditandatangani_pada,
+                'oleh' => $terbit ? 'Nomor: '.$surat->nomor : null, 'catatan' => null];
+        }
+        if ($this->jenis->mode_ttd === 'basah') {
+            $tahap[] = ['judul' => 'Cetak, Tanda Tangan Basah & Cap (TU)', 'status' => $this->status === StatusPengajuan::Selesai ? 'selesai' : 'menunggu',
+                'waktu' => null, 'oleh' => 'Dilakukan manual setelah surat terbit', 'catatan' => null];
         }
 
         $tahap[] = [

@@ -22,6 +22,12 @@ class JenisSurat extends Model
         ];
     }
 
+    /** Surat TANPA QR tidak melalui persetujuan (paraf/tanda tangan elektronik): terbit langsung; hanya surat ber-QR yang disetujui. */
+    public function langsungTerbit(): bool
+    {
+        return $this->mode_ttd === 'basah';
+    }
+
     public function scopeUntukMahasiswa($q)
     {
         return $q->where('sasaran', 'mahasiswa');

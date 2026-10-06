@@ -1,9 +1,5 @@
 @php
-    $tahap = collect([['Draf dibuat', 'selesai', $s->created_at, 'Oleh: '.$s->pembuat?->nama, null]]);
-    foreach ($s->persetujuan as $ps) {
-        $tahap->push([$ps->tahap === 'paraf' ? 'Paraf' : 'Tanda Tangan Elektronik', $ps->status === 'disetujui' ? 'selesai' : 'menunggu', $ps->diputuskan_pada, $ps->user ? 'Oleh: '.$ps->user->namaLengkap() : null, $ps->catatan]);
-    }
-    if ($s->status === 'batal') { $tahap->push(['Dibatalkan', 'ditolak', $s->dibatalkan_pada, null, $s->alasan_batal]); }
+    $tahap = collect($s->tahapan())->map(fn ($t) => [$t['judul'], $t['status'], $t['waktu'], $t['oleh'], $t['catatan']]);
 @endphp
 <x-layouts::app :title="$s->perihal" :cari="false">
 <div class="mx-auto max-w-7xl space-y-5">
@@ -28,7 +24,7 @@
                 <x-kartu judul="Tindakan" ikon="gavel">
                     <div class="space-y-3">
                         @if ($izin['ubah'])
-                            <form method="post" action="{{ route('surat-keluar.ajukan', $s) }}">@csrf<x-tombol type="submit" ukuran="lg" ikon="send" class="w-full">Ajukan untuk {{ ($s->data['paraf_role'] ?? null) ? 'Paraf' : 'Tanda Tangan' }}</x-tombol></form>
+                            <form method="post" action="{{ route('surat-keluar.ajukan', $s) }}">@csrf<x-tombol type="submit" ukuran="lg" ikon="send" class="w-full">{{ $s->langsungTerbit() ? 'Terbitkan Surat (tanpa persetujuan)' : 'Ajukan untuk '.(($s->data['paraf_role'] ?? null) ? 'Paraf' : 'Tanda Tangan') }}</x-tombol></form>
                             <div class="flex gap-2"><x-tombol :href="route('surat-keluar.ubah', $s)" varian="sekunder" ikon="edit" class="flex-1">Ubah</x-tombol>
                                 <form method="post" action="{{ route('surat-keluar.hapus', $s) }}" onsubmit="return confirm('Hapus draf ini?')">@csrf @method('DELETE')<x-tombol type="submit" varian="bahaya" ikon="delete">Hapus</x-tombol></form></div>
                         @endif
@@ -48,7 +44,7 @@
                 <x-modal nama="kembalikan" judul="Kembalikan untuk Revisi"><form method="post" action="{{ route('surat-keluar.kembalikan', $s) }}" class="space-y-4">@csrf<x-textarea label="Catatan revisi" name="catatan" wajib rows="4" /><div class="flex justify-end gap-2"><x-tombol varian="sekunder" x-on:click="$dispatch('tutup-modal')">Batal</x-tombol><x-tombol type="submit">Kembalikan</x-tombol></div></form></x-modal>
                 <x-modal nama="batalkan" judul="Batalkan Surat Terbit"><form method="post" action="{{ route('surat-keluar.batalkan', $s) }}" class="space-y-4">@csrf<p class="font-body-sm text-body-sm text-on-surface-variant">Surat yang dibatalkan tetap tercatat; nomornya <strong>tidak dipakai ulang</strong>@if ($s->pakaiQr()) dan QR menampilkan "TIDAK BERLAKU"@endif.</p><x-textarea label="Alasan pembatalan" name="alasan" wajib rows="3" /><div class="flex justify-end gap-2"><x-tombol varian="sekunder" x-on:click="$dispatch('tutup-modal')">Batal</x-tombol><x-tombol type="submit" varian="bahaya">Batalkan Surat</x-tombol></div></form></x-modal>
             @endif
-            <x-kartu judul="Rantai Persetujuan" ikon="timeline">
+            <x-kartu judul="Tahapan Surat" deskripsi="Semua tahap dari draf sampai terbit." ikon="timeline">
                 <x-garis-waktu>@foreach ($tahap as [$j, $st, $w, $oleh, $cat])
                     <x-garis-waktu.butir :status="$st"><p class="font-label-lg text-label-lg">{{ $j }} @if ($w)<span class="font-body-sm text-body-sm font-normal text-on-surface-variant">· {{ $w->translatedFormat('j M H:i') }}</span>@endif</p>@if ($oleh)<p class="font-body-sm text-body-sm text-on-surface-variant">{{ $oleh }}</p>@endif @if ($cat)<p class="font-body-sm text-body-sm italic">"{{ $cat }}"</p>@endif</x-garis-waktu.butir>
                 @endforeach</x-garis-waktu>

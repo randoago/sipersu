@@ -22,15 +22,16 @@ class MasterData
         return [
             'pengguna' => [
                 'model' => User::class, 'judul' => 'Pengguna', 'ikon' => 'groups', 'with' => ['prodi', 'roles'],
-                'cari' => ['nomor_induk', 'nama', 'email'],
+                'cari' => ['nomor_induk', 'username', 'nama', 'email'],
                 'kolom' => [
-                    ['Nomor Induk', fn ($m) => $m->labelNomorInduk().' '.$m->nomor_induk, 'tabular'],
+                    ['Nomor Induk', fn ($m) => $m->labelNomorInduk().' '.$m->nomor_induk.($m->username ? ' (login: '.$m->username.')' : ''), 'tabular'],
                     ['Nama', fn ($m) => $m->namaLengkap()],
                     ['Peran', fn ($m) => $m->roles->map(fn ($r) => Peran::tryFrom($r->name)?->label() ?? $r->name)->implode(', ')],
                     ['Prodi', fn ($m) => $m->prodi?->nama ?? '-'],
                 ],
                 'field' => [
                     ['nomor_induk', 'NPM (mahasiswa) / NIDN (dosen)', 'teks', ['required', 'string', 'max:30', 'unique:users,nomor_induk,{id}'], 'lebar' => 'setengah'],
+                    ['username', 'Username (opsional)', 'teks', ['nullable', 'string', 'max:30', 'regex:/^[A-Za-z0-9._-]+$/', fn ($atribut, $nilai, $gagal) => $nilai && User::whereRaw('lower(username) = ?', [mb_strtolower((string) $nilai)])->where('id', '!=', (int) request()->route('id'))->exists() ? $gagal('Username sudah dipakai (huruf besar/kecil dianggap sama).') : null], 'bantuan' => 'Nama masuk alternatif, mis. TU. Huruf, angka, titik, strip.', 'lebar' => 'setengah'],
                     ['nama', 'Nama (tanpa gelar)', 'teks', ['required', 'string', 'max:120'], 'lebar' => 'setengah'],
                     ['gelar_depan', 'Gelar depan', 'teks', ['nullable', 'string', 'max:50'], 'lebar' => 'setengah'],
                     ['gelar_belakang', 'Gelar belakang', 'teks', ['nullable', 'string', 'max:80'], 'lebar' => 'setengah'],

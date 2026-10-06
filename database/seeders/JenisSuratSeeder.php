@@ -35,8 +35,6 @@ HTML;
                 'deskripsi' => 'Untuk BPJS, beasiswa, atau tunjangan orang tua.', 'klasifikasi' => 'II.1.AK',
                 'verifikator_role' => 'admin_tu', 'perlu_paraf' => false, 'paraf_role' => null, 'sla_hari' => 2,
                 'field_formulir' => [
-                    ['nama' => 'keperluan', 'label' => 'Keperluan', 'tipe' => 'pilihan', 'wajib' => true,
-                        'opsi' => ['Pengurusan BPJS', 'Beasiswa / KIP Kuliah', 'Tunjangan orang tua', 'Lainnya']],
                     ['nama' => 'semester', 'label' => 'Semester', 'tipe' => 'angka', 'wajib' => true, 'placeholder' => 'Contoh: 7'],
                     ['nama' => 'tahun_akademik', 'label' => 'Tahun Akademik', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => 'Contoh: 2025/2026 Ganjil'],
                     ['nama' => 'keterangan', 'label' => 'Keterangan Tambahan', 'tipe' => 'area', 'wajib' => false, 'maks' => 250],
@@ -46,7 +44,6 @@ HTML;
 <p>Yang bertanda tangan di bawah ini, {{ penandatangan.jabatan }} Universitas Muhammadiyah Buton, menerangkan bahwa:</p>
 HTML.self::TABEL_PEMOHON.<<<'HTML'
 <p>adalah benar mahasiswa yang terdaftar dan aktif mengikuti perkuliahan pada Semester {{ isian.semester }} Tahun Akademik {{ isian.tahun_akademik }} di Fakultas Teknik Universitas Muhammadiyah Buton, serta tidak sedang menjalani sanksi akademik apapun.</p>
-<p>Surat keterangan ini diterbitkan untuk keperluan <strong>{{ isian.keperluan }}</strong>.</p>
 <p>Demikian surat keterangan ini dibuat dengan sebenar-benarnya untuk dapat dipergunakan sebagaimana mestinya.</p>
 HTML,
             ],
@@ -176,7 +173,7 @@ HTML,
 <p>Dengan hormat,</p>
 <p>Salam sejahtera teriring do'a semoga Allah SWT senantiasa melimpahkan rahmat dan taufik-Nya kepada kita semua, amin.</p>
 <p>Sehubungan dengan {{ isian.sehubungan }}, maka dengan ini kami mengundang Bapak/Ibu untuk {{ isian.sebagai }} yang Insya Allah akan dilaksanakan pada:</p>
-<table class="data">
+<table class="data agenda">
   <tr><td width="26%">Hari / Tanggal</td><td width="3%">:</td><td>{{ isian.hari_tanggal }}</td></tr>
   <tr><td>Pukul</td><td>:</td><td>{{ isian.waktu }}</td></tr>
   <tr><td>Tempat</td><td>:</td><td>{{ isian.tempat }}</td></tr>
@@ -207,10 +204,10 @@ HTML,
 <p>{{ penandatangan.jabatan }} Universitas Muhammadiyah Buton Menugaskan :</p>
 {{ isian.ditugaskan }}
 <p>Untuk melaksanakan kegiatan {{ isian.kegiatan }}.</p>
-<table class="data" style="margin-left:0;width:100%">
-  {% jika isian.tema %}<tr><td width="14%">Tema</td><td width="3%">:</td><td>{{ isian.tema }}</td></tr>{% akhir %}
-  {% jika isian.mitra %}<tr><td width="14%">Mitra</td><td width="3%">:</td><td>{{ isian.mitra }}</td></tr>{% akhir %}
-  <tr><td width="14%">Waktu</td><td width="3%">:</td><td>{{ isian.waktu }}</td></tr>
+<table class="data agenda">
+  {% jika isian.tema %}<tr><td width="20%">Tema</td><td width="3%">:</td><td>{{ isian.tema }}</td></tr>{% akhir %}
+  {% jika isian.mitra %}<tr><td width="20%">Mitra</td><td width="3%">:</td><td>{{ isian.mitra }}</td></tr>{% akhir %}
+  <tr><td width="20%">Waktu</td><td width="3%">:</td><td>{{ isian.waktu }}</td></tr>
 </table>
 <p>Demikian Surat Tugas ini dibuat kepada yang bersangkutan untuk dilaksanakan dengan penuh tanggung jawab.</p>
 {%ttd%}
@@ -253,8 +250,8 @@ HTML,
 HTML,
             ],
             [
-                'kode' => 'SURAT-PEMBERITAHUAN', 'sasaran' => 'staf', 'nama' => 'Surat Pemberitahuan (Tanpa QR)', 'ikon' => 'mail', 'kategori' => 'Umum',
-                'deskripsi' => 'Surat biasa yang dicetak, ditandatangani basah, dan dicap.', 'klasifikasi' => 'II.3.AU', 'mode_ttd' => 'basah',
+                'kode' => 'SURAT-PEMBERITAHUAN', 'sasaran' => 'staf', 'nama' => 'Surat Pemberitahuan', 'ikon' => 'mail', 'kategori' => 'Umum',
+                'deskripsi' => 'Surat biasa untuk pemberitahuan atau edaran umum (tujuan, hal, isi).', 'klasifikasi' => 'II.3.AU', 'mode_ttd' => 'basah',
                 'perihal_template' => '{{ isian.hal }}', 'judul_surat' => null,
                 'verifikator_role' => 'admin_tu', 'perlu_paraf' => false, 'paraf_role' => null, 'sla_hari' => 1, 'syarat' => [],
                 'field_formulir' => [
@@ -269,6 +266,150 @@ HTML,
 <p>{{ isian.isi }}</p>
 <p>Demikian disampaikan, atas perhatian Bapak/Ibu diucapkan terima kasih.</p>
 <p><em>Wassalamu'alaikum Warahmatullahi Wabarakatuh.</em></p>
+HTML,
+            ],
+
+            // ---- Format surat keluar tambahan yang dibuat TU (surat mahasiswa, keuangan, penelitian) -----
+            [
+                'kode' => 'SK-AKTIF-KULIAH', 'sasaran' => 'staf', 'nama' => 'Surat Keterangan Aktif Kuliah', 'ikon' => 'school', 'kategori' => 'Akademik',
+                'deskripsi' => 'TU membuatkan surat keterangan aktif kuliah untuk seorang mahasiswa (BPJS, beasiswa, tunjangan).', 'klasifikasi' => 'II.1.AK',
+                'perihal_template' => 'Surat Keterangan Aktif Kuliah {{ isian.nama_mhs }}', 'judul_surat' => 'SURAT KETERANGAN AKTIF KULIAH',
+                'verifikator_role' => 'admin_tu', 'perlu_paraf' => false, 'paraf_role' => null, 'sla_hari' => 1, 'syarat' => [],
+                'field_formulir' => [
+                    ['nama' => 'nama_mhs', 'label' => 'Nama mahasiswa', 'tipe' => 'teks', 'wajib' => true, 'lebar' => 'setengah'],
+                    ['nama' => 'npm', 'label' => 'NPM', 'tipe' => 'teks', 'wajib' => true, 'lebar' => 'setengah'],
+                    ['nama' => 'prodi', 'label' => 'Program studi', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => 'Sistem dan Teknologi Informasi (S1)', 'lebar' => 'setengah'],
+                    ['nama' => 'semester', 'label' => 'Semester', 'tipe' => 'angka', 'wajib' => true, 'lebar' => 'setengah'],
+                    ['nama' => 'tahun_akademik', 'label' => 'Tahun akademik', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => '2026/2027 Ganjil'],
+                ],
+                'template_html' => <<<'HTML'
+<p>Yang bertanda tangan di bawah ini, {{ penandatangan.jabatan }} Universitas Muhammadiyah Buton, menerangkan bahwa:</p>
+<table class="data">
+  <tr><td width="26%">Nama</td><td width="3%">:</td><td>{{ isian.nama_mhs }}</td></tr>
+  <tr><td>NPM</td><td>:</td><td>{{ isian.npm }}</td></tr>
+  <tr><td>Program Studi</td><td>:</td><td>{{ isian.prodi }}</td></tr>
+</table>
+<p>adalah benar mahasiswa yang terdaftar dan aktif mengikuti perkuliahan pada Semester {{ isian.semester }} Tahun Akademik {{ isian.tahun_akademik }} di Fakultas Teknik Universitas Muhammadiyah Buton.</p>
+<p>Demikian surat keterangan ini dibuat dengan sebenar-benarnya untuk dapat dipergunakan sebagaimana mestinya.</p>
+{%ttd%}
+HTML,
+            ],
+            [
+                'kode' => 'SK-CUTI', 'sasaran' => 'staf', 'nama' => 'Surat Keterangan Cuti Akademik', 'ikon' => 'pause_circle', 'kategori' => 'Akademik',
+                'deskripsi' => 'Keterangan cuti akademik seorang mahasiswa (istirahat studi satu atau dua semester).', 'klasifikasi' => 'II.1.AK',
+                'perihal_template' => 'Surat Keterangan Cuti Akademik {{ isian.nama_mhs }}', 'judul_surat' => 'SURAT KETERANGAN CUTI AKADEMIK',
+                'verifikator_role' => 'admin_tu', 'perlu_paraf' => true, 'paraf_role' => 'wakil_dekan', 'sla_hari' => 2, 'syarat' => [],
+                'field_formulir' => [
+                    ['nama' => 'nama_mhs', 'label' => 'Nama mahasiswa', 'tipe' => 'teks', 'wajib' => true, 'lebar' => 'setengah'],
+                    ['nama' => 'npm', 'label' => 'NPM', 'tipe' => 'teks', 'wajib' => true, 'lebar' => 'setengah'],
+                    ['nama' => 'prodi', 'label' => 'Program studi', 'tipe' => 'teks', 'wajib' => true, 'lebar' => 'setengah'],
+                    ['nama' => 'semester_cuti', 'label' => 'Semester yang dicutikan', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => 'Genap 2026/2027', 'lebar' => 'setengah'],
+                    ['nama' => 'lama', 'label' => 'Lama cuti', 'tipe' => 'pilihan', 'wajib' => true, 'opsi' => ['1 (satu) semester', '2 (dua) semester']],
+                    ['nama' => 'alasan', 'label' => 'Alasan cuti', 'tipe' => 'area', 'wajib' => true, 'maks' => 250],
+                ],
+                'template_html' => <<<'HTML'
+<p>Yang bertanda tangan di bawah ini, {{ penandatangan.jabatan }} Universitas Muhammadiyah Buton, menerangkan bahwa:</p>
+<table class="data">
+  <tr><td width="26%">Nama</td><td width="3%">:</td><td>{{ isian.nama_mhs }}</td></tr>
+  <tr><td>NPM</td><td>:</td><td>{{ isian.npm }}</td></tr>
+  <tr><td>Program Studi</td><td>:</td><td>{{ isian.prodi }}</td></tr>
+</table>
+<p>telah diberikan cuti akademik selama <strong>{{ isian.lama }}</strong> pada Semester {{ isian.semester_cuti }} dengan alasan: {{ isian.alasan }}.</p>
+<p>Selama masa cuti, mahasiswa yang bersangkutan tidak mengikuti kegiatan akademik dan masa cuti tidak dihitung sebagai masa studi. Mahasiswa wajib melapor dan mendaftar ulang pada semester berikutnya sesuai ketentuan yang berlaku.</p>
+<p>Demikian surat keterangan ini dibuat untuk dapat dipergunakan sebagaimana mestinya.</p>
+{%ttd%}
+HTML,
+            ],
+            [
+                'kode' => 'SK-AKTIF-KEMBALI', 'sasaran' => 'staf', 'nama' => 'Surat Keterangan Aktif Kembali Setelah Cuti', 'ikon' => 'play_circle', 'kategori' => 'Akademik',
+                'deskripsi' => 'Keterangan bahwa mahasiswa yang telah selesai cuti akademik kembali aktif kuliah.', 'klasifikasi' => 'II.1.AK',
+                'perihal_template' => 'Surat Keterangan Aktif Kembali {{ isian.nama_mhs }}', 'judul_surat' => 'SURAT KETERANGAN AKTIF KEMBALI',
+                'verifikator_role' => 'admin_tu', 'perlu_paraf' => false, 'paraf_role' => null, 'sla_hari' => 1, 'syarat' => [],
+                'field_formulir' => [
+                    ['nama' => 'nama_mhs', 'label' => 'Nama mahasiswa', 'tipe' => 'teks', 'wajib' => true, 'lebar' => 'setengah'],
+                    ['nama' => 'npm', 'label' => 'NPM', 'tipe' => 'teks', 'wajib' => true, 'lebar' => 'setengah'],
+                    ['nama' => 'prodi', 'label' => 'Program studi', 'tipe' => 'teks', 'wajib' => true, 'lebar' => 'setengah'],
+                    ['nama' => 'semester_aktif', 'label' => 'Semester aktif kembali', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => 'Ganjil 2027/2028', 'lebar' => 'setengah'],
+                    ['nama' => 'masa_cuti', 'label' => 'Masa cuti sebelumnya', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => 'Genap 2026/2027 (1 semester)'],
+                    ['nama' => 'keperluan', 'label' => 'Keperluan', 'tipe' => 'teks', 'wajib' => false, 'placeholder' => 'Pendaftaran ulang / pengisian KRS'],
+                ],
+                'template_html' => <<<'HTML'
+<p>Yang bertanda tangan di bawah ini, {{ penandatangan.jabatan }} Universitas Muhammadiyah Buton, menerangkan bahwa:</p>
+<table class="data">
+  <tr><td width="26%">Nama</td><td width="3%">:</td><td>{{ isian.nama_mhs }}</td></tr>
+  <tr><td>NPM</td><td>:</td><td>{{ isian.npm }}</td></tr>
+  <tr><td>Program Studi</td><td>:</td><td>{{ isian.prodi }}</td></tr>
+</table>
+<p>telah menyelesaikan masa cuti akademik pada {{ isian.masa_cuti }} dan dinyatakan <strong>aktif kembali</strong> sebagai mahasiswa Fakultas Teknik Universitas Muhammadiyah Buton mulai Semester {{ isian.semester_aktif }}.</p>
+{% jika isian.keperluan %}<p>Surat keterangan ini diterbitkan untuk keperluan {{ isian.keperluan }}.</p>{% akhir %}
+<p>Demikian surat keterangan ini dibuat untuk dapat dipergunakan sebagaimana mestinya.</p>
+{%ttd%}
+HTML,
+            ],
+            [
+                'kode' => 'SURAT-PENCAIRAN-ANGGARAN', 'sasaran' => 'staf', 'nama' => 'Surat Permohonan Pencairan Anggaran', 'ikon' => 'payments', 'kategori' => 'Keuangan',
+                'deskripsi' => 'Permohonan pencairan dana kegiatan fakultas ke bagian keuangan/rektorat, lengkap dengan rincian anggaran (tabel).', 'klasifikasi' => 'II.7.KU',
+                'perihal_template' => 'Permohonan Pencairan Anggaran {{ isian.kegiatan }}', 'judul_surat' => null,
+                'verifikator_role' => 'admin_tu', 'perlu_paraf' => true, 'paraf_role' => 'wakil_dekan', 'sla_hari' => 2, 'syarat' => [],
+                'field_formulir' => [
+                    ['nama' => 'kepada', 'label' => 'Kepada (Yth.)', 'tipe' => 'area', 'wajib' => true, 'maks' => 400,
+                        'placeholder' => "Wakil Rektor II Bidang Keuangan dan Sumber Daya\nUniversitas Muhammadiyah Buton\nDi Tempat"],
+                    ['nama' => 'lampiran', 'label' => 'Lampiran', 'tipe' => 'teks', 'wajib' => false, 'placeholder' => '1 (satu) berkas RAB', 'lebar' => 'setengah'],
+                    ['nama' => 'kegiatan', 'label' => 'Nama kegiatan', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => 'Seminar Nasional Teknik dan Teknologi Informasi'],
+                    ['nama' => 'waktu_tempat', 'label' => 'Waktu dan tempat kegiatan', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => '12 November 2026, Aula Fakultas Teknik'],
+                    ['nama' => 'sumber_dana', 'label' => 'Sumber anggaran', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => 'Anggaran Fakultas Teknik T.A. 2026'],
+                    ['nama' => 'rincian', 'label' => 'Rincian anggaran', 'tipe' => 'tabel', 'wajib' => true, 'kolom' => ['Uraian', 'Volume', 'Jumlah (Rp)']],
+                    ['nama' => 'total', 'label' => 'Total anggaran', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => 'Rp 12.500.000,-', 'lebar' => 'setengah'],
+                    ['nama' => 'terbilang', 'label' => 'Terbilang', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => 'Dua belas juta lima ratus ribu rupiah', 'lebar' => 'setengah'],
+                    ['nama' => 'penerima', 'label' => 'Penerima / penanggung jawab dana', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => 'Ketua Panitia: Rando, S.Kom., M.Eng'],
+                    ['nama' => 'tembusan', 'label' => 'Tembusan', 'tipe' => 'daftar', 'wajib' => false, 'maks' => 600, 'placeholder' => "Bagian Keuangan\nArsip"],
+                ],
+                'template_html' => <<<'HTML'
+<table class="data" style="margin-left:0;width:100%"><tr><td width="14%">Lampiran</td><td width="3%">:</td><td>{{ isian.lampiran }}</td></tr>
+  <tr><td>Perihal</td><td>:</td><td><strong>Permohonan Pencairan Anggaran</strong></td></tr></table>
+<table class="yth"><tr><td class="yth-label">Yth.</td><td>{{ isian.kepada }}</td></tr></table>
+<p><em>Assalamu'alaikum Warahmatullahi Wabarakatuh.</em></p>
+<p>Dengan hormat, sehubungan dengan pelaksanaan kegiatan <strong>{{ isian.kegiatan }}</strong> yang akan dilaksanakan pada {{ isian.waktu_tempat }}, bersama ini kami mengajukan permohonan pencairan anggaran yang bersumber dari {{ isian.sumber_dana }}, dengan rincian sebagai berikut:</p>
+{{ isian.rincian }}
+<p>Total anggaran yang dimohonkan sebesar <strong>{{ isian.total }}</strong> (<em>{{ isian.terbilang }}</em>), untuk diterimakan kepada {{ isian.penerima }}.</p>
+<p>Demikian permohonan ini kami sampaikan. Atas perhatian dan kerja sama Bapak/Ibu, kami ucapkan terima kasih.</p>
+<p><em>Wassalamu'alaikum Warahmatullahi Wabarakatuh.</em></p>
+{%ttd%}
+{% jika isian.tembusan %}<p><strong><u>Tembusan:</u></strong></p>{{ isian.tembusan }}{% akhir %}
+HTML,
+            ],
+            [
+                'kode' => 'SURAT-PENELITIAN', 'sasaran' => 'staf', 'nama' => 'Surat Izin Penelitian (dibuat TU)', 'ikon' => 'science', 'kategori' => 'Penelitian',
+                'deskripsi' => 'TU membuat surat izin penelitian untuk mahasiswa; memuat identitas mahasiswa, judul, instansi tujuan, dan pembimbing.', 'klasifikasi' => 'II.4.PN',
+                'perihal_template' => 'Permohonan Izin Penelitian {{ isian.nama_mhs }}', 'judul_surat' => null,
+                'verifikator_role' => 'admin_tu', 'perlu_paraf' => true, 'paraf_role' => 'wakil_dekan', 'sla_hari' => 2, 'syarat' => [],
+                'field_formulir' => [
+                    ['nama' => 'kepada', 'label' => 'Ditujukan kepada (jabatan/pejabat)', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => 'Kepala Dinas Komunikasi dan Informatika Kota Baubau'],
+                    ['nama' => 'instansi', 'label' => 'Instansi tujuan', 'tipe' => 'teks', 'wajib' => true],
+                    ['nama' => 'alamat_instansi', 'label' => 'Alamat instansi', 'tipe' => 'teks', 'wajib' => true],
+                    ['nama' => 'nama_mhs', 'label' => 'Nama mahasiswa', 'tipe' => 'teks', 'wajib' => true, 'lebar' => 'setengah'],
+                    ['nama' => 'npm', 'label' => 'NPM', 'tipe' => 'teks', 'wajib' => true, 'lebar' => 'setengah'],
+                    ['nama' => 'prodi', 'label' => 'Program studi', 'tipe' => 'teks', 'wajib' => true],
+                    ['nama' => 'judul', 'label' => 'Judul penelitian', 'tipe' => 'area', 'wajib' => true, 'maks' => 250],
+                    ['nama' => 'tgl_mulai', 'label' => 'Tanggal mulai', 'tipe' => 'tanggal', 'wajib' => true, 'lebar' => 'setengah'],
+                    ['nama' => 'tgl_selesai', 'label' => 'Tanggal selesai', 'tipe' => 'tanggal', 'wajib' => true, 'lebar' => 'setengah'],
+                    ['nama' => 'pembimbing', 'label' => 'Dosen pembimbing', 'tipe' => 'teks', 'wajib' => true],
+                ],
+                'template_html' => <<<'HTML'
+<table class="data" style="margin-left:0;width:100%"><tr><td width="14%">Perihal</td><td width="3%">:</td><td><strong>Permohonan Izin Penelitian</strong></td></tr></table>
+<table class="yth"><tr><td class="yth-label">Yth.</td><td>{{ isian.kepada }}<br>{{ isian.instansi }}<br>di {{ isian.alamat_instansi }}</td></tr></table>
+<p><em>Assalamu'alaikum Warahmatullahi Wabarakatuh.</em></p>
+<p>Dengan hormat, kami sampaikan bahwa mahasiswa Fakultas Teknik Universitas Muhammadiyah Buton:</p>
+<table class="data">
+  <tr><td width="26%">Nama</td><td width="3%">:</td><td>{{ isian.nama_mhs }}</td></tr>
+  <tr><td>NPM</td><td>:</td><td>{{ isian.npm }}</td></tr>
+  <tr><td>Program Studi</td><td>:</td><td>{{ isian.prodi }}</td></tr>
+</table>
+<p>bermaksud melaksanakan penelitian dalam rangka penyusunan tugas akhir dengan judul <strong>"{{ isian.judul }}"</strong> di bawah bimbingan {{ isian.pembimbing }}, yang direncanakan pada tanggal {{ isian.tgl_mulai }} s/d {{ isian.tgl_selesai }}.</p>
+<p>Sehubungan dengan hal tersebut, kami mohon kiranya Bapak/Ibu berkenan memberikan izin dan bantuan kepada mahasiswa yang bersangkutan untuk melaksanakan penelitian di instansi yang Bapak/Ibu pimpin.</p>
+<p>Demikian permohonan ini kami sampaikan. Atas perhatian dan kerja sama Bapak/Ibu, kami ucapkan terima kasih.</p>
+<p><em>Wassalamu'alaikum Warahmatullahi Wabarakatuh.</em></p>
+{%ttd%}
 HTML,
             ],
 

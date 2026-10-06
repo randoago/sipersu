@@ -15,7 +15,7 @@ class DemoSuratMasukSeeder extends Seeder
     {
         $tu = User::where('nomor_induk', '198701012010011001')->firstOrFail();
         $layanan = app(SuratMasukService::class);
-        $contoh = base_path('documentation/contoh-surat/01-surat-keterangan-aktif-kuliah.pdf');
+        $contoh = base_path('documentation/contoh-surat/01-surat-keterangan-aktif-kuliah-BER-QR.pdf');
         $scan = fn () => is_file($contoh) ? new UploadedFile($contoh, 'pindaian-surat.pdf', 'application/pdf', null, true) : null;
         $jenis = fn (string $k) => JenisSurat::where('kode', $k)->firstOrFail();
         $hari = fn (int $n) => now()->subDays($n)->toDateString();

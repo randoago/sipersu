@@ -42,6 +42,9 @@ class FormatSuratController extends Controller
     {
         $d = $this->validasi($request, $format);
         $isi = ['aktif' => $request->boolean('aktif'), 'perlu_paraf' => $request->boolean('perlu_paraf')] + $d['kolom'];
+        if (($isi['mode_ttd'] ?? 'qr') === 'basah') {
+            $isi['perlu_paraf'] = false;          // surat tanpa QR tidak melalui persetujuan; hanya surat ber-QR yang diparaf/ditandatangani
+        }
         if (! $isi['perlu_paraf']) {
             $isi['paraf_role'] = null;
         }

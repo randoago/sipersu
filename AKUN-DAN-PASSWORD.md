@@ -5,12 +5,14 @@
 
 ## 1. Akun contoh (kata sandi semuanya: `password`)
 
-Login memakai **NPM / NIDN** + kata sandi di halaman `/login`.
+Login di halaman `/login` memakai **NPM / NIDN / username** + kata sandi. Username tidak membedakan huruf besar/kecil.
+
+> **Tata Usaha: `TU`** · **Super Admin: `superadmin`** (kata sandi contoh: `password`). NIP/NIDN panjang di bawah tetap berlaku sebagai cadangan.
 
 | Peran | NPM / NIDN | Nama | Bisa apa |
 |---|---|---|---|
-| Super Admin | `0000000001` | Super Admin | Semua pengaturan, master data, format surat, backup |
-| Admin TU | `198701012010011001` | Admin Tata Usaha | Verifikasi pengajuan, catat surat masuk, buat surat keluar, **Format Surat**, **unggah spesimen tanda tangan pejabat**, backup |
+| Super Admin | `superadmin` (atau `0000000001`) | Super Admin | Semua pengaturan, master data, format surat, backup |
+| Admin TU | `TU` (atau `198701012010011001`) | Admin Tata Usaha | Verifikasi pengajuan, catat surat masuk, buat surat keluar, **Format Surat**, **unggah spesimen tanda tangan pejabat**, backup |
 | Dekan | `0912038401` | Agusman, S.T., MM. | Tanda tangan surat (penandatangan "Dekan"), lihat surat masuk |
 | Wakil Dekan | `0912048102` | Wakil Dekan (Contoh) | Paraf surat, lihat surat masuk |
 | Kaprodi Teknik Sipil | `0912058301` | Idwan, S.T., M.Si. | Verifikasi pengajuan prodi sendiri, lihat surat masuk |
@@ -38,7 +40,8 @@ Catatan: nama Wakil Dekan dan semua nomor induk di atas adalah **contoh**; ganti
 | Ganti kata sandi sendiri | **Profil Saya → Ganti Kata Sandi** (butuh kata sandi lama) |
 | Lupa kata sandi (pengguna) | Hubungi Admin TU → **Master Data → Pengguna → Ubah** → isi kolom *Kata sandi* baru |
 | Menonaktifkan akun contoh | **Master Data → Pengguna → Nonaktifkan** (akun nonaktif tidak bisa login) |
-| Lupa kata sandi Super Admin | Di server: `php artisan tinker` lalu `App\Models\User::where('nomor_induk','0000000001')->first()->update(['password'=>'KataSandiBaru123']);` |
+| Lupa kata sandi Super Admin | Di server: `php artisan tinker` lalu `App\Models\User::where('username','superadmin')->first()->update(['password'=>'KataSandiBaru123']);` |
+| Menambah username untuk pengguna lain | **Master Data → Pengguna → Ubah** → isi *Username (opsional)* (huruf, angka, titik, strip; unik) |
 
 ## 4. Kata sandi sistem (isi di KERTAS / pengelola kata sandi, bukan di berkas ini)
 

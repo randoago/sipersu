@@ -39,7 +39,7 @@ class DemoSeeder extends Seeder
         $kp = JenisSurat::where('kode', 'PENGANTAR-KP')->first();
         $beasiswa = JenisSurat::where('kode', 'REKOM-BEASISWA')->first();
 
-        $isianAktif = ['keperluan' => 'Beasiswa / KIP Kuliah', 'semester' => '7', 'tahun_akademik' => '2026/2027 Ganjil', 'keterangan' => ''];
+        $isianAktif = ['semester' => '7', 'tahun_akademik' => '2026/2027 Ganjil', 'keterangan' => ''];
         $isianIzin = fn ($j) => ['judul' => $j, 'kepada' => 'Kepala Dinas Komunikasi dan Informatika Kota Baubau', 'instansi' => 'Dinas Komunikasi dan Informatika (Diskominfo) Kota Baubau',
             'alamat_instansi' => 'Jl. Palagimata No. 12, Kel. Lipu, Kec. Betoambari, Kota Baubau', 'tgl_mulai' => '2026-11-01', 'tgl_selesai' => '2027-01-31', 'pembimbing' => 'Dr. Eng. Ir. Sudirman, S.T., M.T.'];
 

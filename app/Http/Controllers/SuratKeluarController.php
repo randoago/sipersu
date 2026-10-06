@@ -36,12 +36,17 @@ class SuratKeluarController extends Controller
         return view('surat-keluar.index', ['daftar' => $daftar, 'f' => $f, 'statusList' => self::STATUS]);
     }
 
-    /** Langkah 1: pilih format surat (dibuat TU) atau surat bebas. */
+    private function bentuk(Request $request): ?string
+    {
+        return in_array($request->query('bentuk'), ['qr', 'basah'], true) ? $request->query('bentuk') : null;
+    }
+
+    /** Langkah 1: pilih bentuk surat (ber-QR / tanpa QR); langkah 2: semua format surat ditampilkan untuk bentuk itu. */
     public function buat(Request $request)
     {
         abort_unless($this->alur->bolehMembuat($request->user()), 403);
 
-        return view('surat-keluar.pilih', ['formats' => JenisSurat::untukStaf()->where('aktif', true)->with('penandatanganJabatan.pejabat', 'klasifikasi')->orderBy('urutan')->orderBy('nama')->get()]);
+        return view('surat-keluar.pilih', ['bentuk' => $this->bentuk($request), 'formats' => JenisSurat::untukStaf()->where('aktif', true)->with('penandatanganJabatan.pejabat', 'klasifikasi')->orderBy('urutan')->orderBy('nama')->get()]);
     }
 
     public function bebas(Request $request)
@@ -56,16 +61,16 @@ class SuratKeluarController extends Controller
     {
         abort_unless($this->alur->bolehMembuat($request->user()) && $jenis->aktif && $jenis->adalahUntukStaf(), 404);
 
-        return view('surat-keluar.isi', ['jenis' => $jenis->load('penandatanganJabatan.pejabat', 'klasifikasi'), 's' => null, 'nilai' => []]);
+        return view('surat-keluar.isi', ['jenis' => $jenis->load('penandatanganJabatan.pejabat', 'klasifikasi'), 's' => null, 'nilai' => [], 'bentuk' => $this->bentuk($request) ?? $jenis->mode_ttd]);
     }
 
     public function simpanFormat(Request $request, JenisSurat $jenis)
     {
         abort_unless($this->alur->bolehMembuat($request->user()) && $jenis->aktif && $jenis->adalahUntukStaf(), 404);
-        $data = $request->validate($jenis->aturanIsian() + $this->aturanTanggal(), $this->pesanTanggal(), $jenis->atributIsian() + ['tanggal_surat' => 'tanggal surat']);
-        $s = $this->alur->simpanDariFormat($request->user(), $jenis, $data['isian'] ?? [], null, $data['tanggal_surat'] ?? null);
+        $data = $request->validate($jenis->aturanIsian() + $this->aturanTanggal() + ['mode_ttd' => ['nullable', Rule::in(['qr', 'basah'])]], $this->pesanTanggal(), $jenis->atributIsian() + ['tanggal_surat' => 'tanggal surat']);
+        $s = $this->alur->simpanDariFormat($request->user(), $jenis, $data['isian'] ?? [], null, $data['tanggal_surat'] ?? null, $data['mode_ttd'] ?? null);
 
-        return redirect()->route('surat-keluar.show', $s)->with('sukses', 'Draf surat disimpan. Periksa pratinjau, lalu ajukan untuk '.(($s->data['paraf_role'] ?? null) ? 'paraf' : 'tanda tangan').'.');
+        return redirect()->route('surat-keluar.show', $s)->with('sukses', 'Draf surat disimpan. Periksa pratinjau, lalu '.($s->langsungTerbit() ? 'terbitkan (tanpa QR tidak perlu persetujuan).' : 'ajukan untuk '.(($s->data['paraf_role'] ?? null) ? 'paraf' : 'tanda tangan').'.'));
     }
 
     public function simpan(Request $request)
@@ -85,7 +90,7 @@ class SuratKeluarController extends Controller
             $jenis = JenisSurat::where('kode', $request->input('format'))->where('sasaran', 'staf')->with('penandatanganJabatan.pejabat')->firstOrFail();
             $isian = $penyusun->isianPratinjau($jenis->field_formulir, (array) $request->input('isian', []));
             $h = $penyusun->dariFormat($jenis, $isian, $request->user());
-            $html = $penyusun->htmlPratinjau($h['isi'], $jenis->judul_surat, $jenis->penandatanganJabatan, $jenis->mode_ttd ?? 'qr', $h['perihal'], $jenis->gaya_tanggal ?? 'dikeluarkan', $this->tanggalPratinjau($request));
+            $html = $penyusun->htmlPratinjau($h['isi'], $jenis->judul_surat, $jenis->penandatanganJabatan, in_array($request->input('mode_ttd'), ['qr', 'basah'], true) ? $request->input('mode_ttd') : ($jenis->mode_ttd ?? 'qr'), $h['perihal'], $jenis->gaya_tanggal ?? 'dikeluarkan', $this->tanggalPratinjau($request));
         } else {
             $isi = $penyusun->suratUmum([
                 'lampiran' => trim((string) $request->input('lampiran')) ?: '-', 'perihal' => trim((string) $request->input('perihal')) ?: '[Perihal]',
@@ -104,7 +109,7 @@ class SuratKeluarController extends Controller
         $this->milik($surat);
         abort_unless($this->alur->bolehMengubah($surat, $request->user()), 403, 'Surat hanya dapat diubah saat berstatus draf.');
         if ($surat->jenis_surat_id) {
-            return view('surat-keluar.isi', ['jenis' => $surat->jenis->load('penandatanganJabatan.pejabat', 'klasifikasi'), 's' => $surat, 'nilai' => $surat->data['isian_mentah'] ?? []]);
+            return view('surat-keluar.isi', ['jenis' => $surat->jenis->load('penandatanganJabatan.pejabat', 'klasifikasi'), 's' => $surat, 'nilai' => $surat->data['isian_mentah'] ?? [], 'bentuk' => $surat->mode_ttd]);
         }
 
         return view('surat-keluar.form', $this->dataForm($surat));
@@ -150,9 +155,10 @@ class SuratKeluarController extends Controller
     public function ajukan(Request $request, Surat $surat)
     {
         $this->milik($surat);
-        $this->alur->ajukan($surat, $request->user());
+        $hasil = $this->alur->ajukan($surat, $request->user());
 
-        return redirect()->route('surat-keluar.show', $surat)->with('sukses', 'Surat diajukan.');
+        return redirect()->route('surat-keluar.show', $surat)->with('sukses', $hasil->langsungTerbit()
+            ? "Surat diterbitkan tanpa persetujuan dengan nomor {$hasil->nomor}. Unduh PDF, cetak, tanda tangani basah, lalu beri cap." : 'Surat diajukan.');
     }
 
     public function paraf(Request $request, Surat $surat)

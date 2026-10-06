@@ -1,4 +1,4 @@
-@php $d = $s?->data ?? []; $v = fn ($k, $b = null) => old($k, match ($k) { 'klasifikasi_id' => $s?->klasifikasi_id, 'sifat' => $s?->sifat, 'perihal' => $s?->perihal, 'jabatan_id' => $s?->jabatan_id, 'mode_ttd' => $s?->mode_ttd, default => $d[$k] ?? $b }); @endphp
+@php $d = $s?->data ?? []; $v = fn ($k, $b = null) => old($k, match ($k) { 'klasifikasi_id' => $s?->klasifikasi_id, 'sifat' => $s?->sifat, 'perihal' => $s?->perihal, 'jabatan_id' => $s?->jabatan_id, 'mode_ttd' => $s?->mode_ttd ?? $b, default => $d[$k] ?? $b }); @endphp
 <x-layouts::app :title="$s ? 'Ubah Draf Surat' : 'Buat Surat'" :cari="false">
 <div class="mx-auto max-w-4xl">
     <nav class="mb-2 flex items-center gap-1.5 font-label-sm text-label-sm text-on-surface-variant"><a href="{{ route('surat-keluar.index') }}" class="hover:text-primary">Surat Keluar</a><x-ikon name="chevron_right" class="text-[14px]" /><span>{{ $s ? 'Ubah draf' : 'Buat surat' }}</span></nav>
@@ -18,23 +18,24 @@
             </div>
         </x-kartu>
         <x-kartu judul="Bentuk Surat" ikon="qr_code_2" deskripsi="Pilih cara surat ini disahkan.">
-            <div class="grid gap-3 md:grid-cols-2" x-data="{ m: @js($v('mode_ttd', 'qr')) }">
+            <div class="grid gap-3 md:grid-cols-2" x-data="{ m: @js($v('mode_ttd', request('bentuk') === 'basah' ? 'basah' : 'qr')) }">
                 @foreach ([
                     'qr' => ['Surat ber-QR (TTE)', 'Ditandatangani secara elektronik oleh pejabat. PDF memuat kode QR + spesimen tanda tangan & stempel pejabat, dapat diverifikasi publik.', 'qr_code_2'],
-                    'basah' => ['Surat tanpa QR', 'Nomor tetap terbit otomatis, tetapi PDF tanpa QR: dicetak lalu ditandatangani basah dan dibubuhi cap. Tidak ada verifikasi online.', 'print'],
+                    'basah' => ['Surat tanpa QR', 'Tanpa persetujuan (langsung terbit). Nomor tetap otomatis, PDF tanpa QR: dicetak lalu ditandatangani basah dan dibubuhi cap. Tidak ada verifikasi online.', 'print'],
                 ] as $k => [$j, $d2, $i])
                     <label class="flex cursor-pointer gap-3 rounded-xl border-2 p-4 transition" :class="m === '{{ $k }}' ? 'border-primary-container bg-primary-fixed/20' : 'border-outline-variant bg-surface-container-lowest hover:bg-surface-container-low'">
-                        <input type="radio" name="mode_ttd" value="{{ $k }}" x-model="m" class="mt-1 text-primary focus:ring-primary">
+                        <input type="radio" name="mode_ttd" value="{{ $k }}" x-model="m" x-on:change="$dispatch('mode-ttd', m)" class="mt-1 text-primary focus:ring-primary">
                         <span><span class="flex items-center gap-1.5 font-label-lg text-label-lg"><x-ikon name="{{ $i }}" class="text-[20px] text-primary" />{{ $j }}</span><span class="mt-1 block font-body-sm text-body-sm text-on-surface-variant">{{ $d2 }}</span></span>
                     </label>
                 @endforeach
             </div>
             @error('mode_ttd')<p class="mt-1 font-body-sm text-body-sm text-[#e11d48]">{{ $message }}</p>@enderror
         </x-kartu>
-        <x-kartu judul="Alur Persetujuan" ikon="alt_route">
+        <x-kartu judul="Alur Persetujuan" ikon="alt_route" x-data="{ basah: @js($v('mode_ttd', request('bentuk') === 'basah' ? 'basah' : 'qr') === 'basah') }" x-on:mode-ttd.window="basah = $event.detail === 'basah'">
+            <p x-show="basah" x-cloak class="mb-3 rounded-lg bg-surface-container p-3 font-body-sm text-body-sm text-on-surface-variant">Surat <strong>tanpa QR tidak memerlukan persetujuan</strong>: tidak ada paraf maupun tanda tangan elektronik. Saat tombol <em>Terbitkan</em> ditekan, nomor surat dan PDF langsung dibuat untuk dicetak, ditandatangani basah, dan dicap. Hanya surat ber-QR yang melalui persetujuan.</p>
             <div class="grid gap-space-md md:grid-cols-2">
                 <x-select label="Penandatangan" name="jabatan_id" wajib>@foreach ($jabatan as $j)<option value="{{ $j->id }}" @selected($v('jabatan_id') == $j->id)>{{ $j->nama }} — {{ $j->pejabat?->namaLengkap() }}</option>@endforeach</x-select>
-                <x-select label="Paraf sebelum tanda tangan" name="paraf_role" bantuan="Nomor surat baru terbit saat surat ditandatangani."><option value="">Tanpa paraf</option><option value="wakil_dekan" @selected($v('paraf_role') === 'wakil_dekan')>Wakil Dekan</option><option value="kaprodi" @selected($v('paraf_role') === 'kaprodi')>Kaprodi</option></x-select>
+                <x-select x-show="!basah" label="Paraf sebelum tanda tangan" name="paraf_role" bantuan="Nomor surat baru terbit saat surat ditandatangani."><option value="">Tanpa paraf</option><option value="wakil_dekan" @selected($v('paraf_role') === 'wakil_dekan')>Wakil Dekan</option><option value="kaprodi" @selected($v('paraf_role') === 'kaprodi')>Kaprodi</option></x-select>
             </div>
         </x-kartu>
         <div class="flex flex-wrap justify-end gap-2"><x-tombol :href="$s ? route('surat-keluar.show', $s) : route('surat-keluar.index')" varian="sekunder">Batal</x-tombol>

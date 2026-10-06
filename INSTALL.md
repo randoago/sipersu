@@ -98,10 +98,10 @@ MAIL_FROM_ADDRESS="persuratan.ft@gmail.com"
 
 ### Akun contoh (kata sandi semuanya `password`)
 
-| Peran | NPM/NIDN | Nama |
+| Peran | Login (NPM/NIDN/Username) | Nama |
 |---|---|---|
-| Super Admin | `0000000001` | Super Admin |
-| Admin TU | `198701012010011001` | Admin Tata Usaha |
+| Super Admin | `superadmin` | Super Admin |
+| Admin TU | `TU` | Admin Tata Usaha |
 | Dekan | `0912038401` | Agusman, S.T., MM. |
 | Wakil Dekan | `0912048102` | Wakil Dekan (Contoh) |
 | Kaprodi Teknik Sipil | `0912058301` | Idwan, S.T., M.Si. |
@@ -367,6 +367,7 @@ Cara: klik dua kali `scripts\uji-pemulihan.bat`, tarik berkas backup ke jendelan
 - **Surat keluar umum**: *Surat Keluar → Buat Surat* → pilih **bentuk surat**:
   - **Surat ber-QR (TTE)** — PDF memuat QR beserta spesimen **tanda tangan + stempel** pejabat, bisa diverifikasi publik.
   - **Surat tanpa QR** — nomor tetap otomatis, PDF disiapkan **kosong** (tanpa QR, tanda tangan, maupun stempel); **dicetak lalu ditandatangani dan dicap secara manual**.
+  - **Surat tanpa QR tidak memerlukan persetujuan**: tidak ada paraf maupun tanda tangan elektronik, **hanya surat ber-QR yang melalui persetujuan**. Surat keluar langsung terbit (nomor + PDF) saat tombol **Terbitkan Surat** ditekan; pengajuan mahasiswa langsung terbit setelah diverifikasi TU. Cetak, tanda tangani basah, lalu cap. Garis waktu **Tahapan Surat** pada tiap surat menampilkan semua tahap sesuai bentuk suratnya.
   Untuk surat mahasiswa, bentuk surat diatur per jenis di **Master Data → Jenis Surat → Bentuk surat**.
 - **Format Surat (menu khusus Admin TU/Super Admin)**: TU menentukan *surat untuk apa* tanpa menulis kode:
   1. **Format Surat → Tambah Format Surat**, isi nama dan kegunaan, pilih **Dibuat oleh**: *Staf* (muncul di Surat Keluar) atau *Mahasiswa* (muncul di katalog e-Layanan).
@@ -467,7 +468,8 @@ Kata sandi backup (`BACKUP_PASSWORD`) adalah **kunci semua cadangan**. Tanpa san
 | `kunci:publikasi` | Membuat `verifikasi-statis\index.html` (halaman verifikasi QR) |
 | `dokumentasi:qrcode` | Membuat ulang `documentation\penjelasan-qrcode.pdf` (penjelasan QR + referensi) |
 | `dokumentasi:presentasi-qr` | Membuat ulang `documentation\presentasi-qr-persuratan.pdf` (15 slide) |
-| `dokumentasi:contoh-surat` | Membuat ulang 14 PDF contoh surat |
+| `simulasi:siapkan` | Mengisi aplikasi dengan contoh surat pada **setiap tahap** untuk pelatihan/uji; tahapnya terlihat pada garis waktu **Tahapan Surat** di tiap surat. ⚠️ Memakai nomor surat sungguhan: jalankan sebelum dipakai resmi |
+| `dokumentasi:contoh-surat` | Membuat ulang 30 PDF contoh surat (tiap jenis: ber-QR dan tanpa QR) |
 | `backup:run / list / verify / restore / periksa` | Lihat bagian 9.3 |
 | `schedule:run` | Dipanggil Task Scheduler tiap menit |
 | `config:cache` | Terapkan perubahan `.env` |

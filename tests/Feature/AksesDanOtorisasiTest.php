@@ -73,7 +73,7 @@ class AksesDanOtorisasiTest extends TestCase
         $alur = app(AlurPengajuan::class);
         $lain = User::factory()->create(['nomor_induk' => '99999999', 'prodi_id' => $this->u('21650012')->prodi_id]);
         $lain->assignRole('mahasiswa');
-        $p = $alur->ajukan($this->u('21650012'), JenisSurat::first(), ['keperluan' => 'BPJS', 'semester' => '7', 'tahun_akademik' => 'x', 'keterangan' => '']);
+        $p = $alur->ajukan($this->u('21650012'), JenisSurat::first(), ['semester' => '7', 'tahun_akademik' => 'x', 'keterangan' => '']);
 
         $this->actingAs($lain)->get('/pengajuan')->assertForbidden();
         $this->actingAs($lain)->get("/pengajuan/{$p->id}")->assertForbidden();
@@ -84,7 +84,7 @@ class AksesDanOtorisasiTest extends TestCase
     public function test_persetujuan_ttd_butuh_pejabat_dan_kata_sandi(): void
     {
         $alur = app(AlurPengajuan::class);
-        $p = $alur->ajukan($this->u('21650012'), JenisSurat::where('kode', 'KET-AKTIF')->first(), ['keperluan' => 'BPJS', 'semester' => '7', 'tahun_akademik' => 'x', 'keterangan' => '']);
+        $p = $alur->ajukan($this->u('21650012'), JenisSurat::where('kode', 'KET-AKTIF')->first(), ['semester' => '7', 'tahun_akademik' => 'x', 'keterangan' => '']);
         $alur->verifikasi($p, $this->u('198701012010011001'));
 
         $this->actingAs($this->u('198701012010011001'))->post("/persetujuan/{$p->id}/tandatangani", ['password' => 'password'])->assertForbidden();
@@ -100,7 +100,7 @@ class AksesDanOtorisasiTest extends TestCase
         $jenis = JenisSurat::where('kode', 'KET-AKTIF')->first();
 
         Livewire::actingAs($mhs)->test(\App\Livewire\AjukanSurat::class, ['jenis' => $jenis])
-            ->set('isian.keperluan', 'Pengurusan BPJS')->set('isian.semester', '7')->set('isian.tahun_akademik', '2026/2027 Ganjil')
+            ->set('isian.semester', '7')->set('isian.tahun_akademik', '2026/2027 Ganjil')
             ->call('lanjut')->assertSet('langkah', 2)
             ->set('berkas.0', UploadedFile::fake()->create('ktm.pdf', 300, 'application/pdf'))
             ->set('berkas.1', UploadedFile::fake()->image('spp.jpg')->size(500))
@@ -119,7 +119,7 @@ class AksesDanOtorisasiTest extends TestCase
         $mhs = $this->u('21650012');
         $jenis = JenisSurat::where('kode', 'KET-AKTIF')->first();
         $t = Livewire::actingAs($mhs)->test(\App\Livewire\AjukanSurat::class, ['jenis' => $jenis])
-            ->set('isian.keperluan', 'Lainnya')->set('isian.semester', '3')->set('isian.tahun_akademik', 'x')->call('lanjut');
+            ->set('isian.semester', '3')->set('isian.tahun_akademik', 'x')->call('lanjut');
 
         $t->set('berkas.0', UploadedFile::fake()->create('besar.pdf', 3000, 'application/pdf'))->assertHasErrors('berkas.0');
         $t->set('berkas.0', UploadedFile::fake()->create('virus.exe', 10))->assertHasErrors('berkas.0');
@@ -129,7 +129,7 @@ class AksesDanOtorisasiTest extends TestCase
     public function test_lampiran_hanya_bisa_diunduh_pihak_berwenang(): void
     {
         $mhs = $this->u('21650012');
-        $p = app(AlurPengajuan::class)->ajukan($mhs, JenisSurat::first(), ['keperluan' => 'BPJS', 'semester' => '7', 'tahun_akademik' => 'x', 'keterangan' => '']);
+        $p = app(AlurPengajuan::class)->ajukan($mhs, JenisSurat::first(), ['semester' => '7', 'tahun_akademik' => 'x', 'keterangan' => '']);
         Storage::disk('local')->put('lampiran/pengajuan/1/a.pdf', '%PDF-1');
         $l = $p->lampiran()->create(['label' => 'KTM', 'nama_asli' => 'ktm.pdf', 'path' => 'lampiran/pengajuan/1/a.pdf', 'mime' => 'application/pdf', 'ukuran' => 7]);
         $asing = User::factory()->create(['nomor_induk' => '88888888']);

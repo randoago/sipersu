@@ -73,6 +73,59 @@ class Surat extends Model
         return ($this->mode_ttd ?? 'qr') === 'qr';
     }
 
+    /**
+     * SEMUA tahap yang dilalui surat keluar (termasuk yang belum terjadi) untuk garis waktu "Tahapan Surat".
+     * Menyesuaikan bentuk surat: ber-QR (paraf, tanda tangan elektronik), tanpa QR (persetujuan lalu cetak + tanda tangan basah),
+     * dan tanpa QR + tanpa persetujuan (terbit langsung).
+     *
+     * @return array<int, array{judul: string, status: string, waktu: ?\Illuminate\Support\Carbon, oleh: ?string, catatan: ?string}>
+     */
+    public function tahapan(): array
+    {
+        $this->loadMissing('persetujuan.user', 'pembuat');
+        $peran = ['wakil_dekan' => 'Wakil Dekan', 'kaprodi' => 'Kaprodi'];
+        $terbit = $this->ditandatangani_pada !== null;
+        $baris = fn (string $judul, string $status, $waktu = null, ?string $oleh = null, ?string $catatan = null) => compact('judul', 'status', 'waktu', 'oleh', 'catatan');
+        $dariPersetujuan = function (string $tahap, string $judul) use ($baris) {
+            $ps = $this->persetujuan->firstWhere('tahap', $tahap);
+
+            return $baris($judul, $ps?->status === 'disetujui' ? 'selesai' : 'menunggu', $ps?->diputuskan_pada, $ps?->user ? 'Oleh: '.$ps->user->namaLengkap() : null, $ps?->catatan);
+        };
+
+        $t = [$baris('Draf dibuat', 'selesai', $this->created_at, $this->pembuat ? 'Oleh: '.$this->pembuat->nama : null)];
+        if ($this->langsungTerbit()) {
+            $t[] = $baris('Diterbitkan langsung (tanpa paraf dan tanda tangan elektronik)', $terbit ? 'selesai' : 'menunggu', $this->ditandatangani_pada,
+                $terbit ? 'Nomor: '.$this->nomor : 'Tekan "Terbitkan Surat" untuk membuat nomor dan PDF');
+        } else {
+            if ($this->data['paraf_role'] ?? null) {
+                $t[] = $dariPersetujuan('paraf', 'Paraf '.($peran[$this->data['paraf_role']] ?? 'Pejabat'));
+            }
+            $t[] = $dariPersetujuan('ttd', $this->pakaiQr() ? 'Tanda Tangan Elektronik (QR)' : 'Persetujuan Pejabat');
+            $t[] = $baris('Surat terbit dengan nomor resmi', $terbit ? 'selesai' : 'menunggu', $this->ditandatangani_pada, $terbit ? 'Nomor: '.$this->nomor : null);
+        }
+        if (! $this->pakaiQr()) {
+            $t[] = $baris('Cetak, tanda tangan basah, dan cap (manual oleh TU)', 'menunggu', null, 'Dilakukan di luar aplikasi setelah PDF diunduh');
+        }
+        if ($this->status === 'batal') {
+            $t[] = $baris('Dibatalkan', 'ditolak', $this->dibatalkan_pada, null, $this->alasan_batal);
+        } else {
+            foreach ($t as $i => $x) {                         // tahap menunggu pertama = sedang berjalan
+                if ($x['status'] === 'menunggu') {
+                    $t[$i]['status'] = 'sekarang';
+                    break;
+                }
+            }
+        }
+
+        return $t;
+    }
+
+    /** Surat TANPA QR tidak melalui persetujuan: terbit langsung tanpa paraf dan tanda tangan elektronik. */
+    public function langsungTerbit(): bool
+    {
+        return ! $this->pakaiQr();
+    }
+
     public function batal(): bool
     {
         return $this->status === 'batal';

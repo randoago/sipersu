@@ -152,8 +152,8 @@
                     @foreach ([
                         'Pastikan data profil dan isian formulir benar; isian dicetak apa adanya pada surat.',
                         'Berkas persyaratan berformat PDF/JPG/PNG, maksimal 2 MB per berkas.',
-                        $j->mode_ttd === 'basah'
-                            ? 'Surat disetujui oleh '.($j->penandatanganJabatan?->nama ?? 'Dekan').' lalu dicetak, ditandatangani basah, dan dicap di Tata Usaha.'
+                        $j->langsungTerbit()
+                            ? 'Surat tanpa QR tidak memerlukan persetujuan pejabat: setelah diverifikasi Tata Usaha, nomor surat langsung terbit untuk dicetak, ditandatangani basah, dan dicap.'
                             : 'Surat ditandatangani oleh '.($j->penandatanganJabatan?->nama ?? 'Dekan').' dengan tanda tangan elektronik (QR) yang dapat diverifikasi publik.',
                         'Estimasi proses '.$sla.' sejak pengajuan diverifikasi.',
                     ] as $t)

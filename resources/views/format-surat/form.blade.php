@@ -116,14 +116,14 @@
                     <option value="hijriah" @selected($v('gaya_tanggal') === 'hijriah')>Baubau: tanggal Hijriah + Masehi</option>
                 </x-select>
                 <div class="md:col-span-2" x-show="sasaran !== 'masuk'" x-data="{ m: @js($v('mode_ttd', 'qr')) }">
-                    <p class="mb-1.5 font-label-lg text-label-lg">Bentuk surat</p>
+                    <p class="mb-1.5 font-label-lg text-label-lg">Bentuk surat <span class="font-body-sm text-body-sm font-normal text-on-surface-variant" x-show="sasaran === 'staf'">(bawaan; petugas dapat memilih ber-QR atau tanpa QR saat membuat surat)</span></p>
                     <div class="grid gap-3 md:grid-cols-2">
-                        @foreach (['qr' => ['Surat ber-QR (TTE)', 'Tanda tangan elektronik + QR (dapat diverifikasi publik) dengan spesimen tanda tangan & stempel pejabat.', 'qr_code_2'], 'basah' => ['Surat tanpa QR', 'Nomor tetap otomatis; PDF disiapkan KOSONG (tanpa tanda tangan dan stempel) untuk dibubuhi manual.', 'print']] as $k => [$j, $d, $i])
-                            <label class="flex cursor-pointer gap-3 rounded-xl border-2 p-3 transition" :class="m === '{{ $k }}' ? 'border-primary-container bg-primary-fixed/20' : 'border-outline-variant hover:bg-surface-container-low'"><input type="radio" name="mode_ttd" value="{{ $k }}" x-model="m" class="mt-1 text-primary focus:ring-primary"><span><span class="flex items-center gap-1.5 font-label-lg text-label-lg"><x-ikon name="{{ $i }}" class="text-[18px] text-primary" />{{ $j }}</span><span class="block font-body-sm text-body-sm text-on-surface-variant">{{ $d }}</span></span></label>
+                        @foreach (['qr' => ['Surat ber-QR (TTE)', 'Tanda tangan elektronik + QR (dapat diverifikasi publik) dengan spesimen tanda tangan & stempel pejabat.', 'qr_code_2'], 'basah' => ['Surat tanpa QR', 'Tanpa persetujuan: langsung terbit. Nomor tetap otomatis; PDF disiapkan KOSONG (tanpa tanda tangan dan stempel) untuk dibubuhi manual.', 'print']] as $k => [$j, $d, $i])
+                            <label class="flex cursor-pointer gap-3 rounded-xl border-2 p-3 transition" :class="m === '{{ $k }}' ? 'border-primary-container bg-primary-fixed/20' : 'border-outline-variant hover:bg-surface-container-low'"><input type="radio" name="mode_ttd" value="{{ $k }}" x-model="m" x-on:change="$dispatch('mode-ttd', m)" class="mt-1 text-primary focus:ring-primary"><span><span class="flex items-center gap-1.5 font-label-lg text-label-lg"><x-ikon name="{{ $i }}" class="text-[18px] text-primary" />{{ $j }}</span><span class="block font-body-sm text-body-sm text-on-surface-variant">{{ $d }}</span></span></label>
                         @endforeach
                     </div>
                 </div>
-                <div x-show="sasaran !== 'masuk'" x-data="{ p: {{ $v('perlu_paraf', false) ? 'true' : 'false' }} }" class="space-y-2">
+                <div x-show="sasaran !== 'masuk' && !basah" x-data="{ p: {{ $v('perlu_paraf', false) ? 'true' : 'false' }}, basah: @js($v('mode_ttd', 'qr') === 'basah') }" x-on:mode-ttd.window="basah = $event.detail === 'basah'" class="space-y-2">
                     <label class="flex cursor-pointer items-center gap-2 font-label-lg text-label-lg"><input type="checkbox" name="perlu_paraf" value="1" x-model="p" class="h-4 w-4 rounded border-outline-variant text-primary focus:ring-primary">Perlu paraf sebelum tanda tangan</label>
                     <div x-show="p" x-cloak><x-select label="Pemaraf" name="paraf_role"><option value="wakil_dekan" @selected($v('paraf_role') === 'wakil_dekan')>Wakil Dekan</option><option value="kaprodi" @selected($v('paraf_role') === 'kaprodi')>Kaprodi</option></x-select></div>
                 </div>

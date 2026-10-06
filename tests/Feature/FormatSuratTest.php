@@ -129,7 +129,7 @@ class FormatSuratTest extends TestCase
 
     public function test_menu_buat_surat_menampilkan_format_staf_saja(): void
     {
-        $this->actingAs($this->u('198701012010011001'))->get('/surat-keluar/buat')->assertOk()
+        $this->actingAs($this->u('198701012010011001'))->get('/surat-keluar/buat?bentuk=qr')->assertOk()
             ->assertSee('Surat Undangan')->assertSee('Surat Tugas')->assertSee('Surat Bebas')->assertDontSee('Surat Cuti Akademik');
         $this->actingAs($this->u('21650012'))->get('/surat-keluar/buat')->assertForbidden();
     }
@@ -192,8 +192,12 @@ class FormatSuratTest extends TestCase
 
         foreach ([$undangan, $biasa] as $s) {
             $this->actingAs($tu)->post("/surat-keluar/{$s->id}/ajukan");
-            $this->actingAs($dekan)->post("/surat-keluar/{$s->id}/tandatangani", ['password' => 'password'])->assertRedirect();
+            if ($s->fresh()->status === 'menunggu_ttd') {          // format tanpa QR (Surat Pemberitahuan) tidak melalui persetujuan: sudah terbit langsung
+                $this->actingAs($dekan)->post("/surat-keluar/{$s->id}/tandatangani", ['password' => 'password'])->assertRedirect();
+            }
         }
+        $this->assertTrue($biasa->fresh()->langsungTerbit());
+        $this->assertSame('ditandatangani', $biasa->fresh()->status);
         $this->assertStringStartsWith('001/II.3.AU', $undangan->fresh()->nomor);
         $this->assertStringStartsWith('002/II.3.AU', $biasa->fresh()->nomor);
         $this->assertNotNull($undangan->fresh()->qr_token);

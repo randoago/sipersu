@@ -40,37 +40,7 @@ class TandaTanganService
                     throw new RuntimeException('Anda bukan pejabat penandatangan untuk surat ini.');
                 }
 
-                $sekarang = now();
-                // Tanggal surat: yang dipilih pembuat; bila tidak dipilih = hari penandatanganan. Nomor (bulan/tahun) mengikutinya.
-                $tglSurat = $s->tgl_surat ? $s->tgl_surat->copy()->startOfDay() : $sekarang->copy()->startOfDay();
-                $s->nomor = $this->penomoran->terbitkan($s->klasifikasi, $tglSurat);
-                $s->qr_token = Str::random(43);
-                $s->tgl_surat = $tglSurat->toDateString();
-                $s->penandatangan_id = $penandatangan->id;
-                $s->penandatangan_nama = $penandatangan->namaLengkap();
-                $s->penandatangan_jabatan = $jabatan->nama;
-                $s->ditandatangani_pada = $sekarang;
-                $s->status = 'ditandatangani';
-
-                if ($s->pakaiQr()) {
-                    $payload = $this->payload($s);
-                    $s->signature = KunciTte::tandatangani($payload);
-                    $s->save();
-                    $pdf = $this->renderPdf($s, $this->urlQr($s, $payload));
-                } else {
-                    // Tanpa QR: nomor tetap terbit, tetapi tidak ada token/tanda tangan elektronik.
-                    $s->qr_token = null;
-                    $s->signature = null;
-                    $s->save();
-                    $pdf = $this->renderPdf($s, null);
-                }
-                $berkasBaru = 'surat/'.$sekarang->year.'/'.$s->id.'-'.Str::lower(Str::random(8)).'.pdf';
-                Storage::disk('local')->put($berkasBaru, $pdf);
-                $s->forceFill(['file_pdf' => $berkasBaru, 'pdf_hash' => hash('sha256', $pdf)])->save();
-
-                LogAktivitas::catat('ttd', "Menandatangani surat {$s->nomor}", $s, ['nomor' => $s->nomor], $penandatangan->id);
-
-                return $s;
+                return $this->terbit($s, $jabatan, $penandatangan, $penandatangan, 'ttd', "Menandatangani surat", $berkasBaru);
             });
         } catch (\Throwable $e) {
             if ($berkasBaru) {
@@ -78,6 +48,75 @@ class TandaTanganService
             }
             throw $e;
         }
+    }
+
+    /**
+     * Surat TANPA QR dengan opsi "tanpa persetujuan": nomor dan PDF terbit langsung oleh pelaksana (TU/pembuat),
+     * tanpa paraf dan tanpa tanda tangan elektronik. Pengesahan dilakukan manual (tanda tangan basah + cap).
+     * Nama pejabat pada PDF tetap pejabat jabatan penandatangan; pencatat tindakan adalah pelaksana (lihat log).
+     */
+    public function terbitkanLangsung(Surat $surat, User $pelaksana): Surat
+    {
+        $berkasBaru = null;
+        try {
+            return DB::transaction(function () use ($surat, $pelaksana, &$berkasBaru) {
+                /** @var Surat $s */
+                $s = Surat::whereKey($surat->id)->lockForUpdate()->firstOrFail();
+                if ($s->pakaiQr()) {
+                    throw new RuntimeException('Penerbitan langsung hanya untuk surat tanpa QR; surat ber-QR harus melalui persetujuan.');
+                }
+                if (! in_array($s->status, ['draf', 'menunggu_paraf', 'menunggu_ttd'], true)) {
+                    throw new RuntimeException('Surat tidak berada pada tahap yang dapat diterbitkan.');
+                }
+                if (! $s->klasifikasi) {
+                    throw new RuntimeException('Surat belum memiliki klasifikasi sehingga nomor tidak dapat diterbitkan.');
+                }
+                $jabatan = Jabatan::with('pejabat')->findOrFail($s->jabatan_id);
+
+                return $this->terbit($s, $jabatan, null, $pelaksana, 'terbit_langsung', 'Menerbitkan surat tanpa persetujuan', $berkasBaru);
+            });
+        } catch (\Throwable $e) {
+            if ($berkasBaru) {
+                Storage::disk('local')->delete($berkasBaru);
+            }
+            throw $e;
+        }
+    }
+
+    /** Inti penerbitan: nomor, (QR + signature bila ber-QR), PDF, dan hash. Dipanggil di dalam transaksi. */
+    private function terbit(Surat $s, Jabatan $jabatan, ?User $penandatangan, User $pelaksana, string $aksi, string $pesan, ?string &$berkasBaru): Surat
+    {
+        $sekarang = now();
+        // Tanggal surat: yang dipilih pembuat; bila tidak dipilih = hari penerbitan. Nomor (bulan/tahun) mengikutinya.
+        $tglSurat = $s->tgl_surat ? $s->tgl_surat->copy()->startOfDay() : $sekarang->copy()->startOfDay();
+        $s->nomor = $this->penomoran->terbitkan($s->klasifikasi, $tglSurat);
+        $s->qr_token = Str::random(43);
+        $s->tgl_surat = $tglSurat->toDateString();
+        $s->penandatangan_id = $penandatangan?->id;
+        $s->penandatangan_nama = $penandatangan?->namaLengkap() ?? $jabatan->pejabat?->namaLengkap() ?? '-';
+        $s->penandatangan_jabatan = $jabatan->nama;
+        $s->ditandatangani_pada = $sekarang;
+        $s->status = 'ditandatangani';
+
+        if ($s->pakaiQr()) {
+            $payload = $this->payload($s);
+            $s->signature = KunciTte::tandatangani($payload);
+            $s->save();
+            $pdf = $this->renderPdf($s, $this->urlQr($s, $payload));
+        } else {
+            // Tanpa QR: nomor tetap terbit, tetapi tidak ada token/tanda tangan elektronik.
+            $s->qr_token = null;
+            $s->signature = null;
+            $s->save();
+            $pdf = $this->renderPdf($s, null);
+        }
+        $berkasBaru = 'surat/'.$sekarang->year.'/'.$s->id.'-'.Str::lower(Str::random(8)).'.pdf';
+        Storage::disk('local')->put($berkasBaru, $pdf);
+        $s->forceFill(['file_pdf' => $berkasBaru, 'pdf_hash' => hash('sha256', $pdf)])->save();
+
+        LogAktivitas::catat($aksi, "$pesan {$s->nomor}", $s, ['nomor' => $s->nomor], $pelaksana->id);
+
+        return $s;
     }
 
     /**

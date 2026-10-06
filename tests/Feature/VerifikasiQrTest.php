@@ -31,7 +31,7 @@ class VerifikasiQrTest extends TestCase
 
         $alur = app(AlurPengajuan::class);
         $p = $alur->ajukan(User::where('nomor_induk', '21650012')->first(), JenisSurat::where('kode', 'KET-AKTIF')->first(),
-            ['keperluan' => 'BPJS', 'semester' => '7', 'tahun_akademik' => '2026/2027', 'keterangan' => '']);
+            ['semester' => '7', 'tahun_akademik' => '2026/2027', 'keterangan' => '']);
         $p = $alur->verifikasi($p, User::where('nomor_induk', '198701012010011001')->first());
         $this->surat = $alur->tandatangani($p, User::where('nomor_induk', '0912038401')->first())->surat;
     }

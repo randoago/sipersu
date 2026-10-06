@@ -15,7 +15,7 @@ use Livewire\Component;
 #[Layout('layouts::guest')]
 class Login extends Component
 {
-    #[Validate('required|string', message: 'NPM/NIDN wajib diisi.')]
+    #[Validate('required|string', message: 'NPM/NIDN atau username wajib diisi.')]
     public string $nomor_induk = '';
 
     #[Validate('required|string', message: 'Kata sandi wajib diisi.')]
@@ -35,8 +35,12 @@ class Login extends Component
             ]);
         }
 
+        // Masuk dengan NPM/NIDN atau username (mis. "TU", "superadmin"; huruf besar/kecil tidak dibedakan).
+        $identitas = trim($this->nomor_induk);
+        $akun = User::where('nomor_induk', $identitas)->orWhereRaw('lower(username) = ?', [Str::lower($identitas)])->first();
+
         $cocok = Auth::attempt(
-            ['nomor_induk' => trim($this->nomor_induk), 'password' => $this->password, 'aktif' => true],
+            ['nomor_induk' => $akun?->nomor_induk ?? $identitas, 'password' => $this->password, 'aktif' => true],
             $this->ingat,
         );
 
@@ -44,7 +48,7 @@ class Login extends Component
             RateLimiter::hit($kunci, 60);
             LogAktivitas::catat('login_gagal', 'Percobaan masuk gagal', null, ['nomor_induk' => $this->nomor_induk], null);
             $this->reset('password');
-            throw ValidationException::withMessages(['nomor_induk' => 'NPM/NIDN atau kata sandi salah, atau akun tidak aktif.']);
+            throw ValidationException::withMessages(['nomor_induk' => 'NPM/NIDN/username atau kata sandi salah, atau akun tidak aktif.']);
         }
 
         RateLimiter::clear($kunci);
