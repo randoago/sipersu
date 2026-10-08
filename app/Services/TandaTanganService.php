@@ -104,6 +104,10 @@ class TandaTanganService
             $this->penomoran->selaraskan($s->klasifikasi, $tglSurat, (int) $urut);
         } else {
             $s->nomor = $this->penomoran->terbitkan($s->klasifikasi, $tglSurat);
+            // Lewati nomor yang sudah tercatat di pembukuan (mis. diimpor tanpa penyesuaian penghitung).
+            for ($i = 0; $i < 200 && \App\Models\Pembukuan::where('arah', 'keluar')->whereRaw('lower(nomor) = ?', [mb_strtolower($s->nomor)])->exists(); $i++) {
+                $s->nomor = $this->penomoran->terbitkan($s->klasifikasi, $tglSurat);
+            }
         }
         $s->qr_token = Str::random(43);
         $s->tgl_surat = $tglSurat->toDateString();

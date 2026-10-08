@@ -94,6 +94,25 @@ Route::middleware('auth')->group(function () {
         Route::get('/pengaturan/backup/{riwayat}/unduh', [\App\Http\Controllers\BackupController::class, 'unduh'])->name('backup.unduh');
     });
 
+    // Pembukuan surat: lihat (Admin, Dekan, Wakil Dekan); catat/impor hanya Admin TU & Super Admin
+    Route::middleware('role:super_admin|admin_tu|dekan|wakil_dekan')->group(function () {
+        Route::get('/pembukuan', [\App\Http\Controllers\PembukuanController::class, 'index'])->name('pembukuan.index');
+        Route::get('/pembukuan/ekspor', [\App\Http\Controllers\PembukuanController::class, 'ekspor'])->name('pembukuan.ekspor');
+    });
+    Route::middleware('role:super_admin|admin_tu')->prefix('pembukuan')->name('pembukuan.')->group(function () {
+        $pb = \App\Http\Controllers\PembukuanController::class;
+        Route::get('/impor', [$pb, 'impor'])->name('impor');
+        Route::get('/impor/templat', [$pb, 'templat'])->name('impor.templat');
+        Route::post('/impor/periksa', [$pb, 'periksa'])->name('impor.periksa');
+        Route::post('/impor/proses', [$pb, 'proses'])->name('impor.proses');
+        Route::get('/impor/hasil', [$pb, 'hasil'])->name('impor.hasil');
+        Route::get('/buat', [$pb, 'buat'])->name('buat');
+        Route::post('/', [$pb, 'simpan'])->name('simpan');
+        Route::get('/{pembukuan}/ubah', [$pb, 'ubah'])->name('ubah');
+        Route::put('/{pembukuan}', [$pb, 'perbarui'])->name('perbarui');
+        Route::delete('/{pembukuan}', [$pb, 'hapus'])->name('hapus');
+    });
+
     Route::middleware('role:super_admin|admin_tu')->prefix('master')->name('master.')->group(function () {
         Route::redirect('/', '/master/pengguna')->name('index');
         $sp = \App\Http\Controllers\SpesimenController::class;

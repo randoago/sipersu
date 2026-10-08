@@ -64,6 +64,9 @@ class NomorManual
         if (Surat::query()->when($kecualiSuratId, fn ($q) => $q->where('id', '!=', $kecualiSuratId))->whereRaw('lower(nomor) = ?', [$k])->exists()) {
             return true;
         }
+        if (\App\Models\Pembukuan::where('arah', 'keluar')->whereRaw('lower(nomor) = ?', [$k])->exists()) {   // sudah tercatat di pembukuan
+            return true;
+        }
 
         return Surat::query()->with('klasifikasi')->whereNull('nomor')->whereNotNull('nomor_manual')
             ->when($kecualiSuratId, fn ($q) => $q->where('id', '!=', $kecualiSuratId))->get()

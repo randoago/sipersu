@@ -19,6 +19,7 @@ class Menu
         ['persetujuan.index', 'Persetujuan & TTD', 'draw', [Peran::SuperAdmin, Peran::Dekan, Peran::WakilDekan, Peran::Kaprodi]],
         ['surat-masuk.index', 'Surat Masuk', 'move_to_inbox', [Peran::SuperAdmin, Peran::AdminTu, Peran::Dekan, Peran::WakilDekan, Peran::Kaprodi]],
         ['surat-keluar.index', 'Surat Keluar', 'outbox', null],
+        ['pembukuan.index', 'Pembukuan', 'menu_book', [Peran::SuperAdmin, Peran::AdminTu, Peran::Dekan, Peran::WakilDekan]],
         ['disposisi.index', 'Disposisi', 'assignment_turned_in', null],
         ['arsip.index', 'Arsip', 'folder_zip', null],
         ['laporan.index', 'Laporan', 'summarize', [Peran::SuperAdmin, Peran::AdminTu, Peran::Dekan, Peran::WakilDekan]],
