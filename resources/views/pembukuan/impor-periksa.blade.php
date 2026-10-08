@@ -15,7 +15,7 @@
         @if ($penghitung)
             <x-kartu judul="Penghitung nomor otomatis" ikon="numbers" deskripsi="Surat keluar yang nomornya mengikuti pola penomoran.">
                 <label class="flex cursor-pointer items-start gap-2 font-body-md text-body-md"><input type="checkbox" name="sinkron" value="1" checked class="mt-1 h-4 w-4 rounded border-outline-variant text-primary focus:ring-primary"><span><strong>Sesuaikan penghitung</strong> agar nomor otomatis berikutnya melanjutkan nomor di CSV.</span></label>
-                <ul class="mt-3 space-y-1 font-body-sm text-body-sm text-on-surface-variant">@foreach ($penghitung as $p)<li>Klasifikasi <strong class="text-on-surface">{{ $p['kode'] }}</strong> tahun {{ $p['tahun'] }}: terakhir {{ str_pad((string) $p['sekarang'], 3, '0', STR_PAD_LEFT) }} → {{ $p['maks'] > $p['sekarang'] ? str_pad((string) $p['maks'], 3, '0', STR_PAD_LEFT).' (nomor otomatis berikutnya '.str_pad((string) ($p['maks'] + 1), 3, '0', STR_PAD_LEFT).')' : 'tidak berubah' }}</li>@endforeach</ul>
+                <ul class="mt-3 space-y-1 font-body-sm text-body-sm text-on-surface-variant">@foreach ($penghitung as $p)<li>Unit <strong class="text-on-surface">{{ $p['kode'] }}</strong> tahun {{ $p['tahun'] }}: terakhir {{ str_pad((string) $p['sekarang'], 3, '0', STR_PAD_LEFT) }} → {{ $p['maks'] > $p['sekarang'] ? str_pad((string) $p['maks'], 3, '0', STR_PAD_LEFT).' (nomor otomatis berikutnya '.str_pad((string) ($p['maks'] + 1), 3, '0', STR_PAD_LEFT).')' : 'tidak berubah' }}</li>@endforeach</ul>
             </x-kartu>
         @endif
         <x-tabel :jumlah="count($baris)">

@@ -8,15 +8,16 @@
             <x-kartu judul="Format Nomor Surat" ikon="numbers" deskripsi="Nomor terbit otomatis HANYA saat surat ditandatangani.">
                 <fieldset class="mb-4 rounded-lg border border-outline-variant p-3">
                     <legend class="px-1 font-label-lg text-label-lg">Cara penomoran surat keluar</legend>
-                    @foreach (['otomatis' => ['Otomatis', 'Nomor urut dibuat sistem saat surat terbit. TU tetap boleh mengetik nomor urut sendiri pada surat tertentu (kosongkan = otomatis).'], 'manual' => ['Manual (diisi TU)', 'TU hanya mengetik NOMOR URUT depan (mis. 009); sisanya (klasifikasi, FT-UMB, bulan romawi, tahun) mengikuti pola di bawah. Nomor urut wajib diisi sebelum surat diajukan, diverifikasi, atau ditandatangani. Penghitung otomatis menyesuaikan nomor manual yang terbit.']] as $k => [$j, $ket])
+                    @foreach (['otomatis' => ['Otomatis', 'Nomor dibuat sistem saat surat terbit. TU tetap boleh mengetik nomor (angka urut atau nomor lengkap) pada surat tertentu sebelum terbit (kosongkan = otomatis).'], 'manual' => ['Manual (diisi TU)', 'TU mengisi nomor surat: cukup angka urut (mis. 009; sisanya disusun menurut pola di bawah) atau nomor lengkap yang bebas diedit. Nomor wajib diisi sebelum surat diajukan, diverifikasi, atau ditandatangani. Penghitung otomatis menyesuaikan nomor manual yang terbit.']] as $k => [$j, $ket])
                         <label class="flex cursor-pointer items-start gap-3 py-1.5"><input type="radio" name="penomoran_mode" value="{{ $k }}" @checked(old('penomoran_mode', $nilai['penomoran_mode'] ?? 'otomatis') === $k) class="mt-1 text-primary focus:ring-primary"><span><span class="font-label-lg text-label-lg">{{ $j }}</span><span class="block font-body-sm text-body-sm text-on-surface-variant">{{ $ket }}</span></span></label>
                     @endforeach
                 </fieldset>
                 <div class="space-y-4" x-data="{ f: @js(old('format_nomor', $nilai['format_nomor'])), p: {{ (int) old('panjang_urut', $nilai['panjang_urut']) }} }">
-                    <x-input label="Pola nomor" name="format_nomor" wajib x-model="f" :value="old('format_nomor', $nilai['format_nomor'])" bantuan="Token: {urut} {klasifikasi} {bulan_romawi} {bulan} {tahun}" />
+                    <x-input label="Pola nomor" name="format_nomor" wajib x-model="f" :value="old('format_nomor', $nilai['format_nomor'])" bantuan="Token: {urut} {kekhususan} {unit} {klasifikasi} {bulan_romawi} {bulan} {tahun}. Bawaan mengikuti Pedoman Tata Naskah Dinas: {urut}/{kekhususan}/II.3.AU/{unit}/{klasifikasi}/{tahun}. {kekhususan} (KEP, EDR, TGS, KET, REK, dst.) hilang otomatis pada surat biasa; {klasifikasi} = pokok masalah A–O; {unit} = kode unit kerja penandatangan." />
+                    <x-input label="Kode unit kerja fakultas" name="kode_unit_fakultas" wajib :value="old('kode_unit_fakultas', $nilai['kode_unit_fakultas'] ?? 'UMB-06')" class="max-w-60" bantuan="Dipakai bila penandatangan bukan kaprodi. Kode program studi (mis. UMB-06.1 Teknik Sipil, UMB-06.2 Rekayasa Sistem Komputer) diatur di Master Data → Program Studi." />
                     <x-input label="Jumlah digit nomor urut" name="panjang_urut" type="number" wajib x-model.number="p" :value="old('panjang_urut', $nilai['panjang_urut'])" class="max-w-40" />
                     <div class="rounded-lg bg-surface-container-low p-3"><p class="font-label-sm text-label-sm uppercase text-on-surface-variant">Contoh</p>
-                        <p class="font-headline-sm text-headline-sm tabular text-primary" x-text="f.replace('{urut}', String(45).padStart(p, '0')).replace('{klasifikasi}', 'II.3.AU').replace('{bulan_romawi}', 'X').replace('{bulan}', '10').replace('{tahun}', '{{ now()->year }}')"></p></div>
+                        <p class="font-headline-sm text-headline-sm tabular text-primary" x-text="f.replace('{urut}', String(45).padStart(p, '0')).replace('{kekhususan}', 'KET').replace('{unit}', '{{ $nilai['kode_unit_fakultas'] ?? 'UMB-06' }}').replace('{klasifikasi}', 'F').replace('{bulan_romawi}', 'X').replace('{bulan}', '10').replace('{tahun}', '{{ now()->year }}')"></p></div>
                 </div>
             </x-kartu>
             <x-kartu judul="Nomor Agenda Surat Masuk" ikon="move_to_inbox" deskripsi="Terbit otomatis saat surat masuk dicatat. Counter reset tiap tahun.">
@@ -42,9 +43,9 @@
             </x-kartu>
             <div class="flex justify-end"><x-tombol type="submit" ikon="save">Simpan Pengaturan</x-tombol></div>
         </form>
-        <x-kartu judul="Counter Nomor Terakhir" ikon="tag" deskripsi="Reset tiap tahun per klasifikasi.">
+        <x-kartu judul="Counter Nomor Terakhir" ikon="tag" deskripsi="Satu urutan per unit kerja, reset tiap tahun takwim (1 Januari).">
             <ul class="divide-y divide-surface-container">
-                @forelse ($penomoran as $n)<li class="flex items-center justify-between py-2 font-body-sm text-body-sm"><span><span class="font-semibold">{{ $n->klasifikasi->kode }}</span> • {{ $n->tahun }}</span><span class="tabular font-semibold">{{ $n->nomor_terakhir }}</span></li>
+                @forelse ($penomoran as $n)<li class="flex items-center justify-between py-2 font-body-sm text-body-sm"><span><span class="font-semibold">{{ $n->unit }}</span> • {{ $n->tahun }}</span><span class="tabular font-semibold">{{ $n->nomor_terakhir }}</span></li>
                 @empty<li class="py-2 text-on-surface-variant">Belum ada nomor terbit.</li>@endforelse
             </ul>
         </x-kartu>

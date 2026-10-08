@@ -11,7 +11,7 @@
         <div class="space-y-5 lg:col-span-2">
             <x-kartu judul="Isian Surat" ikon="edit_note" deskripsi="Tanda * wajib diisi.">
                 <div class="mb-space-md grid gap-space-md">@if (auth()->user()->adalahAdmin())
-                <x-input label="Nomor urut surat (diisi TU)" name="nomor_manual" :value="old('nomor_manual', $s?->nomor_manual)" :wajib="\App\Support\NomorManual::wajib()" placeholder="009" inputmode="numeric" :bantuan="'Cukup nomor urut depan, mis. 009. Sisanya mengikuti aturan penomoran, contoh: '.\App\Support\NomorManual::contoh().'. '.(\App\Support\NomorManual::wajib() ? 'Penomoran manual aktif: nomor urut wajib diisi sebelum surat diajukan.' : 'Kosongkan untuk nomor otomatis.')" />
+                <x-input label="Nomor surat (diisi TU)" name="nomor_manual" :value="old('nomor_manual', $s?->nomor_manual)" :wajib="\App\Support\NomorManual::wajib()" placeholder="009 atau nomor lengkap" :bantuan="'Ketik angka urut saja (mis. 009 → disusun otomatis, contoh: '.\App\Support\NomorManual::contoh().') atau nomor lengkap yang Anda edit sendiri. '.(\App\Support\NomorManual::wajib() ? 'Penomoran manual aktif: nomor wajib diisi sebelum surat diajukan.' : 'Kosongkan untuk nomor otomatis.')" />
                 @endif
 </div>
                 <x-tanggal-surat :nilai="$s?->tgl_surat?->toDateString()" class="mb-space-md md:max-w-md" />

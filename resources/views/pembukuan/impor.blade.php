@@ -30,7 +30,7 @@
                     <tbody class="divide-y divide-surface-container align-top">
                         @foreach ([
                             ['arah', true, '<code>masuk</code>, <code>keluar</code>, atau <code>lain</code> (SK, nota dinas, dll.).'],
-                            ['nomor', true, 'Nomor surat lengkap apa adanya (surat masuk: nomor dari pengirim). Contoh: <code>045/II.3.AU/FT-UMB/I/2026</code>.'],
+                            ['nomor', true, 'Nomor surat lengkap apa adanya (surat masuk: nomor dari pengirim). Contoh: <code>045/KET/II.3.AU/UMB-06/F/2026</code>.'],
                             ['tanggal_surat', true, '<code>2026-01-05</code> atau <code>05/01/2026</code>.'],
                             ['perihal', true, 'Hal/perihal surat (maks 255 karakter).'],
                             ['pihak', false, 'Surat masuk: asal. Surat keluar: tujuan.'],
@@ -46,7 +46,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="mt-4 rounded-lg bg-surface-container-low p-3 font-body-sm text-body-sm"><strong>Penghitung nomor otomatis.</strong> Untuk <code>keluar</code>, bila nomor mengikuti pola penomoran (<code>{{ \App\Models\Pengaturan::ambil('format_nomor', '{urut}/{klasifikasi}/FT-UMB/{bulan_romawi}/{tahun}') }}</code>) dan klasifikasinya ada di Master Data, Anda dapat menyesuaikan penghitung sehingga nomor otomatis berikutnya melanjutkan nomor tertinggi di CSV (mis. CSV berakhir 045 → berikutnya 046). Pilihannya muncul di langkah konfirmasi.</div>
+            <div class="mt-4 rounded-lg bg-surface-container-low p-3 font-body-sm text-body-sm"><strong>Penghitung nomor otomatis.</strong> Untuk <code>keluar</code>, bila nomor mengikuti pola penomoran (<code>{{ \App\Models\Pengaturan::ambil('format_nomor', '{urut}/{kekhususan}/II.3.AU/{unit}/{klasifikasi}/{tahun}') }}</code>) Anda dapat menyesuaikan penghitung unit kerja yang tercantum pada nomor sehingga nomor otomatis berikutnya melanjutkan nomor tertinggi di CSV (mis. CSV berakhir 045 → berikutnya 046). Pilihannya muncul di langkah konfirmasi.</div>
         </x-kartu>
     </div>
 </div>

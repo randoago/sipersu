@@ -13,11 +13,11 @@ class PengaturanController extends Controller
     public function nomor(PenomoranService $nomor)
     {
         return view('pengaturan.nomor', [
-            'nilai' => collect(['format_nomor', 'panjang_urut', 'format_agenda', 'panjang_agenda', 'kota_surat', 'kop_alamat', 'alamat_fakultas', 'email_fakultas', 'web_fakultas', 'tahun_akademik', 'penomoran_mode', 'hijriah_koreksi'])
+            'nilai' => collect(['format_nomor', 'panjang_urut', 'kode_unit_fakultas', 'format_agenda', 'panjang_agenda', 'kota_surat', 'kop_alamat', 'alamat_fakultas', 'email_fakultas', 'web_fakultas', 'tahun_akademik', 'penomoran_mode', 'hijriah_koreksi'])
                 ->mapWithKeys(fn ($k) => [$k => Pengaturan::ambil($k)])->all(),
-            'contoh' => $nomor->format(45, 'II.3.AU', now()),
+            'contoh' => $nomor->format(45, 'A', now(), null, 'KET'),
             'agendaTahunIni' => (int) \DB::table('nomor_agenda')->where('tahun', now()->year)->value('nomor_terakhir'),
-            'penomoran' => Penomoran::with('klasifikasi')->orderByDesc('tahun')->get(),
+            'penomoran' => Penomoran::orderByDesc('tahun')->orderBy('unit')->get(),
         ]);
     }
 
@@ -25,6 +25,7 @@ class PengaturanController extends Controller
     {
         $data = $request->validate([
             'format_nomor' => ['required', 'string', 'max:120', 'regex:/\{urut\}/', 'regex:/\{klasifikasi\}/'],
+            'kode_unit_fakultas' => ['nullable', 'string', 'max:30', 'regex:/^[A-Za-z0-9.\-]+$/'],
             'panjang_urut' => ['required', 'integer', 'min:1', 'max:6'],
             'format_agenda' => ['required', 'string', 'max:120', 'regex:/\{urut\}/'],
             'panjang_agenda' => ['required', 'integer', 'min:1', 'max:6'],
@@ -39,6 +40,7 @@ class PengaturanController extends Controller
         ], ['format_nomor.regex' => 'Format harus memuat {urut} dan {klasifikasi}.', 'format_agenda.regex' => 'Format agenda harus memuat {urut}.']);
 
         $data['kop_alamat'] = $data['kop_alamat'] ?? Pengaturan::ambil('kop_alamat');
+        $data['kode_unit_fakultas'] = $data['kode_unit_fakultas'] ?? Pengaturan::ambil('kode_unit_fakultas', 'UMB-06');
         $data['hijriah_koreksi'] = (int) ($data['hijriah_koreksi'] ?? 0);
         $data['penomoran_mode'] = $data['penomoran_mode'] ?? Pengaturan::ambil('penomoran_mode', 'otomatis');
         foreach ($data as $k => $v) {

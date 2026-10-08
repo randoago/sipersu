@@ -91,22 +91,26 @@ class TandaTanganService
         // Tanggal surat: yang dipilih pembuat; bila tidak dipilih = hari penerbitan. Nomor (bulan/tahun) mengikutinya.
         $tglSurat = $s->tgl_surat ? $s->tgl_surat->copy()->startOfDay() : $sekarang->copy()->startOfDay();
         $urut = NomorManual::bersihkan($s->nomor_manual);
+        [$unit, $kekhususan] = PenomoranService::bagianSurat($s);
         if ($urut === null && NomorManual::wajib()) {
             throw new RuntimeException('Penomoran manual: nomor urut surat belum diisi oleh TU.');
         }
         if ($urut !== null) {
-            // TU hanya mengetik nomor urut; bagian lain nomor mengikuti pola penomoran (klasifikasi, bulan romawi, tahun).
-            $nomor = NomorManual::lengkapUntuk($urut, $s->klasifikasi, $tglSurat);
+            // TU mengetik angka urut (bagian lain disusun menurut pola penomoran) atau nomor lengkap yang diedit sendiri.
+            $nomor = NomorManual::lengkapSurat($urut, $s);
             if (! $nomor || NomorManual::bentrok($nomor, $s->id)) {
                 throw new RuntimeException("Nomor surat {$nomor} tidak dapat dipakai (kosong atau sudah dipakai surat lain).");
             }
             $s->nomor = $nomor;
-            $this->penomoran->selaraskan($s->klasifikasi, $tglSurat, (int) $urut);
+            // Penghitung otomatis mengikuti nomor yang diketik bila nomor itu milik unit dan tahun yang sama.
+            if (($u = $this->penomoran->uraikan($nomor)) && ($u['unit'] ?? $unit) === $unit && ($u['tahun'] ?? $tglSurat->year) === $tglSurat->year) {
+                $this->penomoran->selaraskan($unit, $tglSurat, $u['urut']);
+            }
         } else {
-            $s->nomor = $this->penomoran->terbitkan($s->klasifikasi, $tglSurat);
+            $s->nomor = $this->penomoran->terbitkan($s->klasifikasi, $tglSurat, $unit, $kekhususan);
             // Lewati nomor yang sudah tercatat di pembukuan (mis. diimpor tanpa penyesuaian penghitung).
             for ($i = 0; $i < 200 && \App\Models\Pembukuan::where('arah', 'keluar')->whereRaw('lower(nomor) = ?', [mb_strtolower($s->nomor)])->exists(); $i++) {
-                $s->nomor = $this->penomoran->terbitkan($s->klasifikasi, $tglSurat);
+                $s->nomor = $this->penomoran->terbitkan($s->klasifikasi, $tglSurat, $unit, $kekhususan);
             }
         }
         $s->qr_token = Str::random(43);

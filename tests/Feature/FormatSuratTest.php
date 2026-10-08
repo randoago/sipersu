@@ -45,7 +45,7 @@ class FormatSuratTest extends TestCase
         return $o + [
             'nama' => 'Surat Izin Cuti Dosen', 'deskripsi' => 'Izin cuti dosen', 'ikon' => 'event', 'sasaran' => 'staf',
             'judul_surat' => 'SURAT IZIN CUTI', 'perihal_template' => 'Izin Cuti {{ isian.nama_dosen }}',
-            'klasifikasi_id' => KlasifikasiSurat::where('kode', 'II.6.SK')->value('id'),
+            'klasifikasi_id' => KlasifikasiSurat::where('kode', 'D')->value('id'),
             'penandatangan_jabatan_id' => Jabatan::where('kode', 'dekan')->value('id'),
             'mode_ttd' => 'qr', 'sla_hari' => 1, 'urutan' => 5, 'aktif' => '1',
             'fields' => [
@@ -148,7 +148,7 @@ class FormatSuratTest extends TestCase
 
         $s = Surat::firstOrFail();
         $this->assertSame('draf', $s->status);
-        $this->assertSame('II.6.SK', $s->klasifikasi->kode);
+        $this->assertSame('D', $s->klasifikasi->kode);
         $this->assertStringContainsString('Surat Tugas', $s->perihal);
         $h = $s->isi_html;
         $this->assertStringContainsString('<table class="tabel-isi">', $h);

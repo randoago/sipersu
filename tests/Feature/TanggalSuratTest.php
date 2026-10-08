@@ -47,7 +47,7 @@ class TanggalSuratTest extends TestCase
     private function bebas(array $o = []): array
     {
         return $o + [
-            'klasifikasi_id' => KlasifikasiSurat::where('kode', 'II.3.AU')->value('id'), 'sifat' => 'biasa', 'tujuan' => 'Kepala Dinas', 'perihal' => 'Uji Tanggal',
+            'klasifikasi_id' => KlasifikasiSurat::where('kode', 'A')->value('id'), 'sifat' => 'biasa', 'tujuan' => 'Kepala Dinas', 'perihal' => 'Uji Tanggal',
             'lampiran' => '-', 'isi' => 'Isi surat uji.', 'salam' => '1', 'jabatan_id' => Jabatan::where('kode', 'dekan')->value('id'), 'paraf_role' => '', 'mode_ttd' => 'qr',
         ];
     }
@@ -94,7 +94,7 @@ class TanggalSuratTest extends TestCase
         $this->travel(2)->days();                                   // Dekan menandatangani 2 hari kemudian
         $s = $this->tandatangani($s);
         $this->assertSame('2026-10-06', $s->tgl_surat->toDateString());
-        $this->assertSame('001/II.3.AU/FT-UMB/X/2026', $s->nomor);
+        $this->assertSame('001/II.3.AU/UMB-06/A/2026', $s->nomor);
     }
 
     public function test_memilih_hari_ini_sama_dengan_bawaan(): void
@@ -111,7 +111,7 @@ class TanggalSuratTest extends TestCase
         $s = $this->tandatangani(Surat::firstOrFail());
 
         $this->assertSame('2026-11-12', $s->tgl_surat->toDateString());
-        $this->assertSame('001/II.3.AU/FT-UMB/XI/2026', $s->nomor, 'bulan romawi mengikuti tanggal surat, bukan hari penandatanganan');
+        $this->assertSame('001/II.3.AU/UMB-06/A/2026', $s->nomor, 'bulan romawi mengikuti tanggal surat, bukan hari penandatanganan');
         $payload = json_decode(app(TandaTanganService::class)->payload($s), true);
         $this->assertSame('2026-11-12', $payload['t']);
         $this->assertTrue(KunciTte::verifikasi(app(TandaTanganService::class)->payload($s), $s->signature));
@@ -125,11 +125,11 @@ class TanggalSuratTest extends TestCase
         $this->travelTo(Carbon::parse('2026-12-20 09:00:00', config('app.timezone')));
         $this->actingAs($this->u('198701012010011001'))->post('/surat-keluar', $this->bebas(['tanggal_surat' => '2027-01-05']));
         $s = $this->tandatangani(Surat::firstOrFail());
-        $this->assertSame('001/II.3.AU/FT-UMB/I/2027', $s->nomor);
+        $this->assertSame('001/II.3.AU/UMB-06/A/2027', $s->nomor);
 
         $this->actingAs($this->u('198701012010011001'))->post('/surat-keluar', $this->bebas(['perihal' => 'Biasa']));
         $b = $this->tandatangani(Surat::where('perihal', 'Biasa')->first());
-        $this->assertSame('001/II.3.AU/FT-UMB/XII/2026', $b->nomor, 'counter 2026 terpisah dari 2027');
+        $this->assertSame('001/II.3.AU/UMB-06/A/2026', $b->nomor, 'counter 2026 terpisah dari 2027');
     }
 
     public function test_batas_tanggal_30_hari_ke_belakang_dan_90_hari_ke_depan(): void
@@ -180,7 +180,7 @@ class TanggalSuratTest extends TestCase
 
     public function test_format_nomor_mengikuti_tanggal_pada_layanan_penomoran(): void
     {
-        $k = KlasifikasiSurat::where('kode', 'II.3.AU')->first();
-        $this->assertSame('001/II.3.AU/FT-UMB/VII/2026', app(PenomoranService::class)->terbitkan($k, Carbon::parse('2026-07-15')));
+        $k = KlasifikasiSurat::where('kode', 'A')->first();
+        $this->assertSame('001/II.3.AU/UMB-06/A/2026', app(PenomoranService::class)->terbitkan($k, Carbon::parse('2026-07-15')));
     }
 }

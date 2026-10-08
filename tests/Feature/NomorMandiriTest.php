@@ -44,9 +44,9 @@ class NomorMandiriTest extends TestCase
         return User::where('nomor_induk', $nik)->firstOrFail();
     }
 
-    private function lengkap(int $urut, string $klasifikasi = 'II.3.AU'): string
+    private function lengkap(int $urut, string $klasifikasi = 'A', ?string $kekhususan = null): string
     {
-        return app(\App\Services\PenomoranService::class)->format($urut, $klasifikasi, now());
+        return app(\App\Services\PenomoranService::class)->format($urut, $klasifikasi, now(), null, $kekhususan);
     }
 
     private function bebas(array $o = []): array
@@ -54,7 +54,7 @@ class NomorMandiriTest extends TestCase
         return $o + ContohIsian::umum() + ['mode_ttd' => 'qr'];
     }
 
-    public function test_tu_hanya_mengetik_nomor_urut_dan_sisanya_mengikuti_pola(): void
+    public function test_tu_mengetik_angka_urut_dan_sisanya_mengikuti_pola(): void
     {
         [$tu, $wadek, $dekan] = [$this->u('198701012010011001'), $this->u('0912048102'), $this->u('0912038401')];
         $this->actingAs($tu)->post('/surat-keluar', $this->bebas(['nomor_manual' => ' 9 ', 'paraf_role' => 'wakil_dekan']))->assertRedirect();
@@ -67,13 +67,13 @@ class NomorMandiriTest extends TestCase
         $s = $alur->tandatangani($alur->paraf($alur->ajukan($s, $tu), $wadek, null), $dekan);
 
         $this->assertSame($this->lengkap(9), $s->nomor);
-        $this->assertStringStartsWith('009/II.3.AU/FT-UMB/', $s->nomor);
+        $this->assertStringStartsWith('009/II.3.AU/UMB-06/A/', $s->nomor);
         $this->assertNotNull($s->qr_token);
         $this->assertSame($this->lengkap(9), json_decode(app(\App\Services\TandaTanganService::class)->payload($s), true)['n']);
         $this->assertSame(9, (int) Penomoran::first()->nomor_terakhir, 'penghitung otomatis menyesuaikan nomor manual');
 
         $berikut = $alur->ajukan($alur->simpan($tu, $this->bebas(['mode_ttd' => 'basah', 'paraf_role' => null])), $tu);
-        $this->assertStringStartsWith('010/II.3.AU', $berikut->nomor, 'nomor otomatis berikutnya melanjutkan');
+        $this->assertStringStartsWith('010/II.3.AU/UMB-06/A', $berikut->nomor, 'nomor otomatis berikutnya melanjutkan');
     }
 
     public function test_kosong_tetap_nomor_otomatis(): void
@@ -91,17 +91,17 @@ class NomorMandiriTest extends TestCase
         $this->actingAs($tu)->post('/surat-keluar', $this->bebas(['nomor_manual' => '009']))->assertRedirect();
 
         $this->actingAs($tu)->post('/surat-keluar', $this->bebas(['nomor_manual' => '9']))->assertSessionHasErrors('nomor_manual');      // 009 = 9: nomor lengkap sama dengan draf lain
-        $this->actingAs($tu)->post('/surat-keluar', $this->bebas(['nomor_manual' => '045/II.3.AU/FT-UMB/X/2026']))->assertSessionHasErrors('nomor_manual');   // hanya angka depan
-        $this->actingAs($tu)->post('/surat-keluar', $this->bebas(['nomor_manual' => '12a']))->assertSessionHasErrors('nomor_manual');
+        $this->actingAs($tu)->post('/surat-keluar', $this->bebas(['nomor_manual' => '009/II.3.AU/UMB-06/A/'.now()->year]))->assertSessionHasErrors('nomor_manual');   // nomor lengkap yang sama dengan 009
+        $this->actingAs($tu)->post('/surat-keluar', $this->bebas(['nomor_manual' => '#12']))->assertSessionHasErrors('nomor_manual');
         $this->actingAs($tu)->post('/surat-keluar', $this->bebas(['nomor_manual' => '<script>']))->assertSessionHasErrors('nomor_manual');
         $this->assertSame(1, Surat::count());
 
         // klasifikasi berbeda = nomor lengkap berbeda: boleh
-        $this->actingAs($tu)->post('/surat-keluar', $this->bebas(['nomor_manual' => '009', 'klasifikasi_id' => \App\Models\KlasifikasiSurat::where('kode', 'II.1.AK')->value('id')]))->assertRedirect();
+        $this->actingAs($tu)->post('/surat-keluar', $this->bebas(['nomor_manual' => '009', 'klasifikasi_id' => \App\Models\KlasifikasiSurat::where('kode', 'F')->value('id')]))->assertRedirect();
         $this->assertSame(2, Surat::count());
 
-        $terbit = app(AlurSuratKeluar::class)->ajukan(app(AlurSuratKeluar::class)->simpan($tu, $this->bebas(['mode_ttd' => 'basah', 'paraf_role' => null, 'klasifikasi_id' => \App\Models\KlasifikasiSurat::where('kode', 'II.4.PN')->value('id')])), $tu);
-        $this->assertStringStartsWith('001/II.4.PN', $terbit->nomor);
+        $terbit = app(AlurSuratKeluar::class)->ajukan(app(AlurSuratKeluar::class)->simpan($tu, $this->bebas(['mode_ttd' => 'basah', 'paraf_role' => null, 'klasifikasi_id' => \App\Models\KlasifikasiSurat::where('kode', 'F')->value('id')])), $tu);
+        $this->assertStringStartsWith('001/II.3.AU/UMB-06/F', $terbit->nomor);
         $this->actingAs($tu)->post('/surat-keluar', $this->bebas(['nomor_manual' => '1', 'klasifikasi_id' => $terbit->klasifikasi_id]))->assertSessionHasErrors('nomor_manual');   // bentrok dengan nomor yang sudah terbit
     }
 
@@ -153,7 +153,7 @@ class NomorMandiriTest extends TestCase
         $p = \App\Models\Pengajuan::firstOrFail();
         $this->assertSame('123', $p->surat->nomor_manual);
         $p = $alur->tandatangani($p, $dekan);
-        $this->assertSame($this->lengkap(123, 'II.1.AK'), $p->surat->nomor);
+        $this->assertSame($this->lengkap(123, 'F', 'KET'), $p->surat->nomor);
 
         // mode manual: verifikasi tanpa nomor ditolak; nomor dapat diisi lewat halaman pengajuan sebelum TTD
         Pengaturan::simpan('penomoran_mode', 'manual');
@@ -172,7 +172,41 @@ class NomorMandiriTest extends TestCase
         $p = $alur->verifikasi($p, $this->u('198701012010011001'), null, '9');
 
         $this->assertSame('ditandatangani', $p->status->value);
-        $this->assertSame($this->lengkap(9, 'II.1.AK'), $p->surat->nomor);
+        $this->assertSame($this->lengkap(9, 'F', 'KET'), $p->surat->nomor);
+    }
+
+    public function test_nomor_lengkap_dapat_diedit_tu_dan_dipakai_apa_adanya(): void
+    {
+        [$tu, $dekan] = [$this->u('198701012010011001'), $this->u('0912038401')];
+        $alur = app(AlurSuratKeluar::class);
+        $nomor = '12/KET/II.3.AU/UMB-06.2/F/'.now()->year;   // diedit TU: unit Rekayasa Sistem Komputer, kekhususan Keterangan, pokok masalah F
+
+        $s = $alur->simpan($tu, $this->bebas(['mode_ttd' => 'basah', 'paraf_role' => null]));
+        $this->actingAs($tu)->post("/surat-keluar/{$s->id}/nomor", ['nomor_manual' => $nomor])->assertRedirect()->assertSessionHasNoErrors();
+        $this->assertSame($nomor, $s->fresh()->nomor_manual);
+        $this->actingAs($tu)->get("/surat-keluar/{$s->id}")->assertOk()->assertSee($nomor);
+
+        $terbit = $alur->ajukan($s->fresh(), $tu);
+        $this->assertSame($nomor, $terbit->nomor);
+
+        // unit lain (UMB-06.2) tidak menggeser penghitung fakultas (UMB-06)
+        $this->assertNull(Penomoran::where('unit', 'UMB-06')->first());
+        $berikut = $alur->ajukan($alur->simpan($tu, $this->bebas(['mode_ttd' => 'basah', 'paraf_role' => null])), $tu);
+        $this->assertStringStartsWith('001/II.3.AU/UMB-06/A', $berikut->nomor);
+
+        // nomor lengkap yang sama dengan surat terbit ditolak
+        $this->actingAs($tu)->post('/surat-keluar', $this->bebas(['nomor_manual' => $nomor]))->assertSessionHasErrors('nomor_manual');
+    }
+
+    public function test_nomor_lengkap_unit_fakultas_menggeser_penghitung(): void
+    {
+        $tu = $this->u('198701012010011001');
+        $alur = app(AlurSuratKeluar::class);
+        $s = $alur->simpan($tu, $this->bebas(['mode_ttd' => 'basah', 'paraf_role' => null]));
+        $alur->aturNomor($s, $tu, '45/II.3.AU/UMB-06/A/'.now()->year);
+        $this->assertSame('045/II.3.AU/UMB-06/A/'.now()->year, app(\App\Services\PenomoranService::class)->format(45, 'A', now()));
+        $alur->ajukan($s->fresh(), $tu);
+        $this->assertSame(45, (int) Penomoran::where('unit', 'UMB-06')->value('nomor_terakhir'));
     }
 
     public function test_pengaturan_menampilkan_pilihan_cara_penomoran(): void

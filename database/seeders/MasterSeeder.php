@@ -13,28 +13,27 @@ class MasterSeeder extends Seeder
     {
         // Prodi contoh — sesuaikan di Master Data.
         foreach ([
-            ['TS', 'Teknik Sipil'],
-            ['RSK', 'Rekayasa Sistem Komputer'],
-            ['STI', 'Sistem dan Teknologi Informasi'],
-        ] as [$kode, $nama]) {
-            Prodi::updateOrCreate(['kode' => $kode], ['nama' => $nama, 'jenjang' => 'S1']);
+            ['TS', 'Teknik Sipil', 'UMB-06.1'],
+            ['RSK', 'Rekayasa Sistem Komputer', 'UMB-06.2'],
+            ['STI', 'Sistem dan Teknologi Informasi', null],   // belum ada pada daftar kode unit kerja universitas → memakai kode fakultas
+        ] as [$kode, $nama, $unit]) {
+            Prodi::updateOrCreate(['kode' => $kode], ['nama' => $nama, 'jenjang' => 'S1', 'kode_unit' => $unit]);
         }
 
-        // Klasifikasi contoh — kode mengikuti pola 045/II.3.AU/FT-UMB/X/2026.
+        // Klasifikasi = Pokok Masalah menurut Pedoman Tata Naskah Dinas UM Buton (bagian "A" pada 5/KEP/II.3.AU/UMB/A/2025).
         foreach ([
-            ['II.3.AU', 'Administrasi Umum', 'Surat keterangan, pengantar, undangan, dan korespondensi umum'],
-            ['II.1.AK', 'Akademik', 'Keterangan aktif kuliah, cuti akademik, dan layanan akademik lain'],
-            ['II.2.KM', 'Kemahasiswaan', 'Rekomendasi beasiswa, kegiatan mahasiswa'],
-            ['II.4.PN', 'Penelitian dan Pengabdian', 'Izin penelitian, pengabdian kepada masyarakat'],
-            ['II.5.KP', 'Kerja Praktik dan Magang', 'Pengantar kerja praktik, magang, kunjungan industri'],
-            ['II.6.SK', 'Surat Keputusan', 'SK Dekan dan surat tugas'],
-            ['II.7.KU', 'Keuangan', 'Permohonan pencairan anggaran dan administrasi keuangan fakultas'],
-        ] as [$kode, $nama, $ket]) {
-            KlasifikasiSurat::updateOrCreate(['kode' => $kode], ['nama' => $nama, 'keterangan' => $ket]);
+            ['A', 'Umum dan Tata Usaha'], ['B', 'Organisasi'], ['C', 'Keuangan, Perlengkapan, dan Perbekalan'], ['D', 'Personalia'],
+            ['E', 'Keagamaan, Dakwah/Tabligh, dan Penyiaran'], ['F', 'Pendidikan, Penelitian, dan Latihan (Darul Arqam dsb)'], ['G', 'Perekonomian'],
+            ['H', 'Kesehatan, Sosial, dan Kemasyarakatan'], ['I', 'Hukum, Perundang-undangan, Hak Asasi Manusia'], ['J', 'Hubungan Luar Masyarakat'],
+            ['K', 'Wakaf dan Zakat, Infaq, serta Shadaqah'], ['L', 'Pemberdayaan Masyarakat'], ['M', 'Kepustakaan dan Informasi'],
+            ['N', 'Seni Budaya dan Olahraga'], ['O', 'Lain-lain'],
+        ] as [$kode, $nama]) {
+            KlasifikasiSurat::updateOrCreate(['kode' => $kode], ['nama' => $nama]);
         }
 
-        Pengaturan::simpan('format_nomor', '{urut}/{klasifikasi}/FT-UMB/{bulan_romawi}/{tahun}');
+        Pengaturan::simpan('format_nomor', '{urut}/{kekhususan}/II.3.AU/{unit}/{klasifikasi}/{tahun}');
         Pengaturan::simpan('panjang_urut', '3');
+        Pengaturan::simpan('kode_unit_fakultas', 'UMB-06');   // Fakultas Teknik
         Pengaturan::simpan('format_agenda', 'AGD-{tahun}/{bulan_romawi}/{urut}');
         Pengaturan::simpan('panjang_agenda', '4');
         // Kop surat (header: 3 baris; footer: alamat + kontak) — sesuai surat resmi fakultas

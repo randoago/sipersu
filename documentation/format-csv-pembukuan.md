@@ -10,7 +10,7 @@ Menu: **Pembukuan → Impor CSV** (Admin TU / Super Admin). Contoh berkas: [cont
 | Kolom | Wajib | Isi |
 |---|---|---|
 | `arah` | **Ya** | `masuk`, `keluar`, atau `lain` (SK, nota dinas, dll.). Dikenali juga: `surat masuk`, `sm`, `surat keluar`, `sk`, `lainnya` |
-| `nomor` | **Ya** | Nomor surat lengkap apa adanya (surat masuk: nomor dari pengirim). Contoh `045/II.3.AU/FT-UMB/I/2026`. Huruf, angka, spasi, `/ . - ( ) _ ,` |
+| `nomor` | **Ya** | Nomor surat lengkap apa adanya (surat masuk: nomor dari pengirim). Contoh `045/KET/II.3.AU/UMB-06/F/2026`. Huruf, angka, spasi, `/ . - ( ) _ ,` |
 | `tanggal_surat` | **Ya** | `2026-01-05` atau `05/01/2026` |
 | `perihal` | **Ya** | Hal surat (maks 255 karakter) |
 | `pihak` | Tidak | Surat masuk: asal. Surat keluar: tujuan |
@@ -32,9 +32,9 @@ Pemisah `,` `;` atau Tab dikenali otomatis. Dari Excel: *Save As → CSV UTF-8 (
 
 ## Penghitung nomor otomatis
 
-Untuk surat **keluar** yang nomornya mengikuti pola penomoran (Pengaturan → Format Nomor, bawaan `{urut}/{klasifikasi}/FT-UMB/{bulan_romawi}/{tahun}`)
-dan klasifikasinya ada di Master Data, aplikasi dapat **menyesuaikan penghitung**: nomor otomatis berikutnya melanjutkan nomor urut tertinggi di CSV.
-Contoh: CSV berakhir `045/II.3.AU/…/2026` → surat berikutnya yang dibuat aplikasi bernomor `046/II.3.AU/…/2026`.
+Untuk surat **keluar** yang nomornya mengikuti pola penomoran (Pengaturan → Format Nomor, bawaan `{urut}/{kekhususan}/II.3.AU/{unit}/{klasifikasi}/{tahun}`)
+aplikasi dapat **menyesuaikan penghitung** unit kerja pada nomor itu (mis. `UMB-06`): nomor otomatis berikutnya melanjutkan nomor urut tertinggi di CSV.
+Contoh: CSV berakhir `045/KET/II.3.AU/UMB-06/F/2026` → surat berikutnya dari unit itu bernomor `046/…/UMB-06/…/2026`.
 Pilihan ini ada (tercentang) pada langkah konfirmasi. Bila tidak dicentang, aplikasi tetap **melewati nomor yang sudah tercatat** saat menerbitkan nomor otomatis.
 Nomor yang diketik TU secara mandiri juga ditolak bila bentrok dengan nomor di pembukuan.
 

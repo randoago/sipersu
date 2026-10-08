@@ -49,13 +49,13 @@ class PembukuanTest extends TestCase
 
     private const CSV = <<<'CSV'
 arah,nomor,tanggal_surat,pihak,perihal,lampiran,sifat,jenis,tanggal_diterima,no_agenda,keterangan
-keluar,001/II.3.AU/FT-UMB/I/2026,2026-01-05,Seluruh Dosen,Pemberitahuan Libur,-,biasa,Surat Pemberitahuan,,,
-keluar,045/II.3.AU/FT-UMB/III/2026,12/03/2026,Rektor,Laporan Triwulan,1 berkas,penting,,,,
+keluar,001/II.3.AU/UMB-06/A/2026,2026-01-05,Seluruh Dosen,Pemberitahuan Libur,-,biasa,Surat Pemberitahuan,,,
+keluar,045/II.3.AU/UMB-06/A/2026,12/03/2026,Rektor,Laporan Triwulan,1 berkas,penting,,,,
 masuk,B-018/REK/UMB/I/2026,2026-01-08,Rektorat UMB,Edaran Evaluasi Kinerja,2 berkas,penting,,2026-01-09,AGD-2026/I/0001,
 lain,SK/045/FT-UMB/I/2026,2026-01-12,,SK Dekan Panitia Wisuda,,biasa,SK Dekan,,,
-keluar,045/II.3.AU/FT-UMB/III/2026,12/03/2026,Rektor,Duplikat dalam berkas,,,,,,
+keluar,045/II.3.AU/UMB-06/A/2026,12/03/2026,Rektor,Duplikat dalam berkas,,,,,,
 foo,009/X,2026-01-01,,Arah salah,,,,,,
-keluar,010/II.3.AU/FT-UMB/I/2026,31/02/2026,,Tanggal salah,,,,,,
+keluar,010/II.3.AU/UMB-06/A/2026,31/02/2026,,Tanggal salah,,,,,,
 CSV;
 
     public function test_hanya_admin_dekan_wadek_melihat_dan_hanya_admin_mencatat(): void
@@ -85,13 +85,12 @@ CSV;
         $per = Pembukuan::query()->selectRaw('arah, count(*) c')->groupBy('arah')->pluck('c', 'arah')->all();
         ksort($per);
         $this->assertSame(['keluar' => 2, 'lain' => 1, 'masuk' => 1], $per);
-        $this->assertSame(45, Pembukuan::where('nomor', '045/II.3.AU/FT-UMB/III/2026')->value('no_urut'));
-        $this->assertSame('2026-03-12', Pembukuan::where('nomor', '045/II.3.AU/FT-UMB/III/2026')->first()->tgl_surat->toDateString());
+        $this->assertSame(45, Pembukuan::where('nomor', '045/II.3.AU/UMB-06/A/2026')->value('no_urut'));
+        $this->assertSame('2026-03-12', Pembukuan::where('nomor', '045/II.3.AU/UMB-06/A/2026')->first()->tgl_surat->toDateString());
         $this->assertSame('2026-01-09', Pembukuan::where('arah', 'masuk')->first()->tgl_diterima->toDateString());
         $this->actingAs($tu)->get('/pembukuan/impor/hasil')->assertOk()->assertSee('4 surat dicatat');
 
-        $k = KlasifikasiSurat::where('kode', 'II.3.AU')->first();
-        $this->assertSame(45, (int) Penomoran::where(['klasifikasi_id' => $k->id, 'tahun' => 2026])->value('nomor_terakhir'));
+        $this->assertSame(45, (int) Penomoran::where(['unit' => 'UMB-06', 'tahun' => 2026])->value('nomor_terakhir'));
 
         $alur = app(AlurSuratKeluar::class);
         $s = $alur->ajukan($alur->simpan($tu, ['mode_ttd' => 'basah', 'paraf_role' => null] + ContohIsian::umum()), $tu);
@@ -101,7 +100,7 @@ CSV;
     public function test_tanpa_sinkron_penghitung_tidak_berubah_tetapi_nomor_terdaftar_dilewati_saat_terbit(): void
     {
         $tu = $this->u('198701012010011001');
-        $csv = "arah,nomor,tanggal_surat,perihal\nkeluar,001/II.3.AU/FT-UMB/X/2026,2026-10-01,Surat lama\nkeluar,002/II.3.AU/FT-UMB/X/2026,2026-10-02,Surat lama dua\n";
+        $csv = "arah,nomor,tanggal_surat,perihal\nkeluar,001/II.3.AU/UMB-06/A/2026,2026-10-01,Surat lama\nkeluar,002/II.3.AU/UMB-06/A/2026,2026-10-02,Surat lama dua\n";
         $this->actingAs($tu)->post('/pembukuan/impor/periksa', ['berkas' => $this->csv($csv)])->assertOk();
         $this->actingAs($tu)->post('/pembukuan/impor/proses', [])->assertRedirect();   // tanpa centang sinkron
         $this->assertSame(0, Penomoran::count());
@@ -116,7 +115,7 @@ CSV;
         $tu = $this->u('198701012010011001');
         $alur = app(AlurSuratKeluar::class);
         $terbit = $alur->ajukan($alur->simpan($tu, ['mode_ttd' => 'basah', 'paraf_role' => null] + ContohIsian::umum()), $tu);
-        $csv = "arah,nomor,tanggal_surat,perihal\nkeluar,{$terbit->nomor},2026-10-01,Bentrok dengan surat aplikasi\nkeluar,777/II.3.AU/FT-UMB/X/2026,2026-10-01,Baru\n";
+        $csv = "arah,nomor,tanggal_surat,perihal\nkeluar,{$terbit->nomor},2026-10-01,Bentrok dengan surat aplikasi\nkeluar,777/II.3.AU/UMB-06/A/2026,2026-10-01,Baru\n";
 
         $this->actingAs($tu)->post('/pembukuan/impor/periksa', ['berkas' => $this->csv($csv)])->assertOk()->assertSee('sudah ada di pembukuan/aplikasi');
         $this->actingAs($tu)->post('/pembukuan/impor/proses', [])->assertRedirect();
@@ -162,7 +161,7 @@ CSV;
     public function test_catatan_manual_ubah_hapus_dan_tolak_nomor_ganda(): void
     {
         $tu = $this->u('198701012010011001');
-        $isi = ['arah' => 'keluar', 'nomor' => '012/II.6.SK/FT-UMB/II/2026', 'tgl_surat' => '2026-02-03', 'perihal' => 'Surat Tugas Lama', 'sifat' => 'biasa', 'sinkron' => '1'];
+        $isi = ['arah' => 'keluar', 'nomor' => '012/TGS/II.3.AU/UMB-06/D/2026', 'tgl_surat' => '2026-02-03', 'perihal' => 'Surat Tugas Lama', 'sifat' => 'biasa', 'sinkron' => '1'];
         $this->actingAs($tu)->post('/pembukuan', $isi)->assertRedirect('/pembukuan');
         $b = Pembukuan::firstOrFail();
         $this->assertSame(12, $b->no_urut);
@@ -172,7 +171,7 @@ CSV;
         $this->actingAs($tu)->post('/pembukuan', ['nomor' => '<b>x</b>'] + $isi)->assertSessionHasErrors('nomor');
         $this->actingAs($tu)->put("/pembukuan/{$b->id}", ['perihal' => 'Surat Tugas Lama (revisi)'] + $isi)->assertRedirect('/pembukuan');
         $this->assertSame('Surat Tugas Lama (revisi)', $b->fresh()->perihal);
-        $this->actingAs($tu)->get('/pembukuan?q=revisi')->assertOk()->assertSee('012/II.6.SK/FT-UMB/II/2026');
+        $this->actingAs($tu)->get('/pembukuan?q=revisi')->assertOk()->assertSee('012/TGS/II.3.AU/UMB-06/D/2026');
 
         $this->actingAs($this->u('0912038401'))->delete("/pembukuan/{$b->id}")->assertForbidden();
         $this->actingAs($tu)->delete("/pembukuan/{$b->id}")->assertRedirect('/pembukuan');
@@ -182,7 +181,7 @@ CSV;
     public function test_nomor_manual_tu_bentrok_dengan_nomor_di_pembukuan(): void
     {
         $tu = $this->u('198701012010011001');
-        $lengkap = app(\App\Services\PenomoranService::class)->format(9, 'II.3.AU', now());
+        $lengkap = app(\App\Services\PenomoranService::class)->format(9, 'A', now());
         Pembukuan::create(['arah' => 'keluar', 'nomor' => $lengkap, 'tgl_surat' => now()->toDateString(), 'perihal' => 'Sudah dibukukan', 'sumber' => 'manual']);
 
         $this->actingAs($tu)->post('/surat-keluar', ['nomor_manual' => '9', 'mode_ttd' => 'qr'] + ContohIsian::umum())->assertSessionHasErrors('nomor_manual');

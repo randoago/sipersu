@@ -115,10 +115,10 @@ class AlurSuratKeluar
         $nomor = NomorManual::bersihkan($nomor);
         $lengkap = null;
         if ($nomor !== null) {
-            if (! ctype_digit($nomor) || strlen($nomor) > 6) {
-                throw ValidationException::withMessages(['nomor_manual' => 'Isi nomor urut saja, berupa angka (contoh: 009).']);
+            if (! preg_match(NomorManual::POLA, $nomor)) {
+                throw ValidationException::withMessages(['nomor_manual' => NomorManual::PESAN['nomor_manual.regex']]);
             }
-            $lengkap = NomorManual::lengkapUntuk($nomor, $s->klasifikasi, $s->tgl_surat);
+            $lengkap = NomorManual::lengkapSurat($nomor, $s);
             if ($lengkap && NomorManual::bentrok($lengkap, $s->id)) {
                 throw ValidationException::withMessages(['nomor_manual' => "Nomor {$lengkap} sudah dipakai surat lain."]);
             }

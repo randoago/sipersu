@@ -32,7 +32,7 @@ HTML;
         $daftar = [
             [
                 'kode' => 'KET-AKTIF', 'nama' => 'Surat Keterangan Aktif Kuliah', 'ikon' => 'school', 'kategori' => 'Akademik',
-                'deskripsi' => 'Untuk BPJS, beasiswa, atau tunjangan orang tua.', 'klasifikasi' => 'II.1.AK',
+                'deskripsi' => 'Untuk BPJS, beasiswa, atau tunjangan orang tua.', 'klasifikasi' => 'F',
                 'verifikator_role' => 'admin_tu', 'perlu_paraf' => false, 'paraf_role' => null, 'sla_hari' => 2,
                 'field_formulir' => [
                     ['nama' => 'semester', 'label' => 'Semester', 'tipe' => 'angka', 'wajib' => true, 'placeholder' => 'Contoh: 7'],
@@ -49,7 +49,7 @@ HTML,
             ],
             [
                 'kode' => 'IZIN-PENELITIAN', 'nama' => 'Surat Izin Penelitian', 'ikon' => 'science', 'kategori' => 'Penelitian',
-                'deskripsi' => 'Keperluan skripsi, tugas akhir, dan riset.', 'klasifikasi' => 'II.4.PN',
+                'deskripsi' => 'Keperluan skripsi, tugas akhir, dan riset.', 'klasifikasi' => 'F',
                 'verifikator_role' => 'admin_tu', 'perlu_paraf' => true, 'paraf_role' => 'wakil_dekan', 'sla_hari' => 3,
                 'field_formulir' => [
                     ['nama' => 'judul', 'label' => 'Judul Penelitian / Skripsi', 'tipe' => 'area', 'wajib' => true, 'maks' => 250,
@@ -81,7 +81,7 @@ HTML,
             ],
             [
                 'kode' => 'PENGANTAR-KP', 'nama' => 'Surat Pengantar Kerja Praktik', 'ikon' => 'apartment', 'kategori' => 'Kerja Praktik',
-                'deskripsi' => 'Permohonan magang / KP di instansi.', 'klasifikasi' => 'II.5.KP',
+                'deskripsi' => 'Permohonan magang / KP di instansi.', 'klasifikasi' => 'F',
                 'verifikator_role' => 'kaprodi', 'perlu_paraf' => false, 'paraf_role' => null, 'sla_hari' => 3,
                 'field_formulir' => [
                     ['nama' => 'kepada', 'label' => 'Ditujukan Kepada (Jabatan / Pejabat)', 'tipe' => 'teks', 'wajib' => true],
@@ -109,7 +109,7 @@ HTML,
             ],
             [
                 'kode' => 'CUTI-AKADEMIK', 'nama' => 'Surat Cuti Akademik', 'ikon' => 'pause_circle', 'kategori' => 'Akademik',
-                'deskripsi' => 'Permohonan istirahat studi semester resmi.', 'klasifikasi' => 'II.1.AK',
+                'deskripsi' => 'Permohonan istirahat studi semester resmi.', 'klasifikasi' => 'F',
                 'verifikator_role' => 'kaprodi', 'perlu_paraf' => true, 'paraf_role' => 'wakil_dekan', 'sla_hari' => 5,
                 'field_formulir' => [
                     ['nama' => 'semester_cuti', 'label' => 'Semester yang Dicutikan', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => 'Contoh: Ganjil 2026/2027'],
@@ -126,7 +126,7 @@ HTML,
             ],
             [
                 'kode' => 'REKOM-BEASISWA', 'nama' => 'Surat Rekomendasi Beasiswa', 'ikon' => 'workspace_premium', 'kategori' => 'Kemahasiswaan',
-                'deskripsi' => 'Surat keterangan & rekomendasi Dekanat.', 'klasifikasi' => 'II.2.KM',
+                'deskripsi' => 'Surat keterangan & rekomendasi Dekanat.', 'klasifikasi' => 'F',
                 'verifikator_role' => 'admin_tu', 'perlu_paraf' => true, 'paraf_role' => 'wakil_dekan', 'sla_hari' => 3,
                 'field_formulir' => [
                     ['nama' => 'nama_beasiswa', 'label' => 'Nama Beasiswa', 'tipe' => 'teks', 'wajib' => true],
@@ -148,7 +148,7 @@ HTML,
             // ---- Format untuk staf (dibuat lewat Surat Keluar → Buat Surat) -----------------------------
             [
                 'kode' => 'UNDANGAN-RAPAT', 'sasaran' => 'staf', 'nama' => 'Surat Undangan', 'ikon' => 'groups', 'kategori' => 'Umum',
-                'deskripsi' => 'Mengundang dosen, tendik, pemateri, atau pihak lain ke rapat/kegiatan.', 'klasifikasi' => 'II.3.AU',
+                'deskripsi' => 'Mengundang dosen, tendik, pemateri, atau pihak lain ke rapat/kegiatan.', 'klasifikasi' => 'A',
                 'perihal_template' => '{{ isian.perihal }}', 'judul_surat' => null, 'gaya_tanggal' => 'hijriah',
                 'verifikator_role' => 'admin_tu', 'perlu_paraf' => false, 'paraf_role' => null, 'sla_hari' => 1, 'syarat' => [],
                 'field_formulir' => [
@@ -185,7 +185,7 @@ HTML,
             ],
             [
                 'kode' => 'SURAT-TUGAS', 'sasaran' => 'staf', 'nama' => 'Surat Tugas', 'ikon' => 'assignment_ind', 'kategori' => 'Kepegawaian',
-                'deskripsi' => 'Penugasan dosen/tendik untuk kegiatan (daftar yang ditugaskan berupa tabel).', 'klasifikasi' => 'II.6.SK',
+                'deskripsi' => 'Penugasan dosen/tendik untuk kegiatan (daftar yang ditugaskan berupa tabel).', 'klasifikasi' => 'D',
                 'perihal_template' => 'Surat Tugas {{ isian.kegiatan }}', 'judul_surat' => 'SURAT TUGAS',
                 'verifikator_role' => 'admin_tu', 'perlu_paraf' => false, 'paraf_role' => null, 'sla_hari' => 1, 'syarat' => [],
                 'field_formulir' => [
@@ -215,7 +215,7 @@ HTML,
             ],
             [
                 'kode' => 'SURAT-TUGAS-REKOMENDASI', 'sasaran' => 'staf', 'nama' => 'Surat Tugas Rekomendasi', 'ikon' => 'verified', 'kategori' => 'Kepegawaian',
-                'deskripsi' => 'Merekomendasikan seorang dosen/pejabat untuk ditugaskan pada suatu kegiatan; tanggal Hijriah + Masehi.', 'klasifikasi' => 'II.6.SK',
+                'deskripsi' => 'Merekomendasikan seorang dosen/pejabat untuk ditugaskan pada suatu kegiatan; tanggal Hijriah + Masehi.', 'klasifikasi' => 'D',
                 'perihal_template' => 'Surat Tugas Rekomendasi {{ isian.nama_penerima }}', 'judul_surat' => 'SURAT TUGAS', 'gaya_tanggal' => 'hijriah',
                 'verifikator_role' => 'admin_tu', 'perlu_paraf' => false, 'paraf_role' => null, 'sla_hari' => 1, 'syarat' => [],
                 'field_formulir' => [
@@ -250,7 +250,7 @@ HTML,
             ],
             [
                 'kode' => 'SURAT-PEMBERITAHUAN', 'sasaran' => 'staf', 'nama' => 'Surat Pemberitahuan', 'ikon' => 'mail', 'kategori' => 'Umum',
-                'deskripsi' => 'Surat biasa untuk pemberitahuan atau edaran umum (tujuan, hal, isi).', 'klasifikasi' => 'II.3.AU', 'mode_ttd' => 'basah',
+                'deskripsi' => 'Surat biasa untuk pemberitahuan atau edaran umum (tujuan, hal, isi).', 'klasifikasi' => 'A', 'mode_ttd' => 'basah',
                 'perihal_template' => '{{ isian.hal }}', 'judul_surat' => null,
                 'verifikator_role' => 'admin_tu', 'perlu_paraf' => false, 'paraf_role' => null, 'sla_hari' => 1, 'syarat' => [],
                 'field_formulir' => [
@@ -271,7 +271,7 @@ HTML,
             // ---- Format surat keluar tambahan yang dibuat TU (surat mahasiswa, keuangan, penelitian) -----
             [
                 'kode' => 'SK-AKTIF-KULIAH', 'sasaran' => 'staf', 'nama' => 'Surat Keterangan Aktif Kuliah', 'ikon' => 'school', 'kategori' => 'Akademik',
-                'deskripsi' => 'TU membuatkan surat keterangan aktif kuliah untuk seorang mahasiswa (BPJS, beasiswa, tunjangan).', 'klasifikasi' => 'II.1.AK',
+                'deskripsi' => 'TU membuatkan surat keterangan aktif kuliah untuk seorang mahasiswa (BPJS, beasiswa, tunjangan).', 'klasifikasi' => 'F',
                 'perihal_template' => 'Surat Keterangan Aktif Kuliah {{ isian.nama_mhs }}', 'judul_surat' => 'SURAT KETERANGAN AKTIF KULIAH',
                 'verifikator_role' => 'admin_tu', 'perlu_paraf' => false, 'paraf_role' => null, 'sla_hari' => 1, 'syarat' => [],
                 'field_formulir' => [
@@ -295,7 +295,7 @@ HTML,
             ],
             [
                 'kode' => 'SK-CUTI', 'sasaran' => 'staf', 'nama' => 'Surat Keterangan Cuti Akademik', 'ikon' => 'pause_circle', 'kategori' => 'Akademik',
-                'deskripsi' => 'Keterangan cuti akademik seorang mahasiswa (istirahat studi satu atau dua semester).', 'klasifikasi' => 'II.1.AK',
+                'deskripsi' => 'Keterangan cuti akademik seorang mahasiswa (istirahat studi satu atau dua semester).', 'klasifikasi' => 'F',
                 'perihal_template' => 'Surat Keterangan Cuti Akademik {{ isian.nama_mhs }}', 'judul_surat' => 'SURAT KETERANGAN CUTI AKADEMIK',
                 'verifikator_role' => 'admin_tu', 'perlu_paraf' => true, 'paraf_role' => 'wakil_dekan', 'sla_hari' => 2, 'syarat' => [],
                 'field_formulir' => [
@@ -320,7 +320,7 @@ HTML,
             ],
             [
                 'kode' => 'SK-AKTIF-KEMBALI', 'sasaran' => 'staf', 'nama' => 'Surat Keterangan Aktif Kembali Setelah Cuti', 'ikon' => 'play_circle', 'kategori' => 'Akademik',
-                'deskripsi' => 'Keterangan bahwa mahasiswa yang telah selesai cuti akademik kembali aktif kuliah.', 'klasifikasi' => 'II.1.AK',
+                'deskripsi' => 'Keterangan bahwa mahasiswa yang telah selesai cuti akademik kembali aktif kuliah.', 'klasifikasi' => 'F',
                 'perihal_template' => 'Surat Keterangan Aktif Kembali {{ isian.nama_mhs }}', 'judul_surat' => 'SURAT KETERANGAN AKTIF KEMBALI',
                 'verifikator_role' => 'admin_tu', 'perlu_paraf' => false, 'paraf_role' => null, 'sla_hari' => 1, 'syarat' => [],
                 'field_formulir' => [
@@ -346,7 +346,7 @@ HTML,
             ],
             [
                 'kode' => 'SURAT-PENCAIRAN-ANGGARAN', 'sasaran' => 'staf', 'nama' => 'Surat Permohonan Pencairan Anggaran', 'ikon' => 'payments', 'kategori' => 'Keuangan',
-                'deskripsi' => 'Permohonan pencairan dana kegiatan fakultas ke bagian keuangan/rektorat, lengkap dengan rincian anggaran (tabel).', 'klasifikasi' => 'II.7.KU',
+                'deskripsi' => 'Permohonan pencairan dana kegiatan fakultas ke bagian keuangan/rektorat, lengkap dengan rincian anggaran (tabel).', 'klasifikasi' => 'C',
                 'perihal_template' => 'Permohonan Pencairan Anggaran {{ isian.kegiatan }}', 'judul_surat' => null,
                 'verifikator_role' => 'admin_tu', 'perlu_paraf' => true, 'paraf_role' => 'wakil_dekan', 'sla_hari' => 2, 'syarat' => [],
                 'field_formulir' => [
@@ -378,7 +378,7 @@ HTML,
             ],
             [
                 'kode' => 'SURAT-PENELITIAN', 'sasaran' => 'staf', 'nama' => 'Surat Izin Penelitian (dibuat TU)', 'ikon' => 'science', 'kategori' => 'Penelitian',
-                'deskripsi' => 'TU membuat surat izin penelitian untuk mahasiswa; memuat identitas mahasiswa, judul, instansi tujuan, dan pembimbing.', 'klasifikasi' => 'II.4.PN',
+                'deskripsi' => 'TU membuat surat izin penelitian untuk mahasiswa; memuat identitas mahasiswa, judul, instansi tujuan, dan pembimbing.', 'klasifikasi' => 'F',
                 'perihal_template' => 'Permohonan Izin Penelitian {{ isian.nama_mhs }}', 'judul_surat' => null,
                 'verifikator_role' => 'admin_tu', 'perlu_paraf' => true, 'paraf_role' => 'wakil_dekan', 'sla_hari' => 2, 'syarat' => [],
                 'field_formulir' => [
@@ -414,12 +414,12 @@ HTML,
             // ---- Format surat MASUK (dicatat TU lewat Surat Masuk → Catat Surat) -------------------------
             [
                 'kode' => 'SM-UMUM', 'sasaran' => 'masuk', 'nama' => 'Surat Masuk Umum', 'ikon' => 'move_to_inbox', 'kategori' => 'Surat Masuk',
-                'deskripsi' => 'Surat yang diterima fakultas (kolom standar saja).', 'klasifikasi' => 'II.3.AU', 'judul_surat' => null, 'penandatangan_jabatan_id' => null,
+                'deskripsi' => 'Surat yang diterima fakultas (kolom standar saja).', 'klasifikasi' => 'A', 'judul_surat' => null, 'penandatangan_jabatan_id' => null,
                 'verifikator_role' => 'admin_tu', 'perlu_paraf' => false, 'paraf_role' => null, 'sla_hari' => 1, 'syarat' => [], 'field_formulir' => [], 'template_html' => '',
             ],
             [
                 'kode' => 'SM-UNDANGAN', 'sasaran' => 'masuk', 'nama' => 'Undangan (Surat Masuk)', 'ikon' => 'event', 'kategori' => 'Surat Masuk',
-                'deskripsi' => 'Undangan rapat/kegiatan dari pihak luar; mencatat waktu dan tempat kegiatan.', 'klasifikasi' => 'II.3.AU', 'judul_surat' => null, 'penandatangan_jabatan_id' => null,
+                'deskripsi' => 'Undangan rapat/kegiatan dari pihak luar; mencatat waktu dan tempat kegiatan.', 'klasifikasi' => 'A', 'judul_surat' => null, 'penandatangan_jabatan_id' => null,
                 'verifikator_role' => 'admin_tu', 'perlu_paraf' => false, 'paraf_role' => null, 'sla_hari' => 1, 'syarat' => [], 'template_html' => '',
                 'field_formulir' => [
                     ['nama' => 'tanggal_kegiatan', 'label' => 'Tanggal kegiatan', 'tipe' => 'tanggal', 'wajib' => true, 'lebar' => 'setengah'],
@@ -429,7 +429,7 @@ HTML,
             ],
             [
                 'kode' => 'SM-PERMOHONAN', 'sasaran' => 'masuk', 'nama' => 'Permohonan / Audiensi (Surat Masuk)', 'ikon' => 'mark_email_unread', 'kategori' => 'Surat Masuk',
-                'deskripsi' => 'Permohonan data, kerja sama, atau audiensi dari instansi lain.', 'klasifikasi' => 'II.3.AU', 'judul_surat' => null, 'penandatangan_jabatan_id' => null,
+                'deskripsi' => 'Permohonan data, kerja sama, atau audiensi dari instansi lain.', 'klasifikasi' => 'A', 'judul_surat' => null, 'penandatangan_jabatan_id' => null,
                 'verifikator_role' => 'admin_tu', 'perlu_paraf' => false, 'paraf_role' => null, 'sla_hari' => 1, 'syarat' => [], 'template_html' => '',
                 'field_formulir' => [
                     ['nama' => 'bentuk_permohonan', 'label' => 'Bentuk permohonan', 'tipe' => 'pilihan', 'wajib' => true, 'opsi' => ['Permohonan data', 'Kerja sama', 'Audiensi', 'Bantuan / dukungan', 'Lainnya'], 'lebar' => 'setengah'],
@@ -440,6 +440,7 @@ HTML,
 
         foreach ($daftar as $i => $d) {
             $kl = $d['klasifikasi'];
+            $kekhususan = ['KET-AKTIF' => 'KET', 'CUTI-AKADEMIK' => 'KET', 'SK-AKTIF-KULIAH' => 'KET', 'SK-CUTI' => 'KET', 'SK-AKTIF-KEMBALI' => 'KET', 'REKOM-BEASISWA' => 'REK', 'SURAT-TUGAS' => 'TGS', 'SURAT-TUGAS-REKOMENDASI' => 'TGS'][$d['kode']] ?? null;
             unset($d['klasifikasi']);
             $d += ['sasaran' => 'mahasiswa', 'mode_ttd' => 'qr', 'perihal_template' => null, 'gaya_tanggal' => 'dikeluarkan'];
             if (! array_key_exists('judul_surat', $d)) {
@@ -447,6 +448,7 @@ HTML,
             }
             JenisSurat::updateOrCreate(['kode' => $d['kode']], $d + [
                 'klasifikasi_id' => $klas[$kl],
+                'kekhususan' => $kekhususan,
                 'penandatangan_jabatan_id' => $dekan,
                 'urutan' => $i + 1,
             ]);

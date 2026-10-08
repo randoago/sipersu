@@ -109,10 +109,10 @@ class AlurPengajuan
         $nomor = NomorManual::bersihkan($nomor);
         $lengkap = null;
         if ($nomor !== null) {
-            if (! ctype_digit($nomor) || strlen($nomor) > 6) {
-                throw ValidationException::withMessages(['nomor_manual' => 'Isi nomor urut saja, berupa angka (contoh: 009).']);
+            if (! preg_match(NomorManual::POLA, $nomor)) {
+                throw ValidationException::withMessages(['nomor_manual' => NomorManual::PESAN['nomor_manual.regex']]);
             }
-            $lengkap = NomorManual::lengkapUntuk($nomor, $surat->klasifikasi, $surat->tgl_surat);
+            $lengkap = NomorManual::lengkapSurat($nomor, $surat);
             if ($lengkap && NomorManual::bentrok($lengkap, $surat->id)) {
                 throw ValidationException::withMessages(['nomor_manual' => "Nomor {$lengkap} sudah dipakai surat lain."]);
             }
@@ -131,10 +131,10 @@ class AlurPengajuan
             throw ValidationException::withMessages(['nomor_surat' => 'Penomoran manual: isi nomor urut surat sebelum memverifikasi.']);
         }
         if ($nomor !== null) {
-            if (! ctype_digit($nomor) || strlen($nomor) > 6) {
-                throw ValidationException::withMessages(['nomor_surat' => 'Isi nomor urut saja, berupa angka (contoh: 009).']);
+            if (! preg_match(NomorManual::POLA, $nomor)) {
+                throw ValidationException::withMessages(['nomor_surat' => NomorManual::PESAN['nomor_surat.regex']]);
             }
-            $lengkap = NomorManual::lengkapUntuk($nomor, $p->surat?->klasifikasi ?? $p->jenis->klasifikasi);
+            $lengkap = ($p->surat ? NomorManual::lengkapSurat($nomor, $p->surat) : NomorManual::lengkapUntuk($nomor, $p->jenis->klasifikasi, null, null, $p->jenis->kekhususan));
             if ($lengkap && NomorManual::bentrok($lengkap, $p->surat?->id)) {
                 throw ValidationException::withMessages(['nomor_surat' => "Nomor {$lengkap} sudah dipakai surat lain."]);
             }

@@ -50,11 +50,12 @@ class MasterData
             'prodi' => [
                 'model' => Prodi::class, 'judul' => 'Program Studi', 'ikon' => 'account_balance', 'with' => [],
                 'cari' => ['kode', 'nama'],
-                'kolom' => [['Kode', fn ($m) => $m->kode], ['Nama', fn ($m) => $m->nama], ['Jenjang', fn ($m) => $m->jenjang]],
+                'kolom' => [['Kode', fn ($m) => $m->kode], ['Nama', fn ($m) => $m->nama], ['Jenjang', fn ($m) => $m->jenjang], ['Kode unit kerja', fn ($m) => $m->kode_unit ?? '— (kode fakultas)', 'tabular']],
                 'field' => [
                     ['kode', 'Kode', 'teks', ['required', 'string', 'max:20', 'unique:prodi,kode,{id}'], 'lebar' => 'setengah'],
                     ['jenjang', 'Jenjang', 'pilihan', ['required', 'in:D3,S1,S2'], 'opsi' => fn () => ['S1' => 'S1', 'D3' => 'D3', 'S2' => 'S2'], 'lebar' => 'setengah'],
                     ['nama', 'Nama program studi', 'teks', ['required', 'string', 'max:150']],
+                    ['kode_unit', 'Kode unit kerja (untuk nomor surat)', 'teks', ['nullable', 'string', 'max:30', 'regex:/^[A-Za-z0-9.\-]+$/'], 'bantuan' => 'Menurut Pedoman Tata Naskah Dinas, mis. UMB-06.1 (Teknik Sipil), UMB-06.2 (Rekayasa Sistem Komputer). Kosong = memakai kode fakultas.'],
                     ['aktif', 'Aktif', 'ya_tidak', ['boolean']],
                 ],
             ],
@@ -73,11 +74,11 @@ class MasterData
                 ],
             ],
             'klasifikasi' => [
-                'model' => KlasifikasiSurat::class, 'judul' => 'Klasifikasi Surat', 'ikon' => 'rule', 'with' => [],
+                'model' => KlasifikasiSurat::class, 'judul' => 'Pokok Masalah (Klasifikasi)', 'ikon' => 'rule', 'with' => [],
                 'cari' => ['kode', 'nama'],
                 'kolom' => [['Kode', fn ($m) => $m->kode, 'tabular'], ['Nama', fn ($m) => $m->nama], ['Keterangan', fn ($m) => \Illuminate\Support\Str::limit((string) $m->keterangan, 70)]],
                 'field' => [
-                    ['kode', 'Kode klasifikasi', 'teks', ['required', 'string', 'max:30', 'regex:/^[A-Za-z0-9.\-]+$/', 'unique:klasifikasi_surat,kode,{id}'], 'bantuan' => 'Dipakai pada nomor surat, mis. II.3.AU. Mengubah kode TIDAK mengubah nomor yang sudah terbit.'],
+                    ['kode', 'Kode pokok masalah', 'teks', ['required', 'string', 'max:30', 'regex:/^[A-Za-z0-9.\-]+$/', 'unique:klasifikasi_surat,kode,{id}'], 'bantuan' => 'Huruf pokok masalah pada nomor surat (A–O menurut Pedoman Tata Naskah Dinas). Mengubah kode TIDAK mengubah nomor yang sudah terbit.'],
                     ['nama', 'Nama', 'teks', ['required', 'string', 'max:150']],
                     ['keterangan', 'Keterangan', 'area', ['nullable', 'string', 'max:300']],
                     ['aktif', 'Aktif', 'ya_tidak', ['boolean']],

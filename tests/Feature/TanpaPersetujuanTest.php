@@ -123,7 +123,7 @@ class TanpaPersetujuanTest extends TestCase
     {
         $dasar = [
             'nama' => 'Surat Edaran Internal', 'deskripsi' => 'x', 'ikon' => 'mail', 'sasaran' => 'staf', 'judul_surat' => 'EDARAN', 'perihal_template' => 'Edaran {{ isian.hal }}',
-            'klasifikasi_id' => KlasifikasiSurat::where('kode', 'II.3.AU')->value('id'), 'penandatangan_jabatan_id' => Jabatan::where('kode', 'dekan')->value('id'),
+            'klasifikasi_id' => KlasifikasiSurat::where('kode', 'A')->value('id'), 'penandatangan_jabatan_id' => Jabatan::where('kode', 'dekan')->value('id'),
             'sla_hari' => 1, 'urutan' => 5, 'aktif' => '1', 'perlu_paraf' => '1', 'paraf_role' => 'wakil_dekan',
             'fields' => [['label' => 'Hal', 'tipe' => 'teks', 'wajib' => '1', 'nama' => '']], 'template_html' => '<p>{{ isian.hal }}</p>',
         ];

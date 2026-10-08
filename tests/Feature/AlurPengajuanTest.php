@@ -69,7 +69,7 @@ class AlurPengajuanTest extends TestCase
 
         $this->assertSame(S::Ditandatangani, $p->status);
         $this->assertSame('ditandatangani', $surat->status);
-        $this->assertMatchesRegularExpression('#^001/II\.1\.AK/FT-UMB/[IVX]+/'.now()->year.'$#', $surat->nomor);
+        $this->assertMatchesRegularExpression('#^001/KET/II\.3\.AU/UMB-06/F/'.now()->year.'$#', $surat->nomor);
         $this->assertGreaterThanOrEqual(32, strlen($surat->qr_token));
         Storage::disk('local')->assertExists($surat->file_pdf);
         $this->assertSame(hash('sha256', Storage::disk('local')->get($surat->file_pdf)), $surat->pdf_hash);
@@ -108,7 +108,7 @@ class AlurPengajuanTest extends TestCase
         $this->assertSame(S::Disetujui, $p->status);
         $p = $alur->tandatangani($p, $this->pengguna('0912038401'));
         $this->assertSame(S::Ditandatangani, $p->status);
-        $this->assertStringContainsString('II.4.PN', $p->surat->nomor);
+        $this->assertStringContainsString('/F/', $p->surat->nomor);
     }
 
     public function test_hanya_pejabat_yang_boleh_ttd_dan_mahasiswa_tidak_boleh_verifikasi(): void

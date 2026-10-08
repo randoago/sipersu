@@ -14,7 +14,7 @@ class ContohQr
     {
         $payload = json_encode([
             'v' => 1,
-            'n' => '001/II.1.AK/FT-UMB/X/2026',
+            'n' => '001/KET/II.3.AU/UMB-06/F/2026',
             'p' => 'Surat Keterangan Aktif Kuliah',
             's' => 'Agusman, S.T., MM.',
             'j' => 'Dekan Fakultas Teknik',

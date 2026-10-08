@@ -10,7 +10,7 @@
                 <div class="md:col-span-2"><p class="mb-1.5 font-label-lg text-label-lg">Jenis buku</p>
                     <div class="flex flex-wrap gap-2">@foreach (\App\Services\PembukuanService::ARAH as $k => $l)<label class="flex cursor-pointer items-center gap-2 rounded-lg border border-outline-variant px-3 py-2 font-label-lg text-label-lg"><input type="radio" name="arah" value="{{ $k }}" x-model="arah" class="text-primary focus:ring-primary">{{ $l }}</label>@endforeach</div>
                     @error('arah')<p class="mt-1 font-body-sm text-body-sm text-[#e11d48]">{{ $message }}</p>@enderror</div>
-                <x-input label="Nomor surat" name="nomor" wajib :value="$val('nomor')" class="md:col-span-2" placeholder="045/II.3.AU/FT-UMB/I/2026" bantuan="Tulis nomor lengkap apa adanya. Surat masuk: nomor dari pengirim." />
+                <x-input label="Nomor surat" name="nomor" wajib :value="$val('nomor')" class="md:col-span-2" placeholder="045/KET/II.3.AU/UMB-06/F/2026" bantuan="Tulis nomor lengkap apa adanya. Surat masuk: nomor dari pengirim." />
                 <x-input label="Tanggal surat" name="tgl_surat" type="date" wajib :value="$val('tgl_surat')" />
                 <div x-show="arah === 'masuk'" x-cloak><x-input label="Tanggal diterima" name="tgl_diterima" type="date" :value="$val('tgl_diterima')" /></div>
                 <x-input label="Pihak (asal / tujuan)" name="pihak" :value="$val('pihak')" class="md:col-span-2" placeholder="Rektorat Universitas Muhammadiyah Buton" />

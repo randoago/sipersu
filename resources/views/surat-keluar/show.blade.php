@@ -22,9 +22,10 @@
         </div>
         <aside class="space-y-5">
             @if (auth()->user()->adalahAdmin() && ! in_array($s->status, ['ditandatangani', 'batal'], true))
-                <x-kartu judul="Nomor Surat" ikon="numbers" deskripsi="{{ \App\Support\NomorManual::wajib() ? 'Penomoran manual: nomor urut wajib diisi TU.' : 'Ketik nomor urut depan; kosongkan untuk nomor otomatis.' }}">
+                <x-kartu judul="Nomor Surat" ikon="numbers" deskripsi="{{ \App\Support\NomorManual::wajib() ? 'Penomoran manual: nomor wajib diisi TU.' : 'Ketik angka urut atau edit nomor lengkap; kosongkan untuk nomor otomatis.' }}">
                     <form method="post" action="{{ route('surat-keluar.nomor', $s) }}" class="space-y-2">@csrf
-                        <x-input label="Nomor urut surat" name="nomor_manual" :value="old('nomor_manual', $s->nomor_manual)" placeholder="009" inputmode="numeric" :bantuan="\App\Support\NomorManual::lengkap($s) ? 'Nomor lengkap: '.\App\Support\NomorManual::lengkap($s) : 'Contoh: '.\App\Support\NomorManual::contoh()" />
+                        <x-input label="Nomor surat" name="nomor_manual" :value="old('nomor_manual', $s->nomor_manual)" placeholder="{{ \App\Support\NomorManual::usulan($s) }}" :bantuan="\App\Support\NomorManual::lengkap($s) ? 'Nomor yang akan terbit: '.\App\Support\NomorManual::lengkap($s) : 'Nomor otomatis berikutnya: '.\App\Support\NomorManual::usulan($s).' (angka urut saja juga boleh, mis. 009)'" />
+                        @if (\App\Support\NomorManual::usulan($s))<button type="button" class="font-label-sm text-label-sm text-primary hover:underline" onclick="this.closest('form').querySelector('[name=nomor_manual]').value = @js(\App\Support\NomorManual::usulan($s))">Isi dengan nomor usulan, lalu edit</button>@endif
                         <x-tombol type="submit" varian="sekunder" ikon="save" class="w-full">Simpan Nomor</x-tombol>
                     </form>
                 </x-kartu>

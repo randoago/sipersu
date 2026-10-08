@@ -52,7 +52,7 @@
             <div class="flex flex-wrap items-center gap-3">
                 @if ($bolehV)
                     <form method="post" action="{{ route('pengajuan.verifikasi', $p) }}" class="flex flex-1 flex-wrap items-center gap-3">@csrf
-                        <input name="nomor_surat" value="{{ old('nomor_surat') }}" placeholder="Nomor urut surat, mis. 009{{ \App\Support\NomorManual::wajib() ? ' (wajib)' : ' (opsional)' }}" inputmode="numeric" @required(\App\Support\NomorManual::wajib()) class="h-10 min-w-56 flex-1 rounded-lg border-outline-variant font-body-md text-body-md focus:ring-2 focus:ring-primary">
+                        <input name="nomor_surat" value="{{ old('nomor_surat') }}" placeholder="Nomor surat: angka urut (009) atau lengkap{{ \App\Support\NomorManual::wajib() ? ' (wajib)' : ' (opsional)' }}" @required(\App\Support\NomorManual::wajib()) class="h-10 min-w-56 flex-1 rounded-lg border-outline-variant font-body-md text-body-md focus:ring-2 focus:ring-primary">
                         <input name="catatan" placeholder="Catatan verifikasi (opsional)" class="h-10 min-w-56 flex-1 rounded-lg border-outline-variant font-body-md text-body-md focus:ring-2 focus:ring-primary">
                         <x-tombol type="submit" ikon="task_alt">Verifikasi & Teruskan</x-tombol>
                     </form>
@@ -117,9 +117,9 @@
         {{-- Nomor surat (diisi TU) sebelum terbit --}}
         @if ($p->surat && $user->adalahAdmin() && ! in_array($p->surat->status, ['ditandatangani', 'batal'], true))
             <div class="lg:col-span-5">
-                <x-kartu judul="Nomor Surat" deskripsi="{{ \App\Support\NomorManual::wajib() ? 'Penomoran manual: nomor urut wajib diisi sebelum Dekan menandatangani.' : 'Ketik nomor urut depan; kosongkan untuk nomor otomatis.' }}" ikon="numbers">
+                <x-kartu judul="Nomor Surat" deskripsi="{{ \App\Support\NomorManual::wajib() ? 'Penomoran manual: nomor wajib diisi sebelum Dekan menandatangani.' : 'Ketik angka urut atau edit nomor lengkap; kosongkan untuk nomor otomatis.' }}" ikon="numbers">
                     <form method="post" action="{{ route('pengajuan.nomor', $p) }}" class="flex flex-col gap-2 sm:flex-row sm:items-end">@csrf
-                        <x-input label="Nomor urut surat" name="nomor_manual" :value="old('nomor_manual', $p->surat->nomor_manual)" placeholder="009" inputmode="numeric" class="flex-1" :bantuan="\App\Support\NomorManual::lengkap($p->surat) ? 'Nomor lengkap: '.\App\Support\NomorManual::lengkap($p->surat) : 'Contoh: '.\App\Support\NomorManual::contoh()" />
+                        <x-input label="Nomor surat" name="nomor_manual" :value="old('nomor_manual', $p->surat->nomor_manual)" placeholder="{{ \App\Support\NomorManual::usulan($p->surat) }}" class="flex-1" :bantuan="\App\Support\NomorManual::lengkap($p->surat) ? 'Nomor yang akan terbit: '.\App\Support\NomorManual::lengkap($p->surat) : 'Nomor otomatis berikutnya: '.\App\Support\NomorManual::usulan($p->surat).' (angka urut saja juga boleh, mis. 009)'" />
                         <x-tombol type="submit" varian="sekunder" ikon="save">Simpan Nomor</x-tombol>
                     </form>
                 </x-kartu>

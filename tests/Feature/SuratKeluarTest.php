@@ -41,7 +41,7 @@ class SuratKeluarTest extends TestCase
     private function data(array $o = []): array
     {
         return $o + [
-            'klasifikasi_id' => KlasifikasiSurat::where('kode', 'II.3.AU')->value('id'), 'sifat' => 'biasa',
+            'klasifikasi_id' => KlasifikasiSurat::where('kode', 'A')->value('id'), 'sifat' => 'biasa',
             'tujuan' => "Kepala Dinas Pendidikan\ndi Tempat", 'perihal' => 'Undangan Rapat Koordinasi', 'lampiran' => '-',
             'isi' => "Dengan hormat, kami mengundang Bapak/Ibu.\n\nDemikian disampaikan.", 'salam' => '1',
             'jabatan_id' => Jabatan::where('kode', 'dekan')->value('id'), 'paraf_role' => '', 'mode_ttd' => 'qr',
@@ -67,7 +67,7 @@ class SuratKeluarTest extends TestCase
 
         $s->refresh();
         $this->assertSame('ditandatangani', $s->status);
-        $this->assertMatchesRegularExpression('#^001/II\.3\.AU/FT-UMB/[IVX]+/\d{4}$#', $s->nomor);
+        $this->assertMatchesRegularExpression('#^001/II\.3\.AU/UMB-06/A/\d{4}$#', $s->nomor);
         $this->actingAs($tu)->get("/surat/{$s->id}/pdf")->assertOk()->assertHeader('content-type', 'application/pdf');
         $this->get('/v/'.$s->qr_token)->assertOk()->assertSee('Dokumen Asli');
     }
@@ -154,7 +154,7 @@ class SuratKeluarTest extends TestCase
         $s->refresh();
         $this->assertSame('ditandatangani', $s->status);
         $this->assertSame(0, $s->persetujuan()->count(), 'tanpa QR tidak memiliki tahap persetujuan');
-        $this->assertMatchesRegularExpression('#^001/II\.3\.AU/FT-UMB/[IVX]+/\d{4}$#', $s->nomor, 'nomor tetap otomatis');
+        $this->assertMatchesRegularExpression('#^001/II\.3\.AU/UMB-06/A/\d{4}$#', $s->nomor, 'nomor tetap otomatis');
         $this->assertNull($s->qr_token);
         $this->assertNull($s->signature);
         Storage::disk('local')->assertExists($s->file_pdf);

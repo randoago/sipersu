@@ -75,7 +75,7 @@ class PengajuanController extends Controller
 
     public function verifikasi(Request $request, Pengajuan $pengajuan, AlurPengajuan $alur)
     {
-        $data = $request->validate(['catatan' => ['nullable', 'string', 'max:500'], 'nomor_surat' => ['nullable', 'string', 'regex:/^\s*\d{1,6}\s*$/']],
+        $data = $request->validate(['catatan' => ['nullable', 'string', 'max:500'], 'nomor_surat' => ['nullable', 'string', 'regex:'.NomorManual::POLA]],
             ['nomor_surat.regex' => NomorManual::PESAN['nomor_surat.regex']]);
         $alur->verifikasi($pengajuan, $request->user(), $data['catatan'] ?? null, $data['nomor_surat'] ?? null);
 
@@ -86,7 +86,7 @@ class PengajuanController extends Controller
     public function nomor(Request $request, Pengajuan $pengajuan, AlurPengajuan $alur)
     {
         $pengajuan->loadMissing('surat');
-        $request->validate(['nomor_manual' => NomorManual::aturan($pengajuan->surat?->id, $pengajuan->surat?->klasifikasi_id, $pengajuan->surat?->tgl_surat?->toDateString())], NomorManual::PESAN, ['nomor_manual' => 'nomor urut surat']);
+        $request->validate(['nomor_manual' => NomorManual::aturan($pengajuan->surat?->id, $pengajuan->surat?->klasifikasi_id, $pengajuan->surat?->tgl_surat?->toDateString())], NomorManual::PESAN, ['nomor_manual' => 'nomor surat']);
         $alur->aturNomor($pengajuan, $request->user(), $request->input('nomor_manual'));
 
         return redirect()->route('pengajuan.show', $pengajuan)->with('sukses', 'Nomor urut disimpan.');

@@ -55,8 +55,8 @@ class PembukuanService
     {
         return Csv::tulis([
             self::KOLOM,
-            ['keluar', '001/II.3.AU/FT-UMB/I/2026', '2026-01-05', 'Seluruh Dosen dan Tendik', 'Pemberitahuan Libur Awal Tahun', '-', 'biasa', 'Surat Pemberitahuan', '', '', ''],
-            ['keluar', '002/II.6.SK/FT-UMB/I/2026', '05/01/2026', 'Rektor UM Buton', 'Surat Tugas Pengabdian Masyarakat', '1 berkas', 'penting', 'Surat Tugas', '', '', 'Arsip lama'],
+            ['keluar', '001/II.3.AU/UMB-06/A/2026', '2026-01-05', 'Seluruh Dosen dan Tendik', 'Pemberitahuan Libur Awal Tahun', '-', 'biasa', 'Surat Pemberitahuan', '', '', ''],
+            ['keluar', '002/TGS/II.3.AU/UMB-06/D/2026', '05/01/2026', 'Rektor UM Buton', 'Surat Tugas Pengabdian Masyarakat', '1 berkas', 'penting', 'Surat Tugas', '', '', 'Arsip lama'],
             ['masuk', 'B-018/REK/UMB/I/2026', '2026-01-08', 'Rektorat Universitas Muhammadiyah Buton', 'Edaran Evaluasi Kinerja Dosen', '2 berkas', 'penting', '', '2026-01-09', 'AGD-2026/I/0001', ''],
             ['lain', 'SK/045/FT-UMB/I/2026', '2026-01-12', '', 'SK Dekan tentang Panitia Wisuda', '', 'biasa', 'SK Dekan', '', '', ''],
         ]);
@@ -65,35 +65,20 @@ class PembukuanService
     /** Menguraikan nomor menurut pola penomoran (Pengaturan → Format Nomor). Null bila tidak cocok. */
     public function parseNomor(string $nomor): ?array
     {
-        $pola = (string) Pengaturan::ambil('format_nomor', '{urut}/{klasifikasi}/FT-UMB/{bulan_romawi}/{tahun}');
-        $re = strtr(preg_quote($pola, '#'), [
-            '\{urut\}' => '(?P<urut>\d+)', '\{klasifikasi\}' => '(?P<klasifikasi>.+?)', '\{bulan_romawi\}' => '(?P<romawi>[IVXivx]+)',
-            '\{bulan\}' => '(?P<bulan>\d{1,2})', '\{tahun\}' => '(?P<tahun>\d{4})',
-        ]);
-        if (! @preg_match('#^'.$re.'$#u', trim($nomor), $m)) {
-            return null;
-        }
-        if (! isset($m['urut'])) {
-            return null;
-        }
-
-        return ['urut' => (int) $m['urut'], 'klasifikasi' => $m['klasifikasi'] ?? null, 'tahun' => isset($m['tahun']) ? (int) $m['tahun'] : null];
+        return $this->penomoran->uraikan($nomor);
     }
 
-    /** Penghitung otomatis ikut naik ke nomor urut tertinggi di buku (hanya surat keluar yang cocok dengan pola dan klasifikasinya ada). */
+    /** Penghitung otomatis ikut naik ke nomor urut tertinggi di buku (hanya surat keluar yang cocok dengan pola; unit kosong = fakultas). */
     private function sinkronkan(?array $uraian, ?Carbon $tglSurat): ?array
     {
-        if (! $uraian || ! $uraian['klasifikasi']) {
-            return null;
-        }
-        $k = KlasifikasiSurat::whereRaw('lower(kode) = ?', [mb_strtolower($uraian['klasifikasi'])])->first();
         $tahun = $uraian['tahun'] ?? $tglSurat?->year;
-        if (! $k || ! $tahun) {
+        if (! $uraian || ! $tahun) {
             return null;
         }
-        $this->penomoran->selaraskan($k, Carbon::create($tahun, 1, 1), $uraian['urut']);
+        $unit = $uraian['unit'] ?? PenomoranService::unitFakultas();
+        $this->penomoran->selaraskan($unit, Carbon::create($tahun, 1, 1), $uraian['urut']);
 
-        return ['klasifikasi' => $k->kode, 'tahun' => $tahun, 'urut' => $uraian['urut']];
+        return ['klasifikasi' => $unit, 'tahun' => $tahun, 'urut' => $uraian['urut']];
     }
 
     /** Nomor yang sama sudah ada di buku atau pada surat aplikasi. */
@@ -199,19 +184,19 @@ class PembukuanService
     {
         $rencana = [];
         foreach ($baris as $b) {
-            if ($b['status'] !== 'baru' || ! $b['uraian'] || ! $b['uraian']['klasifikasi']) {
+            if ($b['status'] !== 'baru' || ! $b['uraian']) {
                 continue;
             }
-            $k = KlasifikasiSurat::whereRaw('lower(kode) = ?', [mb_strtolower($b['uraian']['klasifikasi'])])->first();
+            $unit = $b['uraian']['unit'] ?? PenomoranService::unitFakultas();
             $tahun = $b['uraian']['tahun'] ?? ($b['tanggal'] ? Carbon::parse($b['tanggal'])->year : null);
-            if (! $k || ! $tahun) {
+            if (! $tahun) {
                 continue;
             }
-            $kunci = $k->kode.'|'.$tahun;
-            $rencana[$kunci]['kode'] = $k->kode;
+            $kunci = $unit.'|'.$tahun;
+            $rencana[$kunci]['kode'] = $unit;
             $rencana[$kunci]['tahun'] = $tahun;
             $rencana[$kunci]['maks'] = max($rencana[$kunci]['maks'] ?? 0, $b['uraian']['urut']);
-            $rencana[$kunci]['sekarang'] = (int) (Penomoran::where(['klasifikasi_id' => $k->id, 'tahun' => $tahun])->value('nomor_terakhir') ?? 0);
+            $rencana[$kunci]['sekarang'] = (int) (Penomoran::where(['unit' => $unit, 'tahun' => $tahun])->value('nomor_terakhir') ?? 0);
         }
 
         return array_values($rencana);

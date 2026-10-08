@@ -29,7 +29,7 @@ class ContohIsian
     public static function umum(): array
     {
         return [
-            'klasifikasi_id' => KlasifikasiSurat::where('kode', 'II.3.AU')->value('id'), 'sifat' => 'penting',
+            'klasifikasi_id' => KlasifikasiSurat::where('kode', 'A')->value('id'), 'sifat' => 'penting',
             'tujuan' => "Ketua Program Studi Teknik Sipil\nRekayasa Sistem Komputer\nSistem dan Teknologi Informasi\nFakultas Teknik Universitas Muhammadiyah Buton\ndi Tempat",
             'perihal' => 'Undangan Rapat Koordinasi Penjaminan Mutu', 'lampiran' => '1 (satu) berkas',
             'isi' => "Dengan hormat, sehubungan dengan persiapan akreditasi program studi, kami mengundang Bapak/Ibu untuk menghadiri rapat koordinasi yang akan dilaksanakan pada:\n\nHari/Tanggal : Kamis, 15 Oktober 2026\nWaktu : 09.00 WITA – selesai\nTempat : Ruang Rapat Dekanat Fakultas Teknik\nAgenda : Penyusunan instrumen akreditasi dan kesiapan dokumen\n\nDemikian undangan ini disampaikan. Atas perhatian dan kehadiran Bapak/Ibu, kami ucapkan terima kasih.",
