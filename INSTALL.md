@@ -57,7 +57,8 @@ Tanda ☐ adalah kotak centang untuk Anda pakai sendiri.
 ## 3. Atur berkas `.env`
 
 1. Buka `C:\laragon\www\sipersu`. Salin `.env.example` menjadi `.env` (atau biarkan skrip pemasangan melakukannya).
-2. Buka `.env` dengan Notepad dan isi bagian penting berikut:
+2. **Alamat (URL) server tidak perlu diketik manual**: `scripts\pasang.bat` menampilkan menu pilihan alamat, dan kapan pun dapat diubah lewat **`scripts\ubah-url.bat`** (bagian 5.3).
+3. Buka `.env` dengan Notepad dan isi bagian penting berikut (baris `APP_URL` dan `APP_FORCE_HTTPS` diatur otomatis oleh `ubah-url.bat`):
 
 ```ini
 APP_URL=http://sipersu.ft.umbuton.ac.id   # alamat server di jaringan lokal (bagian 5.3)
@@ -69,7 +70,7 @@ BACKUP_PASSWORD=GantiDenganSandiPanjangYangKuat   # bagian 9 & SOP di bagian 12
 BACKUP_LOCAL_PATH=D:\backup-sipersu                 # HDD eksternal (bagian 9)
 ```
 
-3. Email (opsional — jika dilewati, notifikasi hanya muncul di dalam aplikasi):
+4. Email (opsional — jika dilewati, notifikasi hanya muncul di dalam aplikasi):
 
 ```ini
 MAIL_MAILER=smtp
@@ -95,6 +96,8 @@ MAIL_FROM_ADDRESS="persuratan.ft@gmail.com"
    - membuat **kunci tanda tangan elektronik fakultas**,
    - membuat halaman verifikasi statis `verifikasi-statis\index.html`.
 3. Buka peramban: `http://localhost` → muncul halaman **masuk SIPERSU**.
+
+> **Menjalankan aplikasi:** bila Laragon sedang *Start All* (bagian 1), aplikasi sudah aktif. Tanpa Laragon / untuk mencoba cepat, klik dua kali **`scripts\jalankan-aplikasi.bat`**: server menyala memakai alamat & port dari `APP_URL` dan peramban terbuka otomatis (tutup jendelanya untuk menghentikan).
 
 ### Akun contoh (kata sandi semuanya `password`)
 
@@ -142,6 +145,23 @@ MAIL_FROM_ADDRESS="persuratan.ft@gmail.com"
 3. Uji dari HP/laptop lain di Wi-Fi yang sama: buka `http://192.168.1.10` (atau `http://sipersu.ft.umbuton.ac.id` setelah bagian 5.3).
 
 ### 5.3 Alamat nama lokal: `sipersu.ft.umbuton.ac.id` (split DNS di router)
+
+#### Cara mudah: `scripts\ubah-url.bat` (mengubah URL lokal tanpa mengedit `.env`)
+
+Klik dua kali **`scripts\ubah-url.bat`** (klik kanan → *Run as administrator* bila ingin sekaligus menulis berkas `hosts`). Pilih salah satu:
+
+| Pilihan | Hasil `APP_URL` | Kapan dipakai |
+|---|---|---|
+| 1. Nama lokal | `http://sipersu.ft.umbuton.ac.id` | Bila DNS router / berkas `hosts` sudah mengarahkan nama itu (bagian di bawah) |
+| 2. IP komputer ini | `http://<IP otomatis terdeteksi>` | **Paling mudah**: tanpa DNS; ulangi bila IP berubah (idealnya IP statis, bagian 5.1) |
+| 3. Hanya komputer ini | `http://localhost` | Uji coba di server |
+| 4. Ketik sendiri | mis. `sipersu.local`, `192.168.1.10:8080`, `https://nama.kampus.ac.id` | Kebutuhan khusus; `https://` otomatis mengatur `APP_FORCE_HTTPS=true` |
+
+Skrip otomatis: memperbarui `APP_URL` dan `APP_FORCE_HTTPS` di `.env`, menjalankan ulang cache konfigurasi, dan (untuk pilihan berupa nama) menawarkan menambah baris `hosts` di komputer itu. Setelah itu jalankan aplikasi dengan `scripts\jalankan-aplikasi.bat` atau muat ulang Laragon.
+
+> QR pada surat yang **sudah terbit** tetap menuju alamat lama; hanya surat baru yang memakai alamat baru. Karena itu pilih alamat yang stabil (nama lokal atau IP statis) sebelum menerbitkan surat ber-QR.
+
+#### Penjelasan dan cara manual
 
 Pada Fase 1, aplikasi **hanya** dipakai dari LAN/Wi-Fi fakultas. Pengguna cukup mengetik `http://sipersu.ft.umbuton.ac.id`. Nama itu **diarahkan ke IP lokal laptop server oleh DNS statis di router** (*split DNS*: nama ini hanya dikenal di dalam jaringan kampus; di internet nama tersebut tidak mengarah ke mana pun). **Alamat cadangan:** `http://<IP-laptop>` (mis. `http://192.168.1.10`), yang selalu berfungsi walau DNS bermasalah.
 
@@ -244,7 +264,6 @@ Yang dikerjakan scheduler:
 | Jadwal | Tugas |
 |---|---|
 | Tiap menit | Mengirim email yang antre |
-| Harian 08.00 | Memeriksa kesehatan backup → email ke Admin bila bermasalah |
 | Harian **16.30** | Backup ke `BACKUP_LOCAL_PATH` (simpan 30 terakhir) |
 | Jumat **17.30** | Backup ke Google Drive via rclone — **opsional**; dilewati otomatis bila rclone belum diatur atau **tidak ada internet** |
 
@@ -304,7 +323,7 @@ Dibungkus **ZIP terenkripsi AES-256** dengan sandi `BACKUP_PASSWORD`, beserta be
    (agar huruf drive tidak berubah ketika dicabut-colok).
 3. Buat folder `D:\backup-sipersu`.
 4. Isi `.env`: `BACKUP_LOCAL_PATH=D:\backup-sipersu` lalu `php artisan config:cache`.
-5. **Jangan cabut HDD** pada jam 16.30. Bila HDD tidak tercolok / penuh / backup lebih dari 2 hari tidak berhasil, **banner merah** muncul di dasbor Admin dan **email** dikirim.
+5. **Jangan cabut HDD** pada jam 16.30. Tidak ada peringatan otomatis di aplikasi: Admin TU cukup menekan tombol **Backup Sekarang** (di dasbor atau **Pengaturan → Backup**) dan memeriksa **Riwayat** (status Sukses/Gagal). Pemeriksaan manual lewat terminal tetap ada: `php artisan backup:periksa`.
 6. Rutin (mingguan): bawa HDD pulang bergantian dengan HDD kedua bila ada, supaya salinan tidak ikut rusak bersama laptop.
 
 ### 9.2 Flashdisk arsip semester
@@ -444,13 +463,14 @@ Kata sandi backup (`BACKUP_PASSWORD`) adalah **kunci semua cadangan**. Tanpa san
 | Halaman putih / error 500 | Lihat `storage\logs\laravel.log`. Pastikan `.env` ada, `storage\` bisa ditulis, jalankan `php artisan config:clear`. |
 | HP/laptop lain tidak bisa membuka | Cek IP server (`ipconfig`), firewall (`buka-firewall.bat`), perangkat satu jaringan, profil jaringan **Private**. |
 | "Aplikasi ini hanya dapat diakses dari jaringan lokal" | IP perangkat di luar rentang privat. Atur `LAN_CIDRS` di `.env` (mis. `10.20.0.0/16`) lalu `php artisan config:cache`. |
-| Banner merah backup | Cek HDD tercolok & huruf drive sama dengan `BACKUP_LOCAL_PATH`; lihat **Pengaturan → Backup → Riwayat**. |
+| Backup berstatus Gagal | Cek HDD tercolok & huruf drive sama dengan `BACKUP_LOCAL_PATH`; lihat **Pengaturan → Backup → Riwayat** (arahkan kursor ke "Gagal" untuk pesan). |
 | "BACKUP_PASSWORD belum diisi" | Isi di `.env` (≥ 8 karakter) lalu `php artisan config:cache`. |
 | Email tidak terkirim | Pastikan `MAIL_*` benar dan tugas scheduler berjalan (cek `storage\logs\scheduler.log`). Gmail butuh *Sandi Aplikasi*. |
 | `sipersu.ft.umbuton.ac.id` tidak terbuka, tetapi IP terbuka | DNS statis di router belum benar, atau perangkat memakai Private DNS/Secure DNS (bagian 5.3). Pakai alamat IP sementara. |
 | Muncul 403 "hanya dapat diakses dari jaringan lokal" | Perangkat berada di luar jaringan lokal (mis. data seluler atau VPN). Sambungkan ke Wi-Fi fakultas. |
 | QR tidak membuka halaman verifikasi | Perangkat harus berada di jaringan fakultas (selama `VERIFIKASI_URL` kosong), atau terbitkan halaman statis di internet (bagian 8). |
 | QR menampilkan "Tidak ditemukan" | Surat berstatus draf/tanpa QR, atau QR dari server lain. Surat **tanpa QR** memang tidak punya halaman verifikasi. |
+| Alamat server berubah / IP laptop berganti | Jalankan `scripts\ubah-url.bat` dan pilih alamat baru (pilihan 2 mengambil IP otomatis). |
 | Setelah mengubah `.env` tidak berpengaruh | Jalankan `php artisan config:cache` (atau `config:clear`). |
 
 ---

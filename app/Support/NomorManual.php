@@ -69,6 +69,21 @@ class NomorManual
         return $isian === null ? null : self::lengkapSurat($isian, $s);
     }
 
+    /** Nomor untuk tampilan surat sebelum terbit: nomor isian TU bila ada; bila belum, format nomor dengan urut 000 (contoh 000/II.3.AU/UMB-06/A/2026). */
+    public static function tampilan(Surat $s): string
+    {
+        $lengkap = self::lengkap($s);
+        if ($lengkap !== null) {
+            return $lengkap;
+        }
+        if (! $s->klasifikasi) {
+            return '000';
+        }
+        [$unit, $kekhususan] = PenomoranService::bagianSurat($s);
+
+        return app(PenomoranService::class)->format(0, $s->klasifikasi->kode, $s->tgl_surat ?? now(), $unit, $kekhususan);
+    }
+
     /** Nomor otomatis berikutnya untuk surat ini (usulan yang bisa diedit TU); null bila klasifikasi belum ada. */
     public static function usulan(Surat $s): ?string
     {

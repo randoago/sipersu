@@ -89,11 +89,15 @@ class SuratKeluarController extends Controller
     {
         abort_unless($this->alur->bolehMembuat($request->user()), 403);
 
+        // Nomor yang diketik TU (hanya Admin yang punya isiannya); kosong → pratinjau menampilkan format dengan urut 000.
+        $nomor = $request->user()->adalahAdmin() ? (string) $request->input('nomor_manual') : null;
+        $mode = in_array($request->input('mode_ttd'), ['qr', 'basah'], true) ? $request->input('mode_ttd') : null;
+
         if ($request->filled('format')) {
-            $jenis = JenisSurat::where('kode', $request->input('format'))->where('sasaran', 'staf')->with('penandatanganJabatan.pejabat')->firstOrFail();
+            $jenis = JenisSurat::where('kode', $request->input('format'))->where('sasaran', 'staf')->with('penandatanganJabatan.pejabat', 'klasifikasi')->firstOrFail();
             $isian = $penyusun->isianPratinjau($jenis->field_formulir, (array) $request->input('isian', []));
             $h = $penyusun->dariFormat($jenis, $isian, $request->user());
-            $html = $penyusun->htmlPratinjau($h['isi'], $jenis->judul_surat, $jenis->penandatanganJabatan, in_array($request->input('mode_ttd'), ['qr', 'basah'], true) ? $request->input('mode_ttd') : ($jenis->mode_ttd ?? 'qr'), $h['perihal'], $jenis->gaya_tanggal ?? 'dikeluarkan', $this->tanggalPratinjau($request));
+            $html = $penyusun->htmlPratinjau($h['isi'], $jenis->judul_surat, $jenis->penandatanganJabatan, $mode ?? ($jenis->mode_ttd ?? 'qr'), $h['perihal'], $jenis->gaya_tanggal ?? 'dikeluarkan', $this->tanggalPratinjau($request), is_string($isian['lampiran'] ?? null) ? $isian['lampiran'] : null, $nomor, $jenis->klasifikasi);
         } else {
             $isi = $penyusun->suratUmum([
                 'lampiran' => trim((string) $request->input('lampiran')) ?: '-', 'perihal' => trim((string) $request->input('perihal')) ?: '[Perihal]',
@@ -101,7 +105,7 @@ class SuratKeluarController extends Controller
                 'salam' => $request->boolean('salam'),
             ]);
             $jabatan = Jabatan::with('pejabat')->find($request->input('jabatan_id'));
-            $html = $penyusun->htmlPratinjau($isi, null, $jabatan, in_array($request->input('mode_ttd'), ['qr', 'basah'], true) ? $request->input('mode_ttd') : 'qr', '', 'dikeluarkan', $this->tanggalPratinjau($request));
+            $html = $penyusun->htmlPratinjau($isi, null, $jabatan, $mode ?? 'qr', '', 'dikeluarkan', $this->tanggalPratinjau($request), null, $nomor, KlasifikasiSurat::find($request->input('klasifikasi_id')));
         }
 
         return response()->json(['html' => $html]);

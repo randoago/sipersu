@@ -4,10 +4,6 @@
     <p class="mb-5 font-body-md text-body-md text-on-surface-variant">Cadangkan dan pulihkan data SIPERSU (aturan 3-2-1).</p>
     @include('pengaturan._tab')
 
-    @if ($peringatan)
-        <x-peringatan jenis="darurat" judul="Perhatian: backup bermasalah" class="mb-5"><ul class="list-disc pl-5">@foreach ($peringatan as $m)<li>{{ $m }}</li>@endforeach</ul></x-peringatan>
-    @endif
-
     <div class="grid gap-5 lg:grid-cols-3">
         <x-kartu judul="Status Backup Terakhir" ikon="cloud_done" class="lg:col-span-2">
             @if ($terakhir)
@@ -32,10 +28,6 @@
             </form>
         </x-kartu>
     </div>
-
-    @if ($perluUji)
-        <x-peringatan jenis="peringatan" judul="Pengingat bulanan" class="mt-5">Lakukan <strong>uji pemulihan backup</strong> bulan ini: <code class="rounded bg-black/5 px-1">php artisan backup:restore &lt;berkas.zip&gt; --uji-saja</code>. Backup yang tidak pernah diuji belum tentu bisa dipulihkan.</x-peringatan>
-    @endif
 
     <h2 class="mb-3 mt-8 font-headline-md text-headline-md">Riwayat Backup</h2>
     <x-tabel :jumlah="$riwayat->count()" kosong="Belum ada riwayat backup.">

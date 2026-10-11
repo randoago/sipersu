@@ -109,9 +109,11 @@ class FormatSuratController extends Controller
         $judul = trim((string) $request->input('judul_surat'));
         $mode = in_array($request->input('mode_ttd'), ['qr', 'basah'], true) ? $request->input('mode_ttd') : 'qr';
 
-        $gayaTanggal = $request->input('gaya_tanggal') === 'hijriah' ? 'hijriah' : 'dikeluarkan';
+        $gayaTanggal = in_array($request->input('gaya_tanggal'), ['hijriah', 'hijriah_atas'], true) ? $request->input('gaya_tanggal') : 'dikeluarkan';
+        $perihalTemplat = trim((string) $request->input('perihal_template')) ?: trim((string) $request->input('nama'));
+        $perihal = trim(strip_tags(html_entity_decode($penyusun->badan($perihalTemplat, $data, $jabatan))));
 
-        return response()->json(['html' => $penyusun->htmlPratinjau($isi, $judul !== '' ? $judul : null, $jabatan, $mode, '', $gayaTanggal)]);
+        return response()->json(['html' => $penyusun->htmlPratinjau($isi, $judul !== '' ? $judul : null, $jabatan, $mode, $perihal, $gayaTanggal, null, is_string($isian['lampiran'] ?? null) ? $isian['lampiran'] : null)]);
     }
 
     // ---- util -------------------------------------------------------------------------------------------
@@ -151,7 +153,7 @@ class FormatSuratController extends Controller
             'sla_hari' => [$masuk ? 'nullable' : 'required', 'integer', 'min:1', 'max:30'],
             'urutan' => ['nullable', 'integer', 'min:0', 'max:999'],
             'template_html' => [$masuk ? 'nullable' : 'required', 'string', 'max:20000'],
-            'gaya_tanggal' => ['nullable', Rule::in(['dikeluarkan', 'hijriah'])],
+            'gaya_tanggal' => ['nullable', Rule::in(['dikeluarkan', 'hijriah', 'hijriah_atas'])],
         ], [
             'nama.required' => 'Nama format wajib diisi.', 'template_html.required' => 'Isi (templat) surat wajib diisi.',
             'klasifikasi_id.required' => 'Pilih klasifikasi untuk nomor surat.', 'penandatangan_jabatan_id.required' => 'Pilih penandatangan.',

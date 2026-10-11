@@ -100,8 +100,9 @@ class PratinjauSuratTest extends TestCase
     public function test_halaman_formulir_memuat_tombol_lihat_tampilan_surat(): void
     {
         $tu = $this->actingAs($this->u('198701012010011001'));
-        $tu->get('/surat-keluar/format/SURAT-TUGAS')->assertOk()->assertSee('Lihat Tampilan Surat');
-        $tu->get('/surat-keluar/buat/bebas')->assertOk()->assertSee('Lihat Tampilan Surat');
+        // Pembuatan surat keluar memakai pratinjau langsung di kolom kanan (bukan modal).
+        $tu->get('/surat-keluar/format/SURAT-TUGAS')->assertOk()->assertSee('pratinjauSamping')->assertSee('Pratinjau Surat')->assertDontSee('Pindaian Surat');
+        $tu->get('/surat-keluar/buat/bebas')->assertOk()->assertSee('pratinjauSamping')->assertDontSee('Pindaian Surat');
         $tu->get('/format-surat/buat')->assertOk()->assertSee('Lihat Tampilan Surat');
         $this->actingAs($this->u('21650012'))->get('/layanan/IZIN-PENELITIAN/ajukan')->assertOk()->assertSee('Lihat Tampilan Surat');
     }
@@ -113,5 +114,38 @@ class PratinjauSuratTest extends TestCase
 
         $biasa = $this->actingAs($this->u('198701012010011001'))->postJson('/surat-keluar/pratinjau', ['format' => 'SURAT-TUGAS'])->json('html');
         $this->assertStringContainsString('Dikeluarkan di : Baubau', $biasa, 'format lain tetap memakai Dikeluarkan di');
+    }
+
+    public function test_nomor_pratinjau_tampil_000_bila_kosong_dan_mengikuti_isian_tu(): void
+    {
+        $tu = $this->actingAs($this->u('198701012010011001'));
+        $kosong = $tu->postJson('/surat-keluar/pratinjau', ['format' => 'SURAT-TUGAS'])->assertOk()->json('html');
+        $this->assertMatchesRegularExpression('#Nomor : 000/\S+/2\d{3}#', $kosong, 'format nomor dengan urut 000');
+
+        $isi = $tu->postJson('/surat-keluar/pratinjau', ['format' => 'SURAT-TUGAS', 'nomor_manual' => '9'])->json('html');
+        $this->assertMatchesRegularExpression('#Nomor : 009/\S+/2\d{3}#', $isi);
+        $this->assertSame(0, Surat::count());
+    }
+
+    public function test_pratinjau_menambah_kolom_lampiran_dan_perihal_bila_templat_belum_memuatnya(): void
+    {
+        $html = $this->actingAs($this->u('198701012010011001'))->postJson('/surat-keluar/pratinjau', ['format' => 'SURAT-TUGAS', 'isian' => ['kegiatan' => 'Uji']])->assertOk()->json('html');
+        $this->assertStringContainsString('kolom-pratinjau', $html);
+        $this->assertMatchesRegularExpression('#>Lampiran</td><td[^>]*>:</td><td>-</td>#', $html);
+        $this->assertMatchesRegularExpression('#>Perihal</td>#', $html);
+
+        $sendiri = $this->actingAs($this->u('198701012010011001'))->postJson('/surat-keluar/pratinjau', ['format' => 'SURAT-PENCAIRAN-ANGGARAN', 'isian' => ['kegiatan' => 'Uji', 'lampiran' => '1 (Satu) Rangkap']])->json('html');
+        $this->assertStringNotContainsString('kolom-pratinjau', $sendiri, 'templat yang sudah memuat Lampiran/Perihal tidak dobel');
+    }
+
+    public function test_surat_pencairan_memakai_tanggal_di_pojok_kanan_atas(): void
+    {
+        $html = $this->actingAs($this->u('198701012010011001'))->postJson('/surat-keluar/pratinjau', [
+            'format' => 'SURAT-PENCAIRAN-ANGGARAN', 'isian' => ['kegiatan' => 'Uji Kegiatan', 'kepada' => 'Rektor'],
+        ])->assertOk()->json('html');
+        $this->assertStringContainsString('class="tgl-atas"', $html);
+        $this->assertMatchesRegularExpression('#class="tgl-atas"[^>]*>Baubau, \d{1,2} \S+ \d{4} H<br>\s*\d{2} \S+ \d{4} M#u', $html);
+        $this->assertStringNotContainsString('tgl-kota', $html, 'tanggal tidak lagi di blok tanda tangan');
+        $this->assertStringNotContainsString('[Waktu dan tempat kegiatan', $html, 'isian opsional kosong tidak tampil sebagai penanda');
     }
 }

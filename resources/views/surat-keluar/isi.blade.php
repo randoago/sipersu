@@ -1,14 +1,14 @@
 @php $j = $jenis; $m = $bentuk ?? $j->mode_ttd ?? 'qr'; $alurParaf = $m === 'qr' && $j->perlu_paraf ? ['wakil_dekan' => 'Wakil Dekan', 'kaprodi' => 'Kaprodi'][$j->paraf_role] ?? null : null; @endphp
 <x-layouts::app :title="$j->nama" :cari="false">
-<div class="mx-auto max-w-6xl">
+<div class="mx-auto max-w-[1800px]">
     <nav class="mb-2 flex items-center gap-1.5 font-label-sm text-label-sm text-on-surface-variant"><a href="{{ route('surat-keluar.index') }}" class="hover:text-primary">Surat Keluar</a><x-ikon name="chevron_right" class="text-[14px]" /><a href="{{ route('surat-keluar.buat') }}" class="hover:text-primary">Pilih format</a><x-ikon name="chevron_right" class="text-[14px]" /><span class="text-on-surface">{{ $j->nama }}</span></nav>
     <h1 class="mb-1 font-headline-xl-mobile text-headline-xl-mobile lg:font-headline-xl lg:text-headline-xl">{{ $s ? 'Ubah Isian: ' : 'Isi Surat: ' }}{{ $j->nama }}</h1>
     <p class="mb-5 font-body-md text-body-md text-on-surface-variant">{{ $j->deskripsi ?: 'Lengkapi isian berikut; surat disusun otomatis pada kop resmi.' }}</p>
 
-    <form method="post" action="{{ $s ? route('surat-keluar.perbarui', $s) : route('surat-keluar.simpan-format', $j) }}" class="grid items-start gap-6 lg:grid-cols-3">
+    <form method="post" action="{{ $s ? route('surat-keluar.perbarui', $s) : route('surat-keluar.simpan-format', $j) }}" class="grid items-start gap-6 lg:grid-cols-[minmax(380px,1fr)_minmax(0,842px)]">
         @csrf @if ($s) @method('PUT') @endif
         <input type="hidden" name="mode_ttd" value="{{ $m }}">
-        <div class="space-y-5 lg:col-span-2">
+        <div class="min-w-0 space-y-5">
             <x-kartu judul="Isian Surat" ikon="edit_note" deskripsi="Tanda * wajib diisi.">
                 <div class="mb-space-md grid gap-space-md">@if (auth()->user()->adalahAdmin())
                 <x-input label="Nomor surat (diisi TU)" name="nomor_manual" :value="old('nomor_manual', $s?->nomor_manual)" :wajib="\App\Support\NomorManual::wajib()" placeholder="009 atau nomor lengkap" :bantuan="'Ketik angka urut saja (mis. 009 → disusun otomatis, contoh: '.\App\Support\NomorManual::contoh().') atau nomor lengkap yang Anda edit sendiri. '.(\App\Support\NomorManual::wajib() ? 'Penomoran manual aktif: nomor wajib diisi sebelum surat diajukan.' : 'Kosongkan untuk nomor otomatis.')" />
@@ -17,11 +17,6 @@
                 <x-tanggal-surat :nilai="$s?->tgl_surat?->toDateString()" class="mb-space-md md:max-w-md" />
                 <x-isian-dinamis :fields="$j->field_formulir" :nilai="$nilai" />
             </x-kartu>
-            <div class="flex flex-wrap justify-end gap-2"><x-tombol :href="$s ? route('surat-keluar.show', $s) : route('surat-keluar.buat')" varian="sekunder">Batal</x-tombol>
-                <x-tombol varian="lembut" ikon="visibility" x-on:click="pratinjauSurat('{{ route('surat-keluar.pratinjau') }}', $el.closest('form'), { format: '{{ $j->kode }}' })">Lihat Tampilan Surat</x-tombol>
-                <x-tombol type="submit" ikon="save">Simpan Draf</x-tombol></div>
-        </div>
-        <aside class="space-y-5">
             <x-kartu judul="Ketentuan Format" ikon="info">
                 <dl class="space-y-3 font-body-sm text-body-sm">
                     <div><dt class="text-on-surface-variant">Klasifikasi / nomor</dt><dd class="font-semibold">{{ $j->klasifikasi?->kode }} — {{ $j->klasifikasi?->nama }}</dd></div>
@@ -31,8 +26,10 @@
                 </dl>
                 <p class="mt-3 rounded-lg bg-surface-container-low p-2.5 font-body-sm text-body-sm text-on-surface-variant">{{ $m === 'basah' ? 'Nomor surat terbit saat tombol Terbitkan ditekan.' : 'Nomor surat baru terbit saat surat ditandatangani.' }}</p>
             </x-kartu>
-        </aside>
+            <div class="flex flex-wrap justify-end gap-2"><x-tombol :href="$s ? route('surat-keluar.show', $s) : route('surat-keluar.buat')" varian="sekunder">Batal</x-tombol>
+                <x-tombol type="submit" ikon="save">Simpan Draf</x-tombol></div>
+        </div>
+        <x-pratinjau-samping :url="route('surat-keluar.pratinjau')" :tambahan="['format' => $j->kode]" />
     </form>
-<x-pratinjau-surat />
 </div>
 </x-layouts::app>

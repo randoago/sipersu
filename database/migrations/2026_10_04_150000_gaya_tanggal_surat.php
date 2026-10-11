@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Schema;
 /**
  * gaya_tanggal: dikeluarkan = "Dikeluarkan di … / Pada tanggal …"
  *               hijriah     = "Baubau: 18 Syawal 1447 H / 06 April 2026 M"
+ *               hijriah_atas = seperti hijriah, tetapi dicetak di pojok kanan atas sejajar Nomor
  */
 return new class extends Migration
 {

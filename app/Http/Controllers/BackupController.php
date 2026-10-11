@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\BackupRiwayat;
 use App\Models\LogAktivitas;
 use App\Services\Backup;
-use App\Services\StatusBackup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 
@@ -15,11 +14,9 @@ class BackupController extends Controller
     {
         return view('pengaturan.backup', [
             'riwayat' => BackupRiwayat::latest()->limit(40)->get(),
-            'peringatan' => StatusBackup::peringatan(),
             'terakhir' => BackupRiwayat::where('status', 'sukses')->latest()->first(),
             'tujuan' => $backup->tujuanLokal(),
             'tujuanAda' => $backup->tujuanTersedia($backup->tujuanLokal()),
-            'perluUji' => StatusBackup::perluUjiPemulihan(),
             'passwordAda' => strlen((string) config('sipersu.backup.password')) >= 8,
         ]);
     }
@@ -30,7 +27,7 @@ class BackupController extends Controller
         $kode = Artisan::call('backup:run', ['--jenis' => 'manual']);
         LogAktivitas::catat('backup_manual', 'Backup manual dijalankan', null, ['kode' => $kode]);
 
-        return redirect()->route('pengaturan.backup')->with(
+        return back()->with(
             $kode === 0 ? 'sukses' : 'galat',
             $kode === 0 ? 'Backup berhasil dibuat.' : 'Backup gagal: '.trim(Artisan::output()),
         );

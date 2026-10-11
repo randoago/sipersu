@@ -72,11 +72,7 @@ class DasborController extends Controller
             }
         }
 
-        $admin = $user->adalahAdmin();
-
         return view('dasbor.staf', [
-            'peringatanBackup' => $admin ? \App\Services\StatusBackup::peringatan() : [],
-            'ujiPemulihan' => $admin && \App\Services\StatusBackup::perluUjiPemulihan(),
             'perluTindakan' => $perluTindakan,
             'stat' => $stat,
             'grafik' => array_map('array_values', $grafik),

@@ -8,6 +8,7 @@ use App\Models\Pengajuan;
 use App\Models\Pengaturan;
 use App\Models\Surat;
 use App\Models\User;
+use App\Support\NomorManual;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 
@@ -183,12 +184,13 @@ class PenyusunSurat
         $hasil = [];
         foreach ($fields as $f) {
             $v = $input[$f['nama']] ?? '';
+            $wajib = (bool) ($f['wajib'] ?? false);   // isian opsional yang kosong dibiarkan kosong (blok bersyarat tersembunyi, seperti hasil akhir)
             if (($f['tipe'] ?? '') === 'tabel') {
                 $ada = is_array($v) && collect($v)->contains(fn ($b) => is_array($b) && array_filter($b, fn ($x) => trim((string) $x) !== ''));
-                $hasil[$f['nama']] = $ada ? $v : [array_map(fn ($k) => '['.$k.']', array_values($f['kolom'] ?? []))];
+                $hasil[$f['nama']] = $ada ? $v : ($wajib ? [array_map(fn ($k) => '['.$k.']', array_values($f['kolom'] ?? []))] : []);
             } else {
                 $v = trim((string) (is_array($v) ? '' : $v));
-                $hasil[$f['nama']] = $v !== '' ? $v : '['.$f['label'].']';
+                $hasil[$f['nama']] = $v !== '' ? $v : ($wajib ? '['.$f['label'].']' : '');
             }
         }
 
@@ -199,13 +201,25 @@ class PenyusunSurat
      * Tampilan surat lengkap (kop header hijau, judul, nomor, isi, blok tanda tangan) untuk pratinjau sebelum disimpan.
      * Tidak menyimpan apa pun; nomor dan QR baru terbit saat surat ditandatangani.
      */
-    public function htmlPratinjau(string $isiHtml, ?string $judul, ?Jabatan $jabatan, string $mode = 'qr', string $perihal = '', string $gayaTanggal = 'dikeluarkan', ?string $tglSurat = null): string
+    public function htmlPratinjau(string $isiHtml, ?string $judul, ?Jabatan $jabatan, string $mode = 'qr', string $perihal = '', string $gayaTanggal = 'dikeluarkan', ?string $tglSurat = null, ?string $lampiran = null, ?string $nomorManual = null, ?\App\Models\KlasifikasiSurat $klasifikasi = null): string
     {
         $surat = new Surat(['isi_html' => $isiHtml, 'status' => 'draf', 'mode_ttd' => $mode, 'perihal' => $perihal, 'gaya_tanggal' => $gayaTanggal, 'tgl_surat' => $tglSurat]);
+        $surat->nomor_manual = NomorManual::bersihkan($nomorManual);   // pratinjau nomor: kosong → format dengan urut 000
+        $surat->setRelation('klasifikasi', $klasifikasi);
         $surat->setRelation('jabatan', $jabatan);
         $surat->setRelation('jenis', $judul ? new JenisSurat(['judul_surat' => $judul, 'nama' => $judul]) : null);
 
-        return view('pdf._surat', $this->dataDokumen($surat))->render();
+        // Dua kolom tambahan khusus pratinjau: Lampiran & Perihal di bawah nomor surat.
+        // Dilewati bila templat sudah memuat baris tersebut sendiri (agar tidak dobel).
+        $kolom = [];
+        if (! preg_match('/>\s*Lampiran\s*</i', $isiHtml)) {
+            $kolom['Lampiran'] = trim((string) $lampiran) !== '' ? trim((string) $lampiran) : '-';
+        }
+        if (! preg_match('/>\s*(Perihal|Hal)\s*</i', $isiHtml)) {
+            $kolom['Perihal'] = trim($perihal) !== '' ? trim($perihal) : '-';
+        }
+
+        return view('pdf._surat', $this->dataDokumen($surat) + ['kolomPratinjau' => $kolom])->render();
     }
 
     /** Templat dari admin: hanya tag teks/tabel; atribut on*, style berbahaya, dan javascript: dibuang. */
@@ -254,7 +268,7 @@ class PenyusunSurat
             'isiAtas' => explode(self::PENANDA_TTD, (string) $surat->isi_html, 2)[0],
             'isiBawah' => explode(self::PENANDA_TTD, (string) $surat->isi_html, 2)[1] ?? '',
             'judul' => $surat->jenis?->judul_surat ? mb_strtoupper($surat->jenis->judul_surat) : null,
-            'nomor' => $surat->nomor ?? \App\Support\NomorManual::lengkap($surat),
+            'nomor' => $surat->nomor ?? NomorManual::tampilan($surat),
             'terbit' => $terbit,
             'kota' => Pengaturan::ambil('kota_surat', 'Baubau'),
             'tanggal' => ($surat->tgl_surat ?? now())->translatedFormat('j F Y'),

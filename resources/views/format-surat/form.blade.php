@@ -111,9 +111,10 @@
             <div class="grid gap-space-md md:grid-cols-2">
                 <x-select label="Klasifikasi (kode pada nomor surat / bawaan)" name="klasifikasi_id">@foreach ($klasifikasi as $k)<option value="{{ $k->id }}" @selected($v('klasifikasi_id') == $k->id)>{{ $k->kode }} — {{ $k->nama }}</option>@endforeach</x-select>
                 <div x-show="sasaran !== 'masuk'"><x-select label="Penandatangan" name="penandatangan_jabatan_id" wajib x-model="jabatan">@foreach ($jabatan as $j)<option value="{{ $j->id }}" @selected($v('penandatangan_jabatan_id') == $j->id)>{{ $j->nama }}{{ $j->pejabat ? ' — '.$j->pejabat->namaLengkap() : ' (belum ada pejabat)' }}</option>@endforeach</x-select></div>
-                <x-select label="Format tanggal pada blok tanda tangan" name="gaya_tanggal" class="md:col-span-2" x-show="sasaran !== 'masuk'" bantuan="Hijriah: “Baubau: 18 Syawal 1447 H / 06 April 2026 M”. Biasa: “Dikeluarkan di : Baubau / Pada tanggal : …”.">
+                <x-select label="Format & posisi tanggal surat" name="gaya_tanggal" class="md:col-span-2" x-show="sasaran !== 'masuk'" bantuan="Hijriah: “Baubau: 18 Syawal 1447 H / 06 April 2026 M”. Biasa: “Dikeluarkan di : Baubau / Pada tanggal : …”. Kanan atas: tanggal Hijriah + Masehi di pojok kanan atas sejajar Nomor (seperti surat pencairan anggaran).">
                     <option value="dikeluarkan" @selected($v('gaya_tanggal', 'dikeluarkan') === 'dikeluarkan')>Dikeluarkan di … / Pada tanggal …</option>
-                    <option value="hijriah" @selected($v('gaya_tanggal') === 'hijriah')>Baubau: tanggal Hijriah + Masehi</option>
+                    <option value="hijriah" @selected($v('gaya_tanggal') === 'hijriah')>Baubau: tanggal Hijriah + Masehi (di blok tanda tangan)</option>
+                    <option value="hijriah_atas" @selected($v('gaya_tanggal') === 'hijriah_atas')>Baubau: tanggal Hijriah + Masehi di pojok kanan atas</option>
                 </x-select>
                 <div class="md:col-span-2" x-show="sasaran !== 'masuk'" x-data="{ m: @js($v('mode_ttd', 'qr')) }">
                     <p class="mb-1.5 font-label-lg text-label-lg">Bentuk surat <span class="font-body-sm text-body-sm font-normal text-on-surface-variant" x-show="sasaran === 'staf'">(bawaan; petugas dapat memilih ber-QR atau tanpa QR saat membuat surat)</span></p>

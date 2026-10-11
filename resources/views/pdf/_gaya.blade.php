@@ -1,6 +1,11 @@
 .surat { font-family: 'Times', 'Times New Roman', serif; font-size: 11.5pt; color: #000; line-height: 1.35; }
 .surat .judul { text-align: center; font-weight: bold; text-decoration: underline; font-size: 13pt; margin-top: 8px; letter-spacing: 4pt; }
 .surat .nomor { text-align: center; margin-bottom: 14px; }
+.surat .nomor-atas-wrap { margin: 10px 0 0; }
+.surat table.nomor-atas { margin: 0; border-collapse: collapse; }
+/* Nomor, Lampiran, Perihal rapat satu blok (tanpa jarak antarbaris) */
+.surat table.nomor-atas td, .surat .nomor-atas-wrap + .isi > table.data:first-child td, .surat .nomor-atas-wrap + table.kolom-pratinjau td { padding: 0 2px; line-height: 1.15; }
+.surat .nomor-atas-wrap + .isi > table.data:first-child, .surat .nomor-atas-wrap + table.kolom-pratinjau { margin-top: 0; }
 .surat .nama-pejabat { text-decoration: underline; }
 /* Tanggal Hijriah & Masehi: dua baris, rata di kolom yang sama setelah nama kota */
 .surat table.tgl-hijriah { border-collapse: collapse; }

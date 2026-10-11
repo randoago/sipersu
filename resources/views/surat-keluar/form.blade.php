@@ -1,10 +1,11 @@
 @php $d = $s?->data ?? []; $v = fn ($k, $b = null) => old($k, match ($k) { 'klasifikasi_id' => $s?->klasifikasi_id, 'sifat' => $s?->sifat, 'perihal' => $s?->perihal, 'jabatan_id' => $s?->jabatan_id, 'mode_ttd' => $s?->mode_ttd ?? $b, 'nomor_manual' => $s?->nomor_manual, default => $d[$k] ?? $b }); @endphp
 <x-layouts::app :title="$s ? 'Ubah Draf Surat' : 'Buat Surat'" :cari="false">
-<div class="mx-auto max-w-4xl">
+<div class="mx-auto max-w-[1800px]">
     <nav class="mb-2 flex items-center gap-1.5 font-label-sm text-label-sm text-on-surface-variant"><a href="{{ route('surat-keluar.index') }}" class="hover:text-primary">Surat Keluar</a><x-ikon name="chevron_right" class="text-[14px]" /><span>{{ $s ? 'Ubah draf' : 'Buat surat' }}</span></nav>
     <h1 class="mb-5 font-headline-xl-mobile text-headline-xl-mobile lg:font-headline-xl lg:text-headline-xl">{{ $s ? 'Ubah Draf Surat' : 'Buat Surat Keluar' }}</h1>
-    <form method="post" action="{{ $s ? route('surat-keluar.perbarui', $s) : route('surat-keluar.simpan') }}" class="space-y-5">
+    <form method="post" action="{{ $s ? route('surat-keluar.perbarui', $s) : route('surat-keluar.simpan') }}" class="grid items-start gap-6 lg:grid-cols-[minmax(380px,1fr)_minmax(0,842px)]">
         @csrf @if ($s) @method('PUT') @endif
+        <div class="min-w-0 space-y-5">
         <x-kartu judul="Data Surat" ikon="description" deskripsi="Dicetak pada kop resmi Fakultas Teknik UM Buton.">
             <div class="grid gap-space-md md:grid-cols-2">
                 <x-select label="Klasifikasi (untuk nomor)" name="klasifikasi_id" wajib>@foreach ($klasifikasi as $k)<option value="{{ $k->id }}" @selected($v('klasifikasi_id') == $k->id)>{{ $k->kode }} — {{ $k->nama }}</option>@endforeach</x-select>
@@ -44,9 +45,9 @@
             </div>
         </x-kartu>
         <div class="flex flex-wrap justify-end gap-2"><x-tombol :href="$s ? route('surat-keluar.show', $s) : route('surat-keluar.index')" varian="sekunder">Batal</x-tombol>
-            <x-tombol varian="lembut" ikon="visibility" x-on:click="pratinjauSurat('{{ route('surat-keluar.pratinjau') }}', $el.closest('form'))">Lihat Tampilan Surat</x-tombol>
             <x-tombol type="submit" ikon="save">Simpan Draf</x-tombol></div>
+        </div>
+        <x-pratinjau-samping :url="route('surat-keluar.pratinjau')" />
     </form>
-    <x-pratinjau-surat />
 </div>
 </x-layouts::app>

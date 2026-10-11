@@ -97,10 +97,9 @@ class ContohIsian
     public static function pencairan(): array
     {
         return [
-            'kepada' => "Wakil Rektor II Universitas Muhammadiyah Buton\nDi Tempat", 'lampiran' => '1 (satu) berkas RAB',
-            'kegiatan' => 'Seminar Nasional Teknik dan Teknologi Informasi', 'waktu_tempat' => '12 November 2026, Aula Fakultas Teknik', 'sumber_dana' => 'Anggaran Fakultas Teknik T.A. 2026',
-            'rincian' => [['Konsumsi peserta dan panitia', '150 orang', '7.500.000'], ['Sewa sound system', '1 paket', '2.500.000'], ['Sertifikat, spanduk, dan ATK', '1 paket', '2.500.000']],
-            'total' => 'Rp 12.500.000,-', 'terbilang' => 'Dua belas juta lima ratus ribu rupiah', 'penerima' => 'Ketua Panitia: Rando, S.Kom., M.Eng', 'tembusan' => "Bagian Keuangan\nArsip",
+            'kepada' => "Rektor Universitas Muhammadiyah Buton\nDi -\nTempat", 'lampiran' => '1 (Satu) Rangkap',
+            'kegiatan' => 'The 8th International Conference on Trends in Computational and Cognitive (TCCE 2026)',
+            'waktu_tempat' => '', 'sumber_dana' => '', 'rincian' => [], 'total' => '', 'tembusan' => 'Arsip',
         ];
     }
 

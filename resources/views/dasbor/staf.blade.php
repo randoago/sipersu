@@ -1,15 +1,6 @@
 @php $u = auth()->user(); $hariIni = now()->translatedFormat('l, j F Y'); @endphp
 <x-layouts::app title="Dasbor">
 <div class="space-y-6" x-data="{ saring: 'semua', q: '' }">
-    @if ($peringatanBackup)
-        <x-peringatan jenis="darurat" judul="Backup bermasalah — data belum aman">
-            <ul class="list-disc pl-5">@foreach ($peringatanBackup as $m)<li>{{ $m }}</li>@endforeach</ul>
-            <a href="{{ route('pengaturan.backup') }}" class="mt-1 inline-block font-semibold underline">Buka pengaturan backup</a>
-        </x-peringatan>
-    @elseif ($ujiPemulihan)
-        <x-peringatan jenis="peringatan" judul="Pengingat bulanan">Lakukan <strong>uji pemulihan backup</strong> (<a class="font-semibold underline" href="{{ route('pengaturan.backup') }}">lihat caranya</a>).</x-peringatan>
-    @endif
-
     {{-- Banner sapaan --}}
     <section class="flex flex-col gap-4 rounded-lg bg-surface-container-lowest p-space-lg shadow-soft lg:flex-row lg:items-center lg:justify-between">
         <div class="space-y-1">
@@ -20,6 +11,11 @@
         <div class="flex shrink-0 flex-wrap items-center gap-3">
             @if (Route::has('persetujuan.index') && $u->hasAnyRole(['dekan', 'wakil_dekan', 'kaprodi']))<x-tombol :href="route('persetujuan.index')" ikon="draw">Persetujuan & TTD</x-tombol>@endif
             @if (Route::has('pengajuan.index'))<x-tombol :href="route('pengajuan.index')" varian="lembut" ikon="school">Layanan Mahasiswa</x-tombol>@endif
+            @if ($u->adalahAdmin())
+                <form method="post" action="{{ route('backup.jalankan') }}" x-data="{ proses: false }" @submit="proses = true">@csrf
+                    <x-tombol type="submit" varian="sekunder" ikon="backup" x-bind:disabled="proses"><span x-text="proses ? 'Membuat backup…' : 'Backup Sekarang'"></span></x-tombol>
+                </form>
+            @endif
         </div>
     </section>
 

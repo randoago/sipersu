@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\BackupRiwayat;
 use App\Models\Pengaturan;
 
-/** Peringatan backup untuk banner dasbor Admin dan email harian. */
+/** Pemeriksaan kesehatan backup (dipakai perintah `backup:periksa`; tidak lagi ditampilkan sebagai banner). */
 class StatusBackup
 {
     /** @return array<int, string> daftar peringatan (kosong = sehat) */

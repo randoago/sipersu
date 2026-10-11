@@ -346,34 +346,35 @@ HTML,
             ],
             [
                 'kode' => 'SURAT-PENCAIRAN-ANGGARAN', 'sasaran' => 'staf', 'nama' => 'Surat Permohonan Pencairan Anggaran', 'ikon' => 'payments', 'kategori' => 'Keuangan',
-                'deskripsi' => 'Permohonan pencairan dana kegiatan fakultas ke bagian keuangan/rektorat, lengkap dengan rincian anggaran (tabel).', 'klasifikasi' => 'C',
-                'perihal_template' => 'Permohonan Pencairan Anggaran {{ isian.kegiatan }}', 'judul_surat' => null,
+                'deskripsi' => 'Permohonan kepada Rektor untuk merekomendasikan pencairan anggaran kegiatan fakultas (rincian anggaran bersifat opsional).', 'klasifikasi' => 'C',
+                'perihal_template' => 'Permohonan Pencairan Anggaran {{ isian.kegiatan }}', 'judul_surat' => null, 'gaya_tanggal' => 'hijriah_atas',
                 'verifikator_role' => 'admin_tu', 'perlu_paraf' => true, 'paraf_role' => 'wakil_dekan', 'sla_hari' => 2, 'syarat' => [],
                 'field_formulir' => [
-                    ['nama' => 'kepada', 'label' => 'Kepada (Yth.)', 'tipe' => 'area', 'wajib' => true, 'maks' => 400,
-                        'placeholder' => "Wakil Rektor II Bidang Keuangan dan Sumber Daya\nUniversitas Muhammadiyah Buton\nDi Tempat"],
-                    ['nama' => 'lampiran', 'label' => 'Lampiran', 'tipe' => 'teks', 'wajib' => false, 'placeholder' => '1 (satu) berkas RAB', 'lebar' => 'setengah'],
-                    ['nama' => 'kegiatan', 'label' => 'Nama kegiatan', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => 'Seminar Nasional Teknik dan Teknologi Informasi'],
-                    ['nama' => 'waktu_tempat', 'label' => 'Waktu dan tempat kegiatan', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => '12 November 2026, Aula Fakultas Teknik'],
-                    ['nama' => 'sumber_dana', 'label' => 'Sumber anggaran', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => 'Anggaran Fakultas Teknik T.A. 2026'],
-                    ['nama' => 'rincian', 'label' => 'Rincian anggaran', 'tipe' => 'tabel', 'wajib' => true, 'kolom' => ['Uraian', 'Volume', 'Jumlah (Rp)']],
-                    ['nama' => 'total', 'label' => 'Total anggaran', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => 'Rp 12.500.000,-', 'lebar' => 'setengah'],
-                    ['nama' => 'terbilang', 'label' => 'Terbilang', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => 'Dua belas juta lima ratus ribu rupiah', 'lebar' => 'setengah'],
-                    ['nama' => 'penerima', 'label' => 'Penerima / penanggung jawab dana', 'tipe' => 'teks', 'wajib' => true, 'placeholder' => 'Ketua Panitia: Rando, S.Kom., M.Eng'],
-                    ['nama' => 'tembusan', 'label' => 'Tembusan', 'tipe' => 'daftar', 'wajib' => false, 'maks' => 600, 'placeholder' => "Bagian Keuangan\nArsip"],
+                    ['nama' => 'kepada', 'label' => 'Kepada Yth.', 'tipe' => 'area', 'wajib' => true, 'maks' => 400,
+                        'placeholder' => "Rektor Universitas Muhammadiyah Buton\nDi -\nTempat"],
+                    ['nama' => 'lampiran', 'label' => 'Lampiran', 'tipe' => 'teks', 'wajib' => false, 'placeholder' => '1 (Satu) Rangkap', 'lebar' => 'setengah'],
+                    ['nama' => 'kegiatan', 'label' => 'Nama kegiatan', 'tipe' => 'area', 'wajib' => true, 'maks' => 250,
+                        'placeholder' => 'The 8th International Conference on Trends in Computational and Cognitive (TCCE 2026)'],
+                    ['nama' => 'waktu_tempat', 'label' => 'Waktu dan tempat kegiatan (opsional)', 'tipe' => 'teks', 'wajib' => false, 'placeholder' => '12 November 2026, Aula Fakultas Teknik'],
+                    ['nama' => 'sumber_dana', 'label' => 'Sumber anggaran (opsional)', 'tipe' => 'teks', 'wajib' => false, 'placeholder' => 'Anggaran Fakultas Teknik T.A. 2026'],
+                    ['nama' => 'rincian', 'label' => 'Rincian anggaran (opsional)', 'tipe' => 'tabel', 'wajib' => false, 'kolom' => ['Uraian', 'Volume', 'Jumlah (Rp)']],
+                    ['nama' => 'total', 'label' => 'Total anggaran (opsional)', 'tipe' => 'teks', 'wajib' => false, 'placeholder' => 'Rp 12.500.000,- (dua belas juta lima ratus ribu rupiah)'],
+                    ['nama' => 'tembusan', 'label' => 'Tembusan', 'tipe' => 'daftar', 'wajib' => false, 'maks' => 600, 'placeholder' => "Arsip"],
                 ],
                 'template_html' => <<<'HTML'
 <table class="data" style="margin-left:0;width:100%"><tr><td width="14%">Lampiran</td><td width="3%">:</td><td>{{ isian.lampiran }}</td></tr>
   <tr><td>Perihal</td><td>:</td><td><strong>Permohonan Pencairan Anggaran</strong></td></tr></table>
-<table class="yth"><tr><td class="yth-label">Yth.</td><td>{{ isian.kepada }}</td></tr></table>
+<p style="margin:0;text-align:left">Kepada Yth:</p>
+<p style="margin:0 0 7px;text-align:left">{{ isian.kepada }}</p>
 <p><em>Assalamu'alaikum Warahmatullahi Wabarakatuh.</em></p>
-<p>Dengan hormat, sehubungan dengan pelaksanaan kegiatan <strong>{{ isian.kegiatan }}</strong> yang akan dilaksanakan pada {{ isian.waktu_tempat }}, bersama ini kami mengajukan permohonan pencairan anggaran yang bersumber dari {{ isian.sumber_dana }}, dengan rincian sebagai berikut:</p>
-{{ isian.rincian }}
-<p>Total anggaran yang dimohonkan sebesar <strong>{{ isian.total }}</strong> (<em>{{ isian.terbilang }}</em>), untuk diterimakan kepada {{ isian.penerima }}.</p>
-<p>Demikian permohonan ini kami sampaikan. Atas perhatian dan kerja sama Bapak/Ibu, kami ucapkan terima kasih.</p>
-<p><em>Wassalamu'alaikum Warahmatullahi Wabarakatuh.</em></p>
+<p>Salam sejahtera teriring doa semoga Allah SWT senantiasa melimpahkan rahmat dan taufik-Nya kepada kita semua, amin.</p>
+<p>Sehubungan dengan akan dilaksanakannya kegiatan <strong>{{ isian.kegiatan }}</strong>{% jika isian.waktu_tempat %} pada {{ isian.waktu_tempat }}{% akhir %}, maka dengan ini kami mengajukan permohonan kepada Rektor selaku Pimpinan Universitas untuk merekomendasikan pencairan anggaran kegiatan tersebut{% jika isian.sumber_dana %} yang bersumber dari {{ isian.sumber_dana }}{% akhir %}.</p>
+{% jika isian.rincian %}<p>Dengan rincian anggaran sebagai berikut:</p>{{ isian.rincian }}{% akhir %}
+{% jika isian.total %}<p>Total anggaran yang dimohonkan sebesar <strong>{{ isian.total }}</strong>.</p>{% akhir %}
+<p>Demikian permohonan ini kami ajukan, atas perhatian dan kerjasamanya diucapkan terima kasih.</p>
+<p><em>Wassalamu'alaikum Wr. Wb.</em></p>
 {%ttd%}
-{% jika isian.tembusan %}<p><strong><u>Tembusan:</u></strong></p>{{ isian.tembusan }}{% akhir %}
+{% jika isian.tembusan %}<p><strong>Tembusan:</strong></p>{{ isian.tembusan }}{% akhir %}
 HTML,
             ],
             [

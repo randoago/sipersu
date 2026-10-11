@@ -154,19 +154,43 @@
     </script>
     @livewireScripts
     <script>
-        /** Kirim isian formulir ke server untuk dirender menjadi tampilan surat, lalu buka modal pratinjau. */
-        window.pratinjauSurat = async function (url, form, tambahan) {
+        /** Kirim isian formulir ke server untuk dirender menjadi tampilan surat; mengembalikan HTML-nya. */
+        window.ambilPratinjau = async function (url, form, tambahan) {
             const fd = new FormData(form);
             fd.delete('_method');
             Object.entries(tambahan || {}).forEach(([k, v]) => fd.set(k, v));
-            let html;
             try {
                 const r = await fetch(url, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' } });
-                html = r.ok ? (await r.json()).html : '<p>Pratinjau gagal dimuat (' + r.status + '). Periksa isian lalu coba lagi.</p>';
+                return r.ok ? (await r.json()).html : '<p>Pratinjau gagal dimuat (' + r.status + '). Periksa isian lalu coba lagi.</p>';
             } catch (e) {
-                html = '<p>Pratinjau gagal dimuat. Periksa koneksi ke server.</p>';
+                return '<p>Pratinjau gagal dimuat. Periksa koneksi ke server.</p>';
             }
+        };
+        /** Buka modal pratinjau. */
+        window.pratinjauSurat = async function (url, form, tambahan) {
+            const html = await window.ambilPratinjau(url, form, tambahan);
             window.dispatchEvent(new CustomEvent('tampil-pratinjau', { detail: { html } }));
+        };
+        /** Pratinjau di kolom kanan formulir: muat ulang otomatis (ditunda) tiap isian berubah; kertas tetap berukuran A4 (tidak mengikuti lebar jendela). */
+        window.pratinjauSamping = function (url, tambahan) {
+            return {
+                html: '', memuat: false, form: null, timer: null, urut: 0,
+                init() {
+                    this.form = this.$el.closest('form');
+                    const tunda = () => { clearTimeout(this.timer); this.timer = setTimeout(() => this.muat(), 700); };
+                    this.form.addEventListener('input', tunda);
+                    this.form.addEventListener('change', tunda);
+                    this.muat();
+                },
+                async muat() {
+                    const no = ++this.urut;
+                    this.memuat = true;
+                    const html = await window.ambilPratinjau(url, this.form, tambahan);
+                    if (no !== this.urut) return;   // sudah ada permintaan yang lebih baru
+                    this.html = html;
+                    this.memuat = false;
+                },
+            };
         };
     </script>
     @stack('skrip')

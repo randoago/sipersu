@@ -11,9 +11,11 @@ echo PHP: %PHP_EXE%
 
 if not exist .env (
   copy /y .env.example .env >nul
-  echo Berkas .env dibuat. EDIT .env sekarang ^(APP_URL, BACKUP_PASSWORD, dll.^) lalu jalankan skrip ini lagi.
+  echo Berkas .env dibuat. Pilih alamat ^(URL^) server pada menu berikut ^(bisa diubah lagi kapan saja dengan scripts\ubah-url.bat^).
+  call scripts\ubah-url.bat
+  echo.
+  echo Isi BACKUP_PASSWORD ^(dan pengaturan lain^) pada .env, simpan, tutup Notepad, lalu lanjut.
   notepad .env
-  pause
 )
 
 if not exist vendor\autoload.php (
@@ -45,6 +47,7 @@ if not exist storage\keys\ed25519.secret (
 
 echo.
 echo === SELESAI ===
+echo Jalankan: scripts\jalankan-aplikasi.bat  ^(atau buka via Laragon^). Ubah alamat: scripts\ubah-url.bat.
 echo Buka: lihat APP_URL pada .env. Akun contoh: lihat INSTALL.md ^(kata sandi: password — SEGERA GANTI^).
 echo PENTING: jalankan  php artisan kunci:cadangkan D:\kunci-sipersu  dan simpan salinannya di tempat aman.
 pause
