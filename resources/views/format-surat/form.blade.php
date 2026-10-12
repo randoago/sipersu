@@ -92,6 +92,8 @@
                     <button type="button" @click="sisip('<em>', '</em>')" class="rounded-md bg-surface-container px-2.5 py-1 font-label-md text-label-md italic hover:bg-surface-container-high">Miring</button>
                     <button type="button" @click="tabel()" class="rounded-md bg-surface-container px-2.5 py-1 font-label-md text-label-md hover:bg-surface-container-high">▦ Tabel data</button>
                     <button type="button" @click="sisip('{' + '%ttd%' + '}', '')" title="Bagian setelah penanda ini dicetak SETELAH blok tanda tangan (mis. Tembusan)" class="rounded-md bg-secondary-fixed/50 px-2.5 py-1 font-label-md text-label-md hover:bg-secondary-fixed">✍ Tanda tangan di sini</button>
+                    <button type="button" @click="sisip('{' + '%nomor%' + '}', '')" title="Baris Nomor dipindahkan ke posisi penanda ini (bila tidak dipakai, Nomor tetap di kepala surat)" class="rounded-md bg-secondary-fixed/50 px-2.5 py-1 font-label-md text-label-md hover:bg-secondary-fixed">№ Nomor di sini</button>
+                    <button type="button" @click="sisip('{' + '%tanggal%' + '}', '')" title="Tanggal surat dipindahkan ke posisi penanda ini, rata kanan (blok tanda tangan hanya berisi jabatan)" class="rounded-md bg-secondary-fixed/50 px-2.5 py-1 font-label-md text-label-md hover:bg-secondary-fixed">📅 Tanggal di sini</button>
                     <span class="inline-flex items-center gap-1"><select x-model="kondisi" class="h-7 rounded-md border-outline-variant py-0 pl-2 pr-7 font-label-md text-label-md focus:ring-2 focus:ring-primary"><option value="">Blok bersyarat…</option><template x-for="r in isian.filter(x => x.nama)" :key="r.k"><option :value="r.nama" x-text="r.label"></option></template></select>
                         <button type="button" @click="kondisi && sisip('{' + '% jika isian.' + kondisi + ' %' + '}', '{' + '% akhir %' + '}')" :disabled="!kondisi" title="Teks di dalam blok hanya tampil bila isian tersebut diisi" class="rounded-md bg-surface-container px-2 py-1 font-label-md text-label-md hover:bg-surface-container-high disabled:opacity-40">Sisipkan</button></span>
                 </div>
@@ -102,19 +104,34 @@
                         <template x-for="t in tokenLain()" :key="t[0]"><button type="button" @click="sisipToken(t[0])" class="rounded-full border border-outline-variant bg-surface-container-lowest px-2.5 py-1 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container" x-text="t[1]"></button></template>
                     </div>
                 </div>
-                <x-textarea name="template_html" wajib rows="16" class="font-mono" x-ref="templat" spellcheck="false" bantuan="Gunakan tombol di atas; hasilnya berupa HTML sederhana (p, strong, em, table, ul, ol, br). Tag berbahaya dibuang otomatis.">{{ $v('template_html', "<p>Dengan hormat,</p>\n<p></p>\n<p>Demikian disampaikan, atas perhatian Bapak/Ibu diucapkan terima kasih.</p>") }}</x-textarea>
+                <x-textarea name="template_html" wajib rows="16" class="font-mono" x-ref="templat" spellcheck="false" bantuan="Gunakan tombol di atas; hasilnya berupa HTML sederhana (p, strong, em, table, ul, ol, br) dan boleh diberi style (mis. text-align:right) untuk mengatur posisi. Penanda {%nomor%}, {%tanggal%}, dan {%ttd%} memindahkan baris Nomor, tanggal, dan blok tanda tangan. Tag berbahaya dibuang otomatis.">{{ $v('template_html', "<p>Dengan hormat,</p>\n<p></p>\n<p>Demikian disampaikan, atas perhatian Bapak/Ibu diucapkan terima kasih.</p>") }}</x-textarea>
                 <x-tombol varian="lembut" ikon="visibility" x-on:click="pratinjau()">Lihat Tampilan Surat (data contoh)</x-tombol>
             </div>
         </x-kartu>
 
         <x-kartu judul="4. Nomor, penandatangan, dan bentuk surat" ikon="draw" deskripsi="Untuk surat masuk, hanya klasifikasi bawaan yang dipakai.">
             <div class="grid gap-space-md md:grid-cols-2">
-                <x-select label="Klasifikasi (kode pada nomor surat / bawaan)" name="klasifikasi_id">@foreach ($klasifikasi as $k)<option value="{{ $k->id }}" @selected($v('klasifikasi_id') == $k->id)>{{ $k->kode }} — {{ $k->nama }}</option>@endforeach</x-select>
+                <div class="md:col-span-2" x-data="{ seruan: @js((string) $v('kekhususan', '')), pokok: @js((string) $v('klasifikasi_id', '')), kode: @js($klasifikasi->pluck('kode', 'id')), pola: @js($nomorPola['pola']), p: {{ $nomorPola['panjang'] }}, unit: @js($nomorPola['unit']),
+                    get contoh() { return this.pola.replace('{urut}', '9'.padStart(this.p, '0')).replace('{kekhususan}', this.seruan).replace('{unit}', this.unit).replace('{klasifikasi}', this.kode[this.pokok] || '…').replace('{bulan_romawi}', 'X').replace('{bulan}', '10').replace('{tahun}', '{{ now()->year }}').replace(/\/{2,}/g, '/'); } }">
+                    <div class="grid gap-space-md md:grid-cols-2">
+                        <x-select label="Seruan (kode jenis surat pada nomor)" name="kekhususan" x-model="seruan" x-show="sasaran !== 'masuk'" bantuan="Pilih sesuai jenis surat; “Surat biasa” = tanpa seruan."><option value="">Surat biasa (tanpa seruan)</option>@foreach ($seruan as $kd => $nm)<option value="{{ $kd }}" @selected($v('kekhususan') === $kd)>{{ $kd }} — {{ $nm }}</option>@endforeach @if ($v('kekhususan') && ! isset($seruan[$v('kekhususan')]))<option value="{{ $v('kekhususan') }}" selected>{{ $v('kekhususan') }}</option>@endif</x-select>
+                        <x-select label="Pokok Masalah (kode pada nomor surat / bawaan)" name="klasifikasi_id" x-model="pokok">@foreach ($klasifikasi as $k)<option value="{{ $k->id }}" @selected($v('klasifikasi_id') == $k->id)>{{ $k->kode }} — {{ $k->nama }}</option>@endforeach</x-select>
+                    </div>
+                    <div class="mt-3 rounded-lg bg-surface-container-low p-3" x-show="sasaran !== 'masuk'">
+                        <p class="font-label-sm text-label-sm uppercase text-on-surface-variant">Susunan nomor surat</p>
+                        <p class="font-headline-sm text-headline-sm tabular text-primary" x-text="contoh"></p>
+                        <p class="mt-1 font-body-sm text-body-sm text-on-surface-variant">Yang dipilih di sini hanya <strong>Seruan</strong> dan <strong>Pokok Masalah</strong>. Nomor urut, kode format, unit kerja (menurut penandatangan), dan tahun terisi otomatis.</p>
+                    </div>
+                </div>
                 <div x-show="sasaran !== 'masuk'"><x-select label="Penandatangan" name="penandatangan_jabatan_id" wajib x-model="jabatan">@foreach ($jabatan as $j)<option value="{{ $j->id }}" @selected($v('penandatangan_jabatan_id') == $j->id)>{{ $j->nama }}{{ $j->pejabat ? ' — '.$j->pejabat->namaLengkap() : ' (belum ada pejabat)' }}</option>@endforeach</x-select></div>
                 <x-select label="Format & posisi tanggal surat" name="gaya_tanggal" class="md:col-span-2" x-show="sasaran !== 'masuk'" bantuan="Hijriah: “Baubau: 18 Syawal 1447 H / 06 April 2026 M”. Biasa: “Dikeluarkan di : Baubau / Pada tanggal : …”. Kanan atas: tanggal Hijriah + Masehi di pojok kanan atas sejajar Nomor (seperti surat pencairan anggaran).">
                     <option value="dikeluarkan" @selected($v('gaya_tanggal', 'dikeluarkan') === 'dikeluarkan')>Dikeluarkan di … / Pada tanggal …</option>
                     <option value="hijriah" @selected($v('gaya_tanggal') === 'hijriah')>Baubau: tanggal Hijriah + Masehi (di blok tanda tangan)</option>
                     <option value="hijriah_atas" @selected($v('gaya_tanggal') === 'hijriah_atas')>Baubau: tanggal Hijriah + Masehi di pojok kanan atas</option>
+                </x-select>
+                <x-select label="Posisi nomor surat" name="posisi_nomor" class="md:col-span-2" x-show="sasaran !== 'masuk'" bantuan="Tengah: “Nomor : …” di tengah di bawah judul. Kiri: rata kiri, sejajar Lampiran dan Perihal. (Gaya tanggal “pojok kanan atas” selalu menaruh nomor di kiri.)">
+                    <option value="tengah" @selected($v('posisi_nomor', 'tengah') === 'tengah')>Tengah (di bawah judul)</option>
+                    <option value="kiri" @selected($v('posisi_nomor') === 'kiri')>Kiri (sejajar Lampiran & Perihal)</option>
                 </x-select>
                 <div class="md:col-span-2" x-show="sasaran !== 'masuk'" x-data="{ m: @js($v('mode_ttd', 'qr')) }">
                     <p class="mb-1.5 font-label-lg text-label-lg">Bentuk surat <span class="font-body-sm text-body-sm font-normal text-on-surface-variant" x-show="sasaran === 'staf'">(bawaan; petugas dapat memilih ber-QR atau tanpa QR saat membuat surat)</span></p>
@@ -134,6 +151,7 @@
                 </div>
                 <input type="hidden" name="sla_hari" value="{{ $v('sla_hari', 3) }}" x-bind:disabled="sasaran === 'mahasiswa'">
                 <input type="hidden" name="urutan" value="{{ $v('urutan', 50) }}">
+                <label class="flex cursor-pointer items-start gap-2 font-label-lg text-label-lg md:col-span-2" x-show="sasaran === 'staf'"><input type="checkbox" name="pindaian" value="1" @checked($v('pindaian', false)) class="mt-0.5 h-4 w-4 rounded border-outline-variant text-primary focus:ring-primary"><span>Tampilkan kolom <strong>Pindaian Surat</strong> saat membuat surat<span class="block font-body-sm text-body-sm font-normal text-on-surface-variant">Petugas dapat mengunggah pindaian/foto surat (PDF, JPG, PNG; opsional). Surat masuk selalu memiliki kolom pindaian.</span></span></label>
                 <label class="flex cursor-pointer items-center gap-2 font-label-lg text-label-lg md:col-span-2"><input type="checkbox" name="aktif" value="1" @checked($v('aktif', true)) class="h-4 w-4 rounded border-outline-variant text-primary focus:ring-primary">Format aktif (tampil untuk dipakai)</label>
             </div>
         </x-kartu>

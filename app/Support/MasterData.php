@@ -6,7 +6,10 @@ use App\Enums\Peran;
 use App\Models\Jabatan;
 use App\Models\JenisSurat;
 use App\Models\KlasifikasiSurat;
+use App\Models\Pembukuan;
+use App\Models\Surat;
 use App\Models\Prodi;
+use App\Models\Seruan;
 use App\Models\User;
 
 /** Definisi entitas Master Data untuk MasterController (daftar + form dinamis). */
@@ -73,8 +76,25 @@ class MasterData
                     ['aktif', 'Aktif', 'ya_tidak', ['boolean']],
                 ],
             ],
+            'seruan' => [
+                'model' => Seruan::class, 'judul' => 'Seruan (Kode Kekhususan)', 'ikon' => 'tag', 'with' => [],
+                // Hapus hanya bila belum dipakai; mengembalikan alasan penolakan, atau null bila boleh dihapus.
+                'hapus' => fn ($m) => ($n = JenisSurat::where('kekhususan', $m->kode)->count()) ? "Seruan {$m->kode} dipakai {$n} format surat. Ganti seruan pada format tersebut, atau nonaktifkan saja." : null,
+                'cari' => ['kode', 'nama'],
+                'kolom' => [['Kode', fn ($m) => $m->kode, 'tabular'], ['Nama', fn ($m) => $m->nama], ['Dipakai format', fn ($m) => JenisSurat::where('kekhususan', $m->kode)->count().' format', 'tabular']],
+                'field' => [
+                    ['kode', 'Kode seruan', 'teks', ['required', 'string', 'max:8', 'regex:/^[A-Z]{2,8}$/', 'unique:seruan,kode,{id}'], 'bantuan' => 'Huruf besar 2–8 huruf, mis. TGS. Tampil pada nomor surat: nomor/SERUAN/II.3.AU/unit/pokok masalah/tahun. Mengubah kode TIDAK mengubah nomor yang sudah terbit maupun format yang sudah memilihnya.', 'lebar' => 'setengah'],
+                    ['nama', 'Nama', 'teks', ['required', 'string', 'max:100'], 'bantuan' => 'Mis. Surat Tugas.', 'lebar' => 'setengah'],
+                    ['aktif', 'Aktif (dapat dipilih pada Format Surat)', 'ya_tidak', ['boolean']],
+                ],
+            ],
             'klasifikasi' => [
                 'model' => KlasifikasiSurat::class, 'judul' => 'Pokok Masalah (Klasifikasi)', 'ikon' => 'rule', 'with' => [],
+                'hapus' => function ($m) {
+                    $pakai = array_filter(['surat' => Surat::where('klasifikasi_id', $m->id)->count(), 'format surat' => JenisSurat::where('klasifikasi_id', $m->id)->count(), 'catatan pembukuan' => Pembukuan::where('klasifikasi_id', $m->id)->count()]);
+
+                    return $pakai ? "Pokok masalah {$m->kode} masih dipakai (".collect($pakai)->map(fn ($n, $k) => "$n $k")->implode(', ').'). Pindahkan ke pokok masalah lain, atau nonaktifkan saja.' : null;
+                },
                 'cari' => ['kode', 'nama'],
                 'kolom' => [['Kode', fn ($m) => $m->kode, 'tabular'], ['Nama', fn ($m) => $m->nama], ['Keterangan', fn ($m) => \Illuminate\Support\Str::limit((string) $m->keterangan, 70)]],
                 'field' => [

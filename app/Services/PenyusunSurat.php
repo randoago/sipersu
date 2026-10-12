@@ -38,6 +38,9 @@ class PenyusunSurat
 
     /** Dalam templat: bagian setelah penanda ini dicetak SETELAH blok tanda tangan (mis. Tembusan). */
     public const PENANDA_TTD = '{%ttd%}';
+    /** Penanda posisi di templat: baris Nomor dan tanggal surat dapat dipindahkan ke tempat penanda diletakkan. */
+    public const PENANDA_NOMOR = '{%nomor%}';
+    public const PENANDA_TANGGAL = '{%tanggal%}';
 
     /**
      * Isian → nilai siap pakai pada templat. Tanggal diformat Indonesia; tipe "daftar" menjadi <ol>, tipe "tabel"
@@ -201,13 +204,13 @@ class PenyusunSurat
      * Tampilan surat lengkap (kop header hijau, judul, nomor, isi, blok tanda tangan) untuk pratinjau sebelum disimpan.
      * Tidak menyimpan apa pun; nomor dan QR baru terbit saat surat ditandatangani.
      */
-    public function htmlPratinjau(string $isiHtml, ?string $judul, ?Jabatan $jabatan, string $mode = 'qr', string $perihal = '', string $gayaTanggal = 'dikeluarkan', ?string $tglSurat = null, ?string $lampiran = null, ?string $nomorManual = null, ?\App\Models\KlasifikasiSurat $klasifikasi = null): string
+    public function htmlPratinjau(string $isiHtml, ?string $judul, ?Jabatan $jabatan, string $mode = 'qr', string $perihal = '', string $gayaTanggal = 'dikeluarkan', ?string $tglSurat = null, ?string $lampiran = null, ?string $nomorManual = null, ?\App\Models\KlasifikasiSurat $klasifikasi = null, ?string $kekhususan = null, ?string $posisiNomor = null): string
     {
         $surat = new Surat(['isi_html' => $isiHtml, 'status' => 'draf', 'mode_ttd' => $mode, 'perihal' => $perihal, 'gaya_tanggal' => $gayaTanggal, 'tgl_surat' => $tglSurat]);
         $surat->nomor_manual = NomorManual::bersihkan($nomorManual);   // pratinjau nomor: kosong → format dengan urut 000
         $surat->setRelation('klasifikasi', $klasifikasi);
         $surat->setRelation('jabatan', $jabatan);
-        $surat->setRelation('jenis', $judul ? new JenisSurat(['judul_surat' => $judul, 'nama' => $judul]) : null);
+        $surat->setRelation('jenis', new JenisSurat(['judul_surat' => $judul, 'nama' => $judul, 'kekhususan' => $kekhususan ?: null, 'posisi_nomor' => $posisiNomor ?: 'tengah']));   // seruan ikut menyusun nomor pratinjau
 
         // Dua kolom tambahan khusus pratinjau: Lampiran & Perihal di bawah nomor surat.
         // Dilewati bila templat sudah memuat baris tersebut sendiri (agar tidak dobel).
@@ -263,10 +266,26 @@ class PenyusunSurat
         // Surat ber-QR memakai spesimen tanda tangan + stempel; surat tanpa QR dibiarkan KOSONG (tanda tangan & stempel manual).
         $spesimen = $surat->pakaiQr() ? $jabatan?->spesimenPath(true) : null;
 
+        // Penanda posisi pada templat: {%nomor%} dan {%tanggal%} memindahkan baris nomor / tanggal ke tempat penanda berada.
+        $isi = (string) $surat->isi_html;
+        $nomorTeks = $surat->nomor ?? NomorManual::tampilan($surat);
+        $tglMasehi = ($surat->tgl_surat ?? now());
+        $kota = Pengaturan::ambil('kota_surat', 'Baubau');
+        $gaya = $surat->gaya_tanggal ?: 'dikeluarkan';
+        $nomorDiisi = str_contains($isi, self::PENANDA_NOMOR);
+        $tanggalDiisi = str_contains($isi, self::PENANDA_TANGGAL);
+        $isi = str_replace(self::PENANDA_NOMOR, '<table class="data" style="margin-left:0;width:100%"><tr><td width="14%">Nomor</td><td width="3%">:</td><td>'.e($nomorTeks ?: '000').'</td></tr></table>', $isi);
+        $isi = str_replace(self::PENANDA_TANGGAL, '<div style="text-align:right;margin:0 0 6px">'.(in_array($gaya, ['hijriah', 'hijriah_atas'], true)
+            ? e($kota).', '.e(\App\Support\TanggalHijriah::format($tglMasehi)).'<br>'.e($tglMasehi->translatedFormat('d F Y')).' M'
+            : e($kota).', '.e($tglMasehi->translatedFormat('j F Y'))).'</div>', $isi);
+
         return [
             'surat' => $surat,
-            'isiAtas' => explode(self::PENANDA_TTD, (string) $surat->isi_html, 2)[0],
-            'isiBawah' => explode(self::PENANDA_TTD, (string) $surat->isi_html, 2)[1] ?? '',
+            'isiAtas' => explode(self::PENANDA_TTD, $isi, 2)[0],
+            'isiBawah' => explode(self::PENANDA_TTD, $isi, 2)[1] ?? '',
+            'nomorDiisi' => $nomorDiisi,
+            'posisiNomor' => $surat->jenis?->posisi_nomor ?: 'tengah',
+            'tanggalDiisi' => $tanggalDiisi,
             'judul' => $surat->jenis?->judul_surat ? mb_strtoupper($surat->jenis->judul_surat) : null,
             'nomor' => $surat->nomor ?? NomorManual::tampilan($surat),
             'terbit' => $terbit,

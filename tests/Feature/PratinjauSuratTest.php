@@ -148,4 +148,17 @@ class PratinjauSuratTest extends TestCase
         $this->assertStringNotContainsString('tgl-kota', $html, 'tanggal tidak lagi di blok tanda tangan');
         $this->assertStringNotContainsString('[Waktu dan tempat kegiatan', $html, 'isian opsional kosong tidak tampil sebagai penanda');
     }
+
+    public function test_isian_program_studi_di_surat_keluar_berupa_pilihan_dari_master_data(): void
+    {
+        $tu = $this->actingAs($this->u('198701012010011001'));
+        $prodi = \App\Models\Prodi::where('aktif', true)->orderBy('nama')->first()->namaLengkap();
+
+        $tu->get('/surat-keluar/format/SK-AKTIF-KULIAH')->assertOk()->assertSee('Pilih program studi')->assertSee($prodi);
+
+        // nilai di luar Master Data ditolak; nilai dari Master Data diterima
+        $dasar = ['nama_mhs' => 'BUDI', 'npm' => '21650099', 'semester' => '3', 'tahun_akademik' => '2026/2027 Ganjil'];
+        $tu->post('/surat-keluar/format/SK-AKTIF-KULIAH', ['isian' => $dasar + ['prodi' => 'Prodi Karangan']])->assertSessionHasErrors('isian.prodi');
+        $tu->post('/surat-keluar/format/SK-AKTIF-KULIAH', ['isian' => $dasar + ['prodi' => $prodi]])->assertSessionDoesntHaveErrors('isian.prodi');
+    }
 }

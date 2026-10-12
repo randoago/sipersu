@@ -158,6 +158,7 @@
         window.ambilPratinjau = async function (url, form, tambahan) {
             const fd = new FormData(form);
             fd.delete('_method');
+            fd.delete('scan');   // berkas pindaian tidak perlu ikut terkirim
             Object.entries(tambahan || {}).forEach(([k, v]) => fd.set(k, v));
             try {
                 const r = await fetch(url, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' } });

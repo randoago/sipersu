@@ -26,6 +26,12 @@ class Prodi extends Model
         return $this->hasMany(Jabatan::class);
     }
 
+    /** Nama program studi aktif dari Master Data ("Teknik Sipil (S1)"), untuk pilihan isian surat. @return array<int, string> */
+    public static function daftarNama(): array
+    {
+        return static::where('aktif', true)->orderBy('nama')->orderBy('jenjang')->get()->map->namaLengkap()->all();
+    }
+
     public function namaLengkap(): string
     {
         return $this->nama.' ('.$this->jenjang.')';

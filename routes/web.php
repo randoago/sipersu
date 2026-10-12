@@ -126,12 +126,13 @@ Route::middleware('auth')->group(function () {
         Route::post('/pengguna/impor/periksa', [$ip, 'periksa'])->name('impor.periksa');
         Route::post('/pengguna/impor/proses', [$ip, 'proses'])->name('impor.proses');
         Route::get('/pengguna/impor/hasil', [$ip, 'hasil'])->name('impor.hasil');
-        $e = ['entitas' => 'pengguna|prodi|jabatan|klasifikasi'];
+        $e = ['entitas' => 'pengguna|prodi|jabatan|klasifikasi|seruan'];
         Route::get('/{entitas}', [\App\Http\Controllers\MasterController::class, 'daftar'])->where($e)->name('daftar');
         Route::get('/{entitas}/buat', [\App\Http\Controllers\MasterController::class, 'buat'])->where($e)->name('buat');
         Route::post('/{entitas}', [\App\Http\Controllers\MasterController::class, 'simpan'])->where($e)->name('simpan');
         Route::get('/{entitas}/{id}/ubah', [\App\Http\Controllers\MasterController::class, 'ubah'])->where($e)->name('ubah');
         Route::put('/{entitas}/{id}', [\App\Http\Controllers\MasterController::class, 'simpan'])->where($e)->name('perbarui');
+        Route::delete('/{entitas}/{id}', [\App\Http\Controllers\MasterController::class, 'hapus'])->where(['entitas' => 'klasifikasi|seruan'])->name('hapus');
         Route::post('/{entitas}/{id}/aktif', [\App\Http\Controllers\MasterController::class, 'aktif'])->where($e)->name('aktif');
     });
 

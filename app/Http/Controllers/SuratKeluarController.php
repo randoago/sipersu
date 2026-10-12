@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Jabatan;
 use App\Models\JenisSurat;
 use App\Models\KlasifikasiSurat;
+use App\Models\Lampiran;
 use App\Models\Surat;
 use App\Services\AlurSuratKeluar;
 use App\Services\PenyusunSurat;
 use App\Support\NomorManual;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -68,9 +71,10 @@ class SuratKeluarController extends Controller
     public function simpanFormat(Request $request, JenisSurat $jenis)
     {
         abort_unless($this->alur->bolehMembuat($request->user()) && $jenis->aktif && $jenis->adalahUntukStaf(), 404);
-        $data = $request->validate($jenis->aturanIsian() + $this->aturanTanggal() + ['mode_ttd' => ['nullable', Rule::in(['qr', 'basah'])]] + $this->aturanNomor($request, null, $jenis->klasifikasi_id), $this->pesanTanggal() + NomorManual::PESAN, $jenis->atributIsian() + ['tanggal_surat' => 'tanggal surat', 'nomor_manual' => 'nomor urut surat']);
+        $data = $request->validate($jenis->aturanIsian() + $this->aturanTanggal() + $this->aturanPindaian($jenis) + ['mode_ttd' => ['nullable', Rule::in(['qr', 'basah'])]] + $this->aturanNomor($request, null, $jenis->klasifikasi_id), $this->pesanTanggal() + NomorManual::PESAN, $jenis->atributIsian() + ['tanggal_surat' => 'tanggal surat', 'nomor_manual' => 'nomor urut surat', 'scan' => 'pindaian surat']);
         $s = $this->alur->simpanDariFormat($request->user(), $jenis, $data['isian'] ?? [], null, $data['tanggal_surat'] ?? null, $data['mode_ttd'] ?? null);
         $this->simpanNomor($request, $s);
+        $this->simpanPindaian($request, $s);
 
         return redirect()->route('surat-keluar.show', $s)->with('sukses', 'Draf surat disimpan. Periksa pratinjau, lalu '.($s->langsungTerbit() ? 'terbitkan (tanpa QR tidak perlu persetujuan).' : 'ajukan untuk '.(($s->data['paraf_role'] ?? null) ? 'paraf' : 'tanda tangan').'.'));
     }
@@ -97,7 +101,7 @@ class SuratKeluarController extends Controller
             $jenis = JenisSurat::where('kode', $request->input('format'))->where('sasaran', 'staf')->with('penandatanganJabatan.pejabat', 'klasifikasi')->firstOrFail();
             $isian = $penyusun->isianPratinjau($jenis->field_formulir, (array) $request->input('isian', []));
             $h = $penyusun->dariFormat($jenis, $isian, $request->user());
-            $html = $penyusun->htmlPratinjau($h['isi'], $jenis->judul_surat, $jenis->penandatanganJabatan, $mode ?? ($jenis->mode_ttd ?? 'qr'), $h['perihal'], $jenis->gaya_tanggal ?? 'dikeluarkan', $this->tanggalPratinjau($request), is_string($isian['lampiran'] ?? null) ? $isian['lampiran'] : null, $nomor, $jenis->klasifikasi);
+            $html = $penyusun->htmlPratinjau($h['isi'], $jenis->judul_surat, $jenis->penandatanganJabatan, $mode ?? ($jenis->mode_ttd ?? 'qr'), $h['perihal'], $jenis->gaya_tanggal ?? 'dikeluarkan', $this->tanggalPratinjau($request), is_string($isian['lampiran'] ?? null) ? $isian['lampiran'] : null, $nomor, $jenis->klasifikasi, $jenis->kekhususan, $jenis->posisi_nomor);
         } else {
             $isi = $penyusun->suratUmum([
                 'lampiran' => trim((string) $request->input('lampiran')) ?: '-', 'perihal' => trim((string) $request->input('perihal')) ?: '[Perihal]',
@@ -128,12 +132,13 @@ class SuratKeluarController extends Controller
         abort_unless($this->alur->bolehMengubah($surat, $request->user()), 403);
         if ($surat->jenis_surat_id) {
             $jenis = $surat->jenis;
-            $data = $request->validate($jenis->aturanIsian() + $this->aturanTanggal() + $this->aturanNomor($request, $surat->id, $surat->klasifikasi_id), $this->pesanTanggal() + NomorManual::PESAN, $jenis->atributIsian() + ['tanggal_surat' => 'tanggal surat', 'nomor_manual' => 'nomor urut surat']);
+            $data = $request->validate($jenis->aturanIsian() + $this->aturanTanggal() + $this->aturanPindaian($jenis) + $this->aturanNomor($request, $surat->id, $surat->klasifikasi_id), $this->pesanTanggal() + NomorManual::PESAN, $jenis->atributIsian() + ['tanggal_surat' => 'tanggal surat', 'nomor_manual' => 'nomor urut surat', 'scan' => 'pindaian surat']);
             $this->alur->simpanDariFormat($request->user(), $jenis, $data['isian'] ?? [], $surat, $data['tanggal_surat'] ?? null);
         } else {
             $this->alur->simpan($request->user(), $this->validasi($request, $surat->id), $surat);
         }
         $this->simpanNomor($request, $surat);
+        $this->simpanPindaian($request, $surat);
 
         return redirect()->route('surat-keluar.show', $surat)->with('sukses', 'Draf diperbarui.');
     }
@@ -252,6 +257,32 @@ class SuratKeluarController extends Controller
             'klasifikasi' => KlasifikasiSurat::where('aktif', true)->orderBy('kode')->get(),
             'jabatan' => Jabatan::with('pejabat')->where('aktif', true)->whereNotNull('user_id')->orderBy('nama')->get(),
         ];
+    }
+
+    /** Pindaian surat (opsional) hanya berlaku bila format mengaktifkannya: PDF/JPG/PNG sesuai batas lampiran aplikasi. */
+    private function aturanPindaian(?JenisSurat $jenis): array
+    {
+        return $jenis?->pindaian ? ['scan' => ['nullable', 'file', 'mimes:'.implode(',', config('sipersu.lampiran.mimes')), 'max:'.config('sipersu.lampiran.maks_kb')]] : [];
+    }
+
+    /** Simpan pindaian ke penyimpanan privat; unggahan baru menggantikan pindaian lama. */
+    private function simpanPindaian(Request $request, Surat $s): void
+    {
+        $scan = $s->jenis?->pindaian ? $request->file('scan') : null;
+        if (! $scan) {
+            return;
+        }
+        foreach ($s->lampiran()->where('label', 'Pindaian surat')->get() as $lama) {
+            Storage::disk('local')->delete($lama->path);
+            $lama->delete();
+        }
+        $ext = strtolower($scan->guessExtension() ?: $scan->getClientOriginalExtension());
+        $jalur = $scan->storeAs("lampiran/surat-keluar/{$s->id}", Str::random(24).'.'.$ext, 'local');
+        Lampiran::create([
+            'lampiranable_type' => $s->getMorphClass(), 'lampiranable_id' => $s->id, 'label' => 'Pindaian surat',
+            'nama_asli' => Str::limit($scan->getClientOriginalName(), 120, ''), 'path' => $jalur,
+            'mime' => $scan->getMimeType(), 'ukuran' => $scan->getSize(), 'diunggah_oleh' => $request->user()->id,
+        ]);
     }
 
     /** Aturan isian nomor surat (hanya Admin TU yang mengetik nomor). */

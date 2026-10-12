@@ -54,6 +54,13 @@
                 <x-modal nama="kembalikan" judul="Kembalikan untuk Revisi"><form method="post" action="{{ route('surat-keluar.kembalikan', $s) }}" class="space-y-4">@csrf<x-textarea label="Catatan revisi" name="catatan" wajib rows="4" /><div class="flex justify-end gap-2"><x-tombol varian="sekunder" x-on:click="$dispatch('tutup-modal')">Batal</x-tombol><x-tombol type="submit">Kembalikan</x-tombol></div></form></x-modal>
                 <x-modal nama="batalkan" judul="Batalkan Surat Terbit"><form method="post" action="{{ route('surat-keluar.batalkan', $s) }}" class="space-y-4">@csrf<p class="font-body-sm text-body-sm text-on-surface-variant">Surat yang dibatalkan tetap tercatat; nomornya <strong>tidak dipakai ulang</strong>@if ($s->pakaiQr()) dan QR menampilkan "TIDAK BERLAKU"@endif.</p><x-textarea label="Alasan pembatalan" name="alasan" wajib rows="3" /><div class="flex justify-end gap-2"><x-tombol varian="sekunder" x-on:click="$dispatch('tutup-modal')">Batal</x-tombol><x-tombol type="submit" varian="bahaya">Batalkan Surat</x-tombol></div></form></x-modal>
             @endif
+            @php $pindaian = $s->lampiran()->where('label', 'Pindaian surat')->first(); @endphp
+            @if ($pindaian)
+                <x-kartu judul="Pindaian Surat" ikon="attach_file">
+                    <p class="flex items-center gap-2 font-body-sm text-body-sm"><x-ikon name="picture_as_pdf" class="text-[20px] text-primary" /><span class="min-w-0 flex-1 truncate">{{ $pindaian->nama_asli }} • {{ $pindaian->ukuranTerbaca() }}</span></p>
+                    <x-tombol :href="route('lampiran.unduh', $pindaian)" target="_blank" varian="sekunder" ikon="open_in_new" class="mt-3 w-full">Buka Pindaian</x-tombol>
+                </x-kartu>
+            @endif
             <x-kartu judul="Tahapan Surat" deskripsi="Semua tahap dari draf sampai terbit." ikon="timeline">
                 <x-garis-waktu>@foreach ($tahap as [$j, $st, $w, $oleh, $cat])
                     <x-garis-waktu.butir :status="$st"><p class="font-label-lg text-label-lg">{{ $j }} @if ($w)<span class="font-body-sm text-body-sm font-normal text-on-surface-variant">· {{ $w->translatedFormat('j M H:i') }}</span>@endif</p>@if ($oleh)<p class="font-body-sm text-body-sm text-on-surface-variant">{{ $oleh }}</p>@endif @if ($cat)<p class="font-body-sm text-body-sm italic">"{{ $cat }}"</p>@endif</x-garis-waktu.butir>

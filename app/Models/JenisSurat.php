@@ -18,6 +18,7 @@ class JenisSurat extends Model
             'field_formulir' => 'array',
             'syarat' => 'array',
             'aktif' => 'boolean',
+            'pindaian' => 'boolean',
             'perlu_paraf' => 'boolean',
         ];
     }
@@ -68,6 +69,7 @@ class JenisSurat extends Model
                 'tanggal' => ['date', $f['nama'] === 'tgl_selesai' ? 'after_or_equal:'.$awalan.'tgl_mulai' : ($tanggalBolehLampau ? 'date' : 'after_or_equal:today')],
                 'angka' => ['numeric', 'min:0', 'max:100000000'],
                 'pilihan' => ['string', 'in:'.implode(',', array_map(fn ($o) => str_replace(',', ' ', $o), $f['opsi'] ?? []))],
+                'prodi' => ['string', \Illuminate\Validation\Rule::in(Prodi::daftarNama())],
                 default => ['string', 'max:255'],
             });
             $aturan[$awalan.$f['nama']] = array_values(array_unique($r));

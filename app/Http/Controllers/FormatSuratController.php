@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Jabatan;
 use App\Models\JenisSurat;
 use App\Models\KlasifikasiSurat;
+use App\Models\Pengaturan;
 use App\Models\LogAktivitas;
 use App\Models\User;
 use App\Services\PenyusunSurat;
@@ -16,7 +17,7 @@ use Illuminate\Validation\ValidationException;
 /** Format surat yang diatur TU: nama/kegunaan, daftar isian, templat, penandatangan, bentuk (QR/tanpa QR). */
 class FormatSuratController extends Controller
 {
-    private const TIPE = ['teks' => 'Teks pendek', 'area' => 'Teks panjang', 'tanggal' => 'Tanggal', 'angka' => 'Angka', 'pilihan' => 'Pilihan', 'daftar' => 'Daftar (satu per baris)', 'tabel' => 'Tabel (baris berulang)'];
+    private const TIPE = ['teks' => 'Teks pendek', 'area' => 'Teks panjang', 'tanggal' => 'Tanggal', 'angka' => 'Angka', 'pilihan' => 'Pilihan', 'prodi' => 'Program studi (dari Master Data)', 'daftar' => 'Daftar (satu per baris)', 'tabel' => 'Tabel (baris berulang)'];
 
     public function index(Request $request)
     {
@@ -41,7 +42,7 @@ class FormatSuratController extends Controller
     public function simpan(Request $request, ?JenisSurat $format = null)
     {
         $d = $this->validasi($request, $format);
-        $isi = ['aktif' => $request->boolean('aktif'), 'perlu_paraf' => $request->boolean('perlu_paraf')] + $d['kolom'];
+        $isi = ['aktif' => $request->boolean('aktif'), 'perlu_paraf' => $request->boolean('perlu_paraf'), 'pindaian' => $request->boolean('pindaian') && $request->input('sasaran') === 'staf'] + $d['kolom'];
         if (($isi['mode_ttd'] ?? 'qr') === 'basah') {
             $isi['perlu_paraf'] = false;          // surat tanpa QR tidak melalui persetujuan; hanya surat ber-QR yang diparaf/ditandatangani
         }
@@ -113,7 +114,7 @@ class FormatSuratController extends Controller
         $perihalTemplat = trim((string) $request->input('perihal_template')) ?: trim((string) $request->input('nama'));
         $perihal = trim(strip_tags(html_entity_decode($penyusun->badan($perihalTemplat, $data, $jabatan))));
 
-        return response()->json(['html' => $penyusun->htmlPratinjau($isi, $judul !== '' ? $judul : null, $jabatan, $mode, $perihal, $gayaTanggal, null, is_string($isian['lampiran'] ?? null) ? $isian['lampiran'] : null)]);
+        return response()->json(['html' => $penyusun->htmlPratinjau($isi, $judul !== '' ? $judul : null, $jabatan, $mode, $perihal, $gayaTanggal, null, is_string($isian['lampiran'] ?? null) ? $isian['lampiran'] : null, null, KlasifikasiSurat::find($request->input('klasifikasi_id')), (string) $request->input('kekhususan'), $request->input('posisi_nomor') === 'kiri' ? 'kiri' : 'tengah')]);
     }
 
     // ---- util -------------------------------------------------------------------------------------------
@@ -123,6 +124,8 @@ class FormatSuratController extends Controller
         return [
             'f' => $f,
             'tipe' => self::TIPE,
+            'seruan' => \App\Models\Seruan::daftar(),
+            'nomorPola' => ['pola' => Pengaturan::ambil('format_nomor', '{urut}/{kekhususan}/II.3.AU/{unit}/{klasifikasi}/{tahun}'), 'panjang' => (int) Pengaturan::ambil('panjang_urut', 3), 'unit' => \App\Services\PenomoranService::unitFakultas()],
             'klasifikasi' => KlasifikasiSurat::where('aktif', true)->orderBy('kode')->get(),
             'jabatan' => Jabatan::with('pejabat')->where('aktif', true)->orderBy('nama')->get(),
             'fields' => old('fields', collect($f?->field_formulir ?? [])->map(fn ($x) => [
@@ -146,6 +149,7 @@ class FormatSuratController extends Controller
             'judul_surat' => ['nullable', 'string', 'max:150'],
             'perihal_template' => ['nullable', 'string', 'max:200'],
             'klasifikasi_id' => [$masuk ? 'nullable' : 'required', 'exists:klasifikasi_surat,id'],
+            'kekhususan' => ['nullable', Rule::in(array_merge(array_keys(\App\Models\Seruan::daftar()), array_filter([$format?->kekhususan])))],
             'penandatangan_jabatan_id' => [$masuk ? 'nullable' : 'required', 'exists:jabatan,id'],
             'mode_ttd' => [$masuk ? 'nullable' : 'required', Rule::in(['qr', 'basah'])],
             'paraf_role' => ['nullable', 'required_if:perlu_paraf,1', Rule::in(['wakil_dekan', 'kaprodi'])],
@@ -154,14 +158,16 @@ class FormatSuratController extends Controller
             'urutan' => ['nullable', 'integer', 'min:0', 'max:999'],
             'template_html' => [$masuk ? 'nullable' : 'required', 'string', 'max:20000'],
             'gaya_tanggal' => ['nullable', Rule::in(['dikeluarkan', 'hijriah', 'hijriah_atas'])],
+            'posisi_nomor' => ['nullable', Rule::in(['tengah', 'kiri'])],
         ], [
             'nama.required' => 'Nama format wajib diisi.', 'template_html.required' => 'Isi (templat) surat wajib diisi.',
-            'klasifikasi_id.required' => 'Pilih klasifikasi untuk nomor surat.', 'penandatangan_jabatan_id.required' => 'Pilih penandatangan.',
+            'klasifikasi_id.required' => 'Pilih pokok masalah untuk nomor surat.', 'penandatangan_jabatan_id.required' => 'Pilih penandatangan.',
             'kode.regex' => 'Kode hanya huruf besar, angka, dan strip.', 'paraf_role.required_if' => 'Pilih pemaraf bila surat memerlukan paraf.',
         ]);
 
         $kolom['urutan'] = $kolom['urutan'] ?? 50;
         $kolom['gaya_tanggal'] = $kolom['gaya_tanggal'] ?? 'dikeluarkan';
+        $kolom['posisi_nomor'] = $kolom['posisi_nomor'] ?? 'tengah';
         $kolom['mode_ttd'] = $kolom['mode_ttd'] ?? 'qr';
         $kolom['sla_hari'] = $kolom['sla_hari'] ?? 1;
         $kolom['template_html'] = $kolom['template_html'] ?? '';
@@ -180,7 +186,7 @@ class FormatSuratController extends Controller
         }
 
         $kolom['kode'] = ($kolom['kode'] ?? '') ?: ($format?->kode ?? $this->kodeUnik(Str::upper(Str::slug($kolom['nama'], '-'))));
-        foreach (['deskripsi', 'kategori', 'judul_surat', 'perihal_template'] as $k) {
+        foreach (['deskripsi', 'kategori', 'judul_surat', 'perihal_template', 'kekhususan'] as $k) {
             $kolom[$k] = ($kolom[$k] ?? '') === '' ? null : $kolom[$k];
         }
         unset($kolom['perlu_paraf']);

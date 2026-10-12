@@ -1,7 +1,7 @@
 <x-layouts::app :title="'Master Data — '.$d['judul']" :cari="false">
 <div class="mx-auto max-w-6xl">
     <h1 class="mb-1 font-headline-xl text-headline-xl">Master Data</h1>
-    <p class="mb-5 font-body-md text-body-md text-on-surface-variant">Kelola data referensi sistem. Data tidak dihapus, hanya dinonaktifkan, agar riwayat surat tetap utuh.</p>
+    <p class="mb-5 font-body-md text-body-md text-on-surface-variant">Kelola data referensi sistem. Data yang sudah dipakai surat tidak dihapus, hanya dinonaktifkan, agar riwayat surat tetap utuh. Pokok Masalah dan Seruan yang belum dipakai dapat dihapus.</p>
     @include('master._tab')
     @if ($entitas === 'pengguna')
         <div class="mb-4 inline-flex gap-1 rounded-lg bg-surface-container p-1" role="tablist" aria-label="Kelompok pengguna">
@@ -25,6 +25,7 @@
                 <td>@if ($m->aktif)<span class="rounded-full bg-status-selesai-bg px-2.5 py-1 font-label-md text-label-md text-status-selesai-text">Aktif</span>@else<span class="rounded-full bg-surface-container px-2.5 py-1 font-label-md text-label-md text-on-surface-variant">Nonaktif</span>@endif</td>
                 <td class="px-4 text-right"><div class="flex justify-end gap-1.5">
                     <x-tombol :href="route('master.ubah', [$entitas, $m->id])" varian="sekunder" ukuran="sm" ikon="edit">Ubah</x-tombol>
+                    @if (isset($d['hapus']))<form method="post" action="{{ route('master.hapus', [$entitas, $m->id]) }}" onsubmit="return confirm('Hapus {{ addslashes($m->kode ?? '') }} secara permanen?')">@csrf @method('DELETE')<x-tombol type="submit" varian="bahaya" ukuran="sm" ikon="delete" aria-label="Hapus">Hapus</x-tombol></form>@endif
                     <form method="post" action="{{ route('master.aktif', [$entitas, $m->id]) }}">@csrf<x-tombol type="submit" varian="lembut" ukuran="sm">{{ $m->aktif ? 'Nonaktifkan' : 'Aktifkan' }}</x-tombol></form>
                 </div></td>
             </tr>

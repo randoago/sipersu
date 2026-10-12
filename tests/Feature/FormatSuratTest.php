@@ -98,6 +98,141 @@ class FormatSuratTest extends TestCase
         $tu->post('/format-surat', $this->payload(['mode_ttd' => 'lain']))->assertSessionHasErrors('mode_ttd');
     }
 
+    public function test_format_memilih_seruan_dan_pokok_masalah_untuk_nomor_surat(): void
+    {
+        $tu = $this->actingAs($this->u('198701012010011001'));
+        $tu->get('/format-surat/buat')->assertOk()->assertSee('Seruan (kode jenis surat pada nomor)')->assertSee('Pokok Masalah')->assertSee('Susunan nomor surat');
+
+        $tu->post('/format-surat', $this->payload(['kekhususan' => 'TGS']))->assertRedirect('/format-surat');
+        $f = JenisSurat::where('nama', 'Surat Izin Cuti Dosen')->firstOrFail();
+        $this->assertSame('TGS', $f->kekhususan);
+        $this->assertSame('D', $f->klasifikasi->kode);
+
+        $tu->post('/format-surat', $this->payload(['nama' => 'Surat Biasa Uji', 'kekhususan' => '']))->assertRedirect('/format-surat');
+        $this->assertNull(JenisSurat::where('nama', 'Surat Biasa Uji')->value('kekhususan'), 'kosong = surat biasa (tanpa seruan)');
+
+        $tu->post('/format-surat', $this->payload(['nama' => 'Seruan Ngawur', 'kekhususan' => 'XYZ']))->assertSessionHasErrors('kekhususan');
+    }
+
+    public function test_seruan_dikelola_di_master_data_dan_menjadi_pilihan_format(): void
+    {
+        $tu = $this->actingAs($this->u('198701012010011001'));
+        $tu->get('/master/seruan')->assertOk()->assertSee('Seruan (Kode Kekhususan)')->assertSee('Surat Tugas')->assertSee('SRN');
+
+        $tu->post('/master/seruan', ['kode' => 'UND', 'nama' => 'Surat Undangan', 'aktif' => '1'])->assertSessionDoesntHaveErrors();
+        $this->assertTrue(\App\Models\Seruan::where('kode', 'UND')->exists());
+        $tu->post('/master/seruan', ['kode' => 'und', 'nama' => 'Huruf kecil', 'aktif' => '1'])->assertSessionHasErrors('kode');
+        $tu->post('/master/seruan', ['kode' => 'UND', 'nama' => 'Kembar', 'aktif' => '1'])->assertSessionHasErrors('kode');
+
+        $tu->get('/format-surat/buat')->assertSee('UND — Surat Undangan');
+        $tu->post('/format-surat', $this->payload(['nama' => 'Undangan Master', 'kekhususan' => 'UND']))->assertRedirect('/format-surat');
+        $this->assertSame('UND', JenisSurat::where('nama', 'Undangan Master')->value('kekhususan'));
+
+        // seruan nonaktif tidak lagi dapat dipilih pada format baru
+        $id = \App\Models\Seruan::where('kode', 'UND')->value('id');
+        $tu->post("/master/seruan/{$id}/aktif");
+        $tu->post('/format-surat', $this->payload(['nama' => 'Undangan Lain', 'kekhususan' => 'UND']))->assertSessionHasErrors('kekhususan');
+    }
+
+    public function test_pokok_masalah_dan_seruan_dapat_diubah_dan_dihapus_bila_belum_dipakai(): void
+    {
+        $tu = $this->actingAs($this->u('198701012010011001'));
+        $tu->get('/master/klasifikasi')->assertOk()->assertSee('Hapus');
+
+        // ubah
+        $baru = \App\Models\KlasifikasiSurat::create(['kode' => 'ZZ', 'nama' => 'Uji Hapus', 'aktif' => true]);
+        $tu->put("/master/klasifikasi/{$baru->id}", ['kode' => 'ZZ', 'nama' => 'Uji Ubah', 'aktif' => '1'])->assertSessionDoesntHaveErrors();
+        $this->assertSame('Uji Ubah', $baru->fresh()->nama);
+
+        // hapus yang belum dipakai
+        $tu->delete("/master/klasifikasi/{$baru->id}")->assertSessionHas('sukses');
+        $this->assertNull(\App\Models\KlasifikasiSurat::find($baru->id));
+
+        // yang sudah dipakai format ditolak
+        $dipakai = JenisSurat::first()->klasifikasi_id;
+        $tu->delete("/master/klasifikasi/{$dipakai}")->assertSessionHas('galat');
+        $this->assertNotNull(\App\Models\KlasifikasiSurat::find($dipakai));
+
+        // seruan: dipakai format → ditolak; baru → boleh
+        $kode = JenisSurat::whereNotNull('kekhususan')->value('kekhususan');
+        $tu->delete('/master/seruan/'.\App\Models\Seruan::where('kode', $kode)->value('id'))->assertSessionHas('galat');
+        $s = \App\Models\Seruan::create(['kode' => 'UJI', 'nama' => 'Uji', 'aktif' => true]);
+        $tu->delete("/master/seruan/{$s->id}")->assertSessionHas('sukses');
+
+        // entitas lain tidak dapat dihapus lewat rute ini
+        $tu->delete('/master/prodi/'.\App\Models\Prodi::value('id'))->assertStatus(405);
+    }
+
+    public function test_posisi_nomor_surat_kiri_atau_tengah_per_format(): void
+    {
+        $tu = $this->actingAs($this->u('198701012010011001'));
+        $tu->get('/format-surat/buat')->assertSee('Posisi nomor surat');
+        $tu->post('/format-surat', $this->payload(['nama' => 'Nomor Kiri', 'posisi_nomor' => 'kiri']))->assertRedirect('/format-surat');
+        $tu->post('/format-surat', $this->payload(['nama' => 'Nomor Tengah']))->assertRedirect('/format-surat');
+        $tu->post('/format-surat', $this->payload(['nama' => 'Nomor Ngawur', 'posisi_nomor' => 'kanan']))->assertSessionHasErrors('posisi_nomor');
+        $kiri = JenisSurat::where('nama', 'Nomor Kiri')->firstOrFail();
+        $tengah = JenisSurat::where('nama', 'Nomor Tengah')->firstOrFail();
+        $this->assertSame('kiri', $kiri->posisi_nomor);
+        $this->assertSame('tengah', $tengah->posisi_nomor, 'bawaan tengah');
+
+        $h = $tu->postJson('/surat-keluar/pratinjau', ['format' => $kiri->kode])->json('html');
+        $this->assertStringContainsString('<table class="nomor-atas"', $h);
+        $this->assertStringNotContainsString('<div class="nomor">', $h);
+        $t = $tu->postJson('/surat-keluar/pratinjau', ['format' => $tengah->kode])->json('html');
+        $this->assertStringContainsString('<div class="nomor">Nomor :', $t);
+    }
+
+    public function test_pindaian_surat_hanya_tampil_pada_format_yang_mengaktifkannya(): void
+    {
+        $tu = $this->actingAs($this->u('198701012010011001'));
+        $tu->post('/format-surat', $this->payload(['nama' => 'Format Dengan Pindaian', 'pindaian' => '1']))->assertRedirect('/format-surat');
+        $tu->post('/format-surat', $this->payload(['nama' => 'Format Tanpa Pindaian']))->assertRedirect('/format-surat');
+        $ada = JenisSurat::where('nama', 'Format Dengan Pindaian')->firstOrFail();
+        $tak = JenisSurat::where('nama', 'Format Tanpa Pindaian')->firstOrFail();
+        $this->assertTrue($ada->pindaian);
+        $this->assertFalse($tak->pindaian);
+
+        $tu->get('/surat-keluar/format/'.$ada->kode)->assertOk()->assertSee('Pindaian Surat')->assertSee('multipart/form-data', false);
+        $tu->get('/surat-keluar/format/'.$tak->kode)->assertOk()->assertDontSee('Pindaian Surat');
+    }
+
+    public function test_pindaian_diunggah_disimpan_dan_dapat_dibuka_dari_halaman_surat(): void
+    {
+        $tu = $this->actingAs($this->u('198701012010011001'));
+        $tu->post('/format-surat', $this->payload(['nama' => 'Format Pindai', 'pindaian' => '1']));
+        $f = JenisSurat::where('nama', 'Format Pindai')->firstOrFail();
+        $isian = ['nama_dosen' => 'Dosen Uji', 'alasan_cuti' => 'Keperluan keluarga', 'jenis_cuti' => 'Cuti Sakit'];
+
+        $tu->post('/surat-keluar/format/'.$f->kode, ['isian' => $isian, 'scan' => \Illuminate\Http\UploadedFile::fake()->create('scan.exe', 10, 'application/x-msdownload')])->assertSessionHasErrors('scan');
+
+        $tu->post('/surat-keluar/format/'.$f->kode, ['isian' => $isian, 'scan' => \Illuminate\Http\UploadedFile::fake()->create('surat.pdf', 100, 'application/pdf')]);
+        $s = Surat::where('jenis_surat_id', $f->id)->latest('id')->firstOrFail();
+        $l = $s->lampiran()->where('label', 'Pindaian surat')->firstOrFail();
+        Storage::disk('local')->assertExists($l->path);
+        $tu->get('/surat-keluar/'.$s->id)->assertOk()->assertSee('Buka Pindaian');
+        $tu->get('/lampiran/'.$l->id)->assertOk();
+    }
+
+    public function test_penanda_nomor_dan_tanggal_memindahkan_posisinya_dari_templat(): void
+    {
+        $tu = $this->actingAs($this->u('198701012010011001'));
+        $tu->post('/format-surat', $this->payload(['nama' => 'Posisi Bebas', 'template_html' => '<p>{%tanggal%}</p><p>{%nomor%}</p><p>{{ isian.nama_dosen }}</p>{%ttd%}']))->assertRedirect('/format-surat');
+        $f = JenisSurat::where('nama', 'Posisi Bebas')->firstOrFail();
+        $html = $tu->postJson('/surat-keluar/pratinjau', ['format' => $f->kode, 'isian' => ['nama_dosen' => 'Dosen Uji']])->assertOk()->json('html');
+
+        $this->assertStringNotContainsString('<div class="nomor">', $html, 'nomor tidak lagi di kepala surat');
+        $this->assertMatchesRegularExpression('#<td width="14%">Nomor</td><td width="3%">:</td><td>000/#', $html, 'nomor muncul di posisi penanda');
+        $this->assertStringContainsString('text-align:right', $html);
+        $this->assertStringNotContainsString('Dikeluarkan di', $html, 'tanggal dipindah dari blok tanda tangan');
+        $this->assertStringNotContainsString('{%', $html, 'penanda tidak tampil mentah');
+        $this->assertLessThan(strpos($html, 'Dosen Uji</p>'), strpos($html, '>Nomor<'), 'urutan mengikuti templat');
+
+        // tanpa penanda: perilaku lama (nomor di kepala, tanggal di blok tanda tangan)
+        $lama = $tu->postJson('/surat-keluar/pratinjau', ['format' => 'SURAT-TUGAS'])->json('html');
+        $this->assertStringContainsString('<div class="nomor">Nomor :', $lama);
+        $this->assertStringContainsString('Dikeluarkan di : Baubau', $lama);
+    }
+
     public function test_templat_dibersihkan_dari_script_dan_atribut_berbahaya(): void
     {
         $this->actingAs($this->u('198701012010011001'))->post('/format-surat', $this->payload(['template_html' => '<p onclick="x()">{{ isian.nama_dosen }}</p><script>alert(1)</script><a href="javascript:alert(2)">k</a>']));

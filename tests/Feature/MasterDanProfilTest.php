@@ -29,7 +29,7 @@ class MasterDanProfilTest extends TestCase
     public function test_semua_halaman_admin_terbuka_untuk_super_admin(): void
     {
         $this->actingAs($this->u('0000000001'));
-        foreach (['/master/pengguna', '/master/prodi', '/master/jabatan', '/master/klasifikasi', '/format-surat', '/format-surat/buat', '/format-surat/1/ubah', '/master/pengguna/buat',
+        foreach (['/master/pengguna', '/master/prodi', '/master/jabatan', '/master/klasifikasi', '/master/seruan', '/format-surat', '/format-surat/buat', '/format-surat/1/ubah', '/master/pengguna/buat',
             '/pengaturan/nomor', '/pengaturan/backup', '/pengaturan/log', '/profil', '/notifikasi', '/pengajuan', '/persetujuan', '/layanan', '/layanan/lacak', '/dasbor'] as $url) {
             $this->get($url)->assertOk();
         }

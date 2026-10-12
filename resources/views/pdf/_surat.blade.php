@@ -18,14 +18,18 @@
     @endif
 
     @if ($judul)<div class="judul">{{ $judul }}</div>@endif
-    @if ($gayaTanggal === 'hijriah_atas')
+    {{-- Nomor & tanggal di kepala surat; bila templat memuat {%nomor%} / {%tanggal%}, bagian itu dipindahkan ke posisi penanda. --}}
+    @if ($gayaTanggal === 'hijriah_atas' && (! $nomorDiisi || ! $tanggalDiisi))
         {{-- Nomor di kiri; tanggal Hijriah + Masehi rata kanan di pojok kanan atas (posisi mutlak agar Lampiran & Perihal tetap rapat di bawah Nomor).
              Lebar kolom Nomor sejajar dengan tabel Lampiran/Perihal pada isi. --}}
         <div class="nomor-atas-wrap" style="position:relative">
-            <table class="nomor-atas" width="58%" cellspacing="0" cellpadding="0"><tr><td width="24%" valign="top">Nomor</td><td width="5%" valign="top">:</td><td valign="top">{{ $nomor ?: '000' }}</td></tr></table>
-            <div class="tgl-atas" style="position:absolute;top:0;right:0;text-align:right">{{ $kota }}, {{ $tanggalHijriah }}<br>{{ $tanggalMasehi }}</div>
+            @if (! $nomorDiisi)<table class="nomor-atas" width="58%" cellspacing="0" cellpadding="0"><tr><td width="24%" valign="top">Nomor</td><td width="5%" valign="top">:</td><td valign="top">{{ $nomor ?: '000' }}</td></tr></table>@else<div style="height:1px"></div>@endif
+            @if (! $tanggalDiisi)<div class="tgl-atas" style="position:absolute;top:0;right:0;text-align:right">{{ $kota }}, {{ $tanggalHijriah }}<br>{{ $tanggalMasehi }}</div>@endif
         </div>
-    @else
+    @elseif ($gayaTanggal !== 'hijriah_atas' && ! $nomorDiisi && $posisiNomor === 'kiri')
+        {{-- Nomor rata kiri, sejajar dengan Lampiran/Perihal --}}
+        <div class="nomor-atas-wrap"><table class="nomor-atas" width="58%" cellspacing="0" cellpadding="0"><tr><td width="24%" valign="top">Nomor</td><td width="5%" valign="top">:</td><td valign="top">{{ $nomor ?: '000' }}</td></tr></table></div>
+    @elseif ($gayaTanggal !== 'hijriah_atas' && ! $nomorDiisi)
         <div class="nomor">Nomor : {{ $nomor ?: '000' }}</div>
     @endif
 
@@ -42,7 +46,7 @@
     @php $lebarQr = $modeQr && $terbit && $qrSvg; $geser = $lebarQr ? 'padding-left:0.66cm' : ''; @endphp
     <table class="ttd" cellspacing="0" cellpadding="0" align="right" width="{{ $lebarQr ? '56%' : '52%' }}">
         <tr><td style="{{ $geser }}">
-            @if ($gayaTanggal === 'hijriah_atas')
+            @if ($gayaTanggal === 'hijriah_atas' || $tanggalDiisi)
                 {{ $sebutanJabatan }},
             @elseif ($gayaTanggal === 'hijriah')
                 <table class="tgl-hijriah" cellspacing="0" cellpadding="0"><tr><td class="tgl-kota">{{ $kota }},</td><td>{{ $tanggalHijriah }}<br>{{ $tanggalMasehi }}</td></tr></table>

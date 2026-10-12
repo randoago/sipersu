@@ -91,6 +91,22 @@ class MasterController extends Controller
         return redirect()->route('master.daftar', $arah)->with('sukses', $d['judul'].' berhasil disimpan.');
     }
 
+    /** Hapus permanen — hanya untuk entitas yang mendefinisikan aturan `hapus` dan hanya bila belum dipakai. */
+    public function hapus(string $entitas, int $id)
+    {
+        $d = $this->def($entitas);
+        abort_unless(isset($d['hapus']), 404);
+        $m = $d['model']::findOrFail($id);
+        if ($alasan = $d['hapus']($m)) {
+            return back()->with('galat', $alasan);
+        }
+        $nama = ($m->kode ?? '').' — '.($m->nama ?? '');
+        $m->delete();
+        LogAktivitas::catat('master_hapus', 'Menghapus '.$d['judul'].': '.$nama);
+
+        return back()->with('sukses', $d['judul'].' dihapus: '.$nama.'.');
+    }
+
     public function aktif(string $entitas, int $id)
     {
         $d = $this->def($entitas);
