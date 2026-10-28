@@ -1,0 +1,515 @@
+openapi: 3.0.3
+info:
+  title: SIPERSU FT-UMB REST API
+  version: "1.0"
+  description: |
+    API baca saja untuk Sistem Informasi Persuratan Fakultas Teknik UM Buton.
+    Autentikasi memakai token Bearer pribadi (Laravel Sanctum). Hak akses sama dengan aplikasi web.
+    Hanya dapat dipanggil dari jaringan lokal fakultas. Penjelasan lengkap: api-rest.md.
+servers:
+  - url: http://sipersu.ft.umbuton.ac.id/api/v1
+    description: Server fakultas (jaringan lokal)
+security:
+  - bearerAuth: []
+tags:
+  - { name: Autentikasi }
+  - { name: Katalog }
+  - { name: Pengajuan }
+  - { name: Surat }
+  - { name: Pembukuan }
+  - { name: Verifikasi }
+paths:
+  /auth/token:
+    post:
+      tags: [Autentikasi]
+      summary: Membuat token
+      description: Salah 5 kali dalam 1 menit (per akun dan IP) dijawab 429. Token dengan nama_perangkat yang sama diganti.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nomor_induk, password]
+              properties:
+                nomor_induk: { type: string, maxLength: 100, description: "NPM, NIDN, atau username", example: TU }
+                password: { type: string, maxLength: 200 }
+                nama_perangkat: { type: string, maxLength: 60, example: dasbor-fakultas }
+      responses:
+        "201":
+          description: Token dibuat. Ditampilkan sekali.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: { type: string, example: "1|lyW18JJeAE…" }
+                  token_type: { type: string, example: Bearer }
+                  kedaluwarsa_pada: { type: string, format: date-time, nullable: true }
+                  pengguna: { $ref: "#/components/schemas/Pengguna" }
+        "401": { $ref: "#/components/responses/Galat" }
+        "422": { $ref: "#/components/responses/Validasi" }
+        "429": { $ref: "#/components/responses/Galat" }
+    delete:
+      tags: [Autentikasi]
+      summary: Mencabut token yang sedang dipakai
+      responses:
+        "204": { description: Token dicabut }
+        "401": { $ref: "#/components/responses/Galat" }
+  /me:
+    get:
+      tags: [Autentikasi]
+      summary: Identitas dan peran pemilik token
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: "#/components/schemas/Pengguna" }
+        "401": { $ref: "#/components/responses/Galat" }
+  /jenis-surat:
+    get:
+      tags: [Katalog]
+      summary: Daftar format surat aktif
+      description: Mahasiswa selalu dibatasi ke sasaran mahasiswa.
+      parameters:
+        - { name: sasaran, in: query, schema: { type: string, enum: [mahasiswa, staf, masuk] } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: "#/components/schemas/JenisSurat" } }
+        "401": { $ref: "#/components/responses/Galat" }
+  /jenis-surat/{kode}:
+    get:
+      tags: [Katalog]
+      summary: Rincian format surat (isian dan syarat berkas)
+      parameters:
+        - { name: kode, in: path, required: true, schema: { type: string }, example: CUTI-AKADEMIK }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: "#/components/schemas/JenisSuratRinci" }
+        "401": { $ref: "#/components/responses/Galat" }
+        "404": { $ref: "#/components/responses/Galat" }
+  /pengajuan:
+    get:
+      tags: [Pengajuan]
+      summary: Daftar pengajuan surat yang boleh dilihat
+      description: Mahasiswa dan dosen melihat miliknya; Kaprodi miliknya dan prodinya; Admin, Dekan, Wakil Dekan semuanya.
+      parameters:
+        - { name: status, in: query, schema: { type: string, enum: [diajukan, diverifikasi, disetujui, ditandatangani, selesai, ditolak] } }
+        - { name: q, in: query, schema: { type: string, maxLength: 100 }, description: "Kode, nama, atau NPM pemohon" }
+        - { $ref: "#/components/parameters/Halaman" }
+        - { $ref: "#/components/parameters/PerHalaman" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: "#/components/schemas/Paginasi" }
+                  - type: object
+                    properties:
+                      data: { type: array, items: { $ref: "#/components/schemas/Pengajuan" } }
+        "401": { $ref: "#/components/responses/Galat" }
+        "422": { $ref: "#/components/responses/Validasi" }
+  /pengajuan/{kode}:
+    get:
+      tags: [Pengajuan]
+      summary: Rincian pengajuan
+      parameters:
+        - { name: kode, in: path, required: true, schema: { type: string }, example: REG-2026-000008 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: "#/components/schemas/PengajuanRinci" }
+        "401": { $ref: "#/components/responses/Galat" }
+        "403": { $ref: "#/components/responses/Galat" }
+        "404": { $ref: "#/components/responses/Galat" }
+  /surat-keluar:
+    get:
+      tags: [Surat]
+      summary: Surat keluar buatan staf
+      description: Selain Admin, Dekan, dan Wakil Dekan hanya surat buatan sendiri atau yang ia tandatangani. Mahasiswa 403.
+      parameters:
+        - { name: status, in: query, schema: { type: string, enum: [draf, menunggu_paraf, menunggu_ttd, ditandatangani, batal] } }
+        - { name: q, in: query, schema: { type: string, maxLength: 100 } }
+        - { $ref: "#/components/parameters/Halaman" }
+        - { $ref: "#/components/parameters/PerHalaman" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: "#/components/schemas/Paginasi" }
+                  - type: object
+                    properties:
+                      data: { type: array, items: { $ref: "#/components/schemas/Surat" } }
+        "401": { $ref: "#/components/responses/Galat" }
+        "403": { $ref: "#/components/responses/Galat" }
+  /surat-keluar/{id}:
+    get:
+      tags: [Surat]
+      summary: Rincian surat keluar beserta tahapan
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: "#/components/schemas/SuratRinci" }
+        "401": { $ref: "#/components/responses/Galat" }
+        "403": { $ref: "#/components/responses/Galat" }
+        "404": { $ref: "#/components/responses/Galat" }
+  /surat-masuk:
+    get:
+      tags: [Surat]
+      summary: Surat masuk
+      description: Admin, Dekan, Wakil Dekan, Kaprodi. Surat rahasia hanya untuk Admin, Dekan, Wakil Dekan.
+      parameters:
+        - { name: q, in: query, schema: { type: string, maxLength: 100 } }
+        - { name: tahun, in: query, schema: { type: integer, minimum: 2000, maximum: 2100 } }
+        - { name: sifat, in: query, schema: { type: string, enum: [biasa, penting, segera, rahasia] } }
+        - { $ref: "#/components/parameters/Halaman" }
+        - { $ref: "#/components/parameters/PerHalaman" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: "#/components/schemas/Paginasi" }
+                  - type: object
+                    properties:
+                      data: { type: array, items: { $ref: "#/components/schemas/Surat" } }
+        "401": { $ref: "#/components/responses/Galat" }
+        "403": { $ref: "#/components/responses/Galat" }
+  /surat-masuk/{id}:
+    get:
+      tags: [Surat]
+      summary: Rincian surat masuk
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: "#/components/schemas/SuratRinci" }
+        "401": { $ref: "#/components/responses/Galat" }
+        "403": { $ref: "#/components/responses/Galat" }
+        "404": { $ref: "#/components/responses/Galat" }
+  /pembukuan:
+    get:
+      tags: [Pembukuan]
+      summary: Buku agenda surat
+      description: Admin, Dekan, Wakil Dekan. Perihal surat rahasia disamarkan selain untuk Admin.
+      parameters:
+        - { name: arah, in: query, schema: { type: string, enum: [masuk, keluar, lain] } }
+        - { name: tahun, in: query, schema: { type: integer, minimum: 1990, maximum: 2100 } }
+        - { name: sumber, in: query, schema: { type: string, enum: [aplikasi, buku] } }
+        - { name: q, in: query, schema: { type: string, maxLength: 100 } }
+        - { $ref: "#/components/parameters/Halaman" }
+        - { name: per_page, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: "#/components/schemas/Pembukuan" } }
+                  meta:
+                    type: object
+                    properties:
+                      halaman: { type: integer }
+                      per_page: { type: integer }
+                      total: { type: integer }
+                      halaman_terakhir: { type: integer }
+        "401": { $ref: "#/components/responses/Galat" }
+        "403": { $ref: "#/components/responses/Galat" }
+        "422": { $ref: "#/components/responses/Validasi" }
+  /verifikasi/{token}:
+    get:
+      tags: [Verifikasi]
+      summary: Memeriksa keaslian surat ber-QR
+      description: Tanda tangan Ed25519 diverifikasi ulang di server dari data surat di basis data.
+      parameters:
+        - { name: token, in: path, required: true, schema: { type: string, minLength: 32 }, description: "Token pada alamat verifikasi /v/{token}" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: "#/components/schemas/Verifikasi" }
+        "401": { $ref: "#/components/responses/Galat" }
+        "404": { $ref: "#/components/responses/Galat" }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Token dari POST /auth/token
+  parameters:
+    Halaman:
+      { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 } }
+    PerHalaman:
+      { name: per_page, in: query, schema: { type: integer, minimum: 1, maximum: 50, default: 15 } }
+  responses:
+    Galat:
+      description: Galat (401 token tidak sah, 403 tidak berhak, 404 tidak ada, 429 terlalu sering)
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message: { type: string, example: Unauthenticated. }
+    Validasi:
+      description: Parameter tidak valid
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message: { type: string }
+              errors:
+                type: object
+                additionalProperties: { type: array, items: { type: string } }
+  schemas:
+    Pengguna:
+      type: object
+      properties:
+        id: { type: integer }
+        nomor_induk: { type: string }
+        nama: { type: string }
+        nama_lengkap: { type: string }
+        peran:
+          type: array
+          items: { type: string, enum: [super_admin, admin_tu, dekan, wakil_dekan, kaprodi, dosen_tendik, mahasiswa] }
+        prodi:
+          type: object
+          nullable: true
+          properties: { kode: { type: string }, nama: { type: string } }
+    Kode:
+      type: object
+      properties: { kode: { type: string }, nama: { type: string } }
+    JenisSurat:
+      type: object
+      properties:
+        kode: { type: string }
+        nama: { type: string }
+        deskripsi: { type: string, nullable: true }
+        kategori: { type: string, nullable: true }
+        sasaran: { type: string, enum: [mahasiswa, staf, masuk] }
+        sla_hari: { type: integer, nullable: true }
+        bentuk: { type: string, enum: [qr, tanpa_qr] }
+        perlu_paraf: { type: boolean }
+        verifikator: { type: string, nullable: true }
+        pemaraf: { type: string, nullable: true }
+        kekhususan: { type: string, nullable: true }
+        klasifikasi: { allOf: [{ $ref: "#/components/schemas/Kode" }], nullable: true }
+    JenisSuratRinci:
+      allOf:
+        - { $ref: "#/components/schemas/JenisSurat" }
+        - type: object
+          properties:
+            isian:
+              type: array
+              items:
+                type: object
+                properties:
+                  nama: { type: string }
+                  label: { type: string }
+                  tipe: { type: string }
+                  wajib: { type: boolean }
+                  opsi: { type: array, nullable: true, items: { type: string } }
+                  kolom: { type: array, nullable: true, items: { type: string } }
+            syarat_berkas:
+              type: array
+              items:
+                type: object
+                properties: { label: { type: string }, wajib: { type: boolean } }
+    Pengajuan:
+      type: object
+      properties:
+        kode: { type: string, example: REG-2026-000008 }
+        jenis: { $ref: "#/components/schemas/Kode" }
+        status:
+          type: object
+          properties:
+            kode: { type: string, enum: [diajukan, diverifikasi, disetujui, ditandatangani, selesai, ditolak] }
+            label: { type: string }
+        langkah: { type: integer }
+        total_langkah: { type: integer }
+        persen: { type: integer }
+        tahap_berjalan: { type: string }
+        pemohon:
+          type: object
+          properties: { nama: { type: string }, nomor_induk: { type: string }, prodi: { type: string, nullable: true } }
+        diajukan_pada: { type: string, format: date-time }
+        batas_waktu: { type: string, format: date-time, nullable: true }
+        alasan_tolak: { type: string, nullable: true }
+        surat:
+          type: object
+          nullable: true
+          description: Ada setelah surat terbit bernomor
+          properties:
+            id: { type: integer }
+            nomor: { type: string }
+            status: { type: string }
+            ditandatangani_pada: { type: string, format: date-time, nullable: true }
+    PengajuanRinci:
+      allOf:
+        - { $ref: "#/components/schemas/Pengajuan" }
+        - type: object
+          properties:
+            isian: { type: object, additionalProperties: true, description: Jawaban formulir }
+            catatan: { type: string, nullable: true }
+            persetujuan:
+              type: array
+              items:
+                type: object
+                properties:
+                  tahap: { type: string, enum: [verifikasi, paraf, ttd] }
+                  peran: { type: string, nullable: true }
+                  status: { type: string, enum: [menunggu, disetujui, ditolak, revisi] }
+                  oleh: { type: string, nullable: true }
+                  catatan: { type: string, nullable: true }
+                  diputuskan_pada: { type: string, format: date-time, nullable: true }
+            lampiran: { type: array, items: { $ref: "#/components/schemas/Lampiran" } }
+    Lampiran:
+      type: object
+      description: Metadata saja; berkas tidak dapat diunduh lewat API
+      properties:
+        label: { type: string, nullable: true }
+        nama: { type: string }
+        mime: { type: string }
+        ukuran: { type: integer, description: byte }
+    Surat:
+      type: object
+      properties:
+        id: { type: integer }
+        arah: { type: string, enum: [masuk, keluar] }
+        nomor: { type: string, nullable: true, description: "Surat keluar: nomor surat (kosong sampai terbit). Surat masuk: nomor dari pengirim." }
+        no_agenda: { type: string, nullable: true }
+        perihal: { type: string }
+        sifat: { type: string, enum: [biasa, penting, segera, rahasia] }
+        tujuan: { type: string, nullable: true, description: Hanya surat keluar }
+        asal: { type: string, nullable: true, description: Hanya surat masuk }
+        tgl_surat: { type: string, format: date, nullable: true }
+        tgl_diterima: { type: string, format: date, nullable: true }
+        status: { type: string, description: "Keluar: draf, menunggu_paraf, menunggu_ttd, ditandatangani, batal. Masuk: tercatat." }
+        bentuk: { type: string, enum: [qr, tanpa_qr], nullable: true }
+        klasifikasi: { allOf: [{ $ref: "#/components/schemas/Kode" }], nullable: true }
+        format: { allOf: [{ $ref: "#/components/schemas/Kode" }], nullable: true }
+        dibuat_oleh: { type: string, nullable: true }
+        penandatangan:
+          type: object
+          nullable: true
+          properties: { nama: { type: string }, jabatan: { type: string, nullable: true } }
+        ditandatangani_pada: { type: string, format: date-time, nullable: true }
+        dibatalkan_pada: { type: string, format: date-time, nullable: true }
+        alasan_batal: { type: string, nullable: true }
+    SuratRinci:
+      allOf:
+        - { $ref: "#/components/schemas/Surat" }
+        - type: object
+          properties:
+            pdf_sha256: { type: string, description: Surat keluar terbit }
+            url_verifikasi: { type: string, description: Surat ber-QR terbit }
+            tahapan:
+              type: array
+              description: Hanya surat keluar
+              items:
+                type: object
+                properties:
+                  judul: { type: string }
+                  status: { type: string, enum: [selesai, sekarang, menunggu, ditolak] }
+                  waktu: { type: string, format: date-time, nullable: true }
+                  oleh: { type: string, nullable: true }
+                  catatan: { type: string, nullable: true }
+            lampiran: { type: array, items: { $ref: "#/components/schemas/Lampiran" } }
+    Pembukuan:
+      type: object
+      properties:
+        sumber: { type: string, enum: [aplikasi, pembukuan] }
+        arah: { type: string, enum: [masuk, keluar, lain] }
+        nomor: { type: string, nullable: true }
+        no_agenda: { type: string, nullable: true }
+        tgl_surat: { type: string, format: date, nullable: true }
+        tgl_diterima: { type: string, format: date, nullable: true }
+        pihak: { type: string, nullable: true }
+        perihal: { type: string, description: "(rahasia) bagi Dekan/Wakil Dekan untuk surat rahasia" }
+        sifat: { type: string }
+        jenis: { type: string, nullable: true }
+        keterangan: { type: string, nullable: true }
+    Verifikasi:
+      type: object
+      properties:
+        tanda_tangan_sah: { type: boolean }
+        berlaku: { type: boolean, description: Tanda tangan sah dan surat tidak dibatalkan }
+        status: { type: string }
+        nomor: { type: string }
+        perihal: { type: string, nullable: true, description: null untuk surat rahasia }
+        tgl_surat: { type: string, format: date }
+        penandatangan:
+          type: object
+          properties: { nama: { type: string }, jabatan: { type: string } }
+        ditandatangani_pada: { type: string, format: date-time }
+        dibatalkan_pada: { type: string, format: date-time, nullable: true }
+        alasan_batal: { type: string, nullable: true }
+        pdf_sha256: { type: string }
+    Paginasi:
+      type: object
+      properties:
+        links:
+          type: object
+          properties:
+            first: { type: string }
+            last: { type: string }
+            prev: { type: string, nullable: true }
+            next: { type: string, nullable: true }
+        meta:
+          type: object
+          properties:
+            current_page: { type: integer }
+            last_page: { type: integer }
+            per_page: { type: integer }
+            total: { type: integer }
+            from: { type: integer, nullable: true }
+            to: { type: integer, nullable: true }
+            path: { type: string }

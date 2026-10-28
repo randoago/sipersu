@@ -10,3 +10,4 @@ Schedule::command('queue:work --stop-when-empty --tries=3 --max-time=50')->every
 Schedule::command('backup:run --jenis=harian')->dailyAt('16:30')->withoutOverlapping(60);
 Schedule::command('backup:run --jenis=mingguan')->fridays()->at('17:30')->withoutOverlapping(120);
 Schedule::command('queue:prune-failed --hours=720')->weekly();
+Schedule::command('sipersu:periksa --kirim')->hourly()->withoutOverlapping(30);   // deteksi dini: DB, kunci TTE, disk, backup

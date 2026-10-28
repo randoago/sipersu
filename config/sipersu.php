@@ -17,6 +17,14 @@ return [
         '127.0.0.0/8,::1/128,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,100.64.0.0/10,fc00::/7'
     )))),
 
+    // Perlindungan banjir akses (middleware BatasiBanjir): per alamat IP, dihitung sebelum sesi/basis data.
+    'batas_laju' => [
+        'aktif' => (bool) env('LAJU_AKTIF', true),
+        'per_menit' => (int) env('LAJU_PER_MENIT', 300),          // lewat ini → 429 sampai menit berikutnya
+        'blokir_detik' => (int) env('LAJU_BLOKIR_DETIK', 300),    // lewat 2× batas → IP diblokir sementara
+        'store' => env('LAJU_STORE', 'file'),                     // cache berkas, bukan SQLite
+    ],
+
     'lampiran' => [
         'maks_kb' => 2048,
         'mimes' => ['pdf', 'jpg', 'jpeg', 'png'],
