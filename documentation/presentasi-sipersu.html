@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SIPERSU FT-UMB: Presentasi</title>
+<meta name="description" content="Presentasi SIPERSU, Sistem Informasi Persuratan Fakultas Teknik Universitas Muhammadiyah Buton.">
+<style>
+:root{
+  --green:#004d2c; --mid:#006b3c; --gold:#fdb913; --ink:#1b2a24; --muted:#55645d;
+  --tint:#eef5f0; --line:#d5e3da; --white:#fff; --warn:#8a5a00; --warnbg:#fff8e1; --blue:#1f4e79; --bluebg:#eaf2fa;
+  --head:Cambria,"Iowan Old Style","Palatino Linotype",Georgia,serif;
+  --body:Calibri,"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#0d1f17;overflow:hidden;font-family:var(--body);color:var(--ink)}
+#viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{position:relative;width:1280px;height:720px;transform-origin:center center;flex:none}
+.slide{position:absolute;inset:0;background:var(--white);padding:44px 60px 56px;opacity:0;visibility:hidden;transition:opacity .25s ease;overflow:hidden}
+.slide.on{opacity:1;visibility:visible}
+.slide.dark{background:var(--green);color:var(--white)}
+h1,h2,h3{font-family:var(--head);color:var(--green);line-height:1.15}
+h2{font-size:38px;font-weight:700;height:64px;display:flex;align-items:center;margin-bottom:22px}
+h3{font-size:22px;font-weight:700}
+p,li{font-size:18px;line-height:1.4}
+.muted{color:var(--muted)}
+b{font-weight:700}
+.card{background:var(--white);border:1px solid var(--line);border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.09);padding:24px}
+.card.tint{background:var(--tint)}
+.badge{width:56px;height:56px;border-radius:50%;background:var(--tint);color:var(--mid);display:flex;align-items:center;justify-content:center;flex:none}
+.badge svg{width:28px;height:28px}
+.shot{display:block;width:100%;border-radius:8px;box-shadow:0 3px 14px rgba(0,0,0,.18);border:1px solid var(--line);background:#fff}
+.cap{font-size:14px;color:var(--muted);font-style:italic;margin-top:8px}
+ul.pts{list-style:none;display:flex;flex-direction:column;gap:14px}
+ul.pts li{position:relative;padding-left:22px;font-size:19px}
+ul.pts li::before{content:"";position:absolute;left:2px;top:.6em;width:8px;height:8px;border-radius:50%;background:var(--mid)}
+ul.pts li b{color:var(--green)}
+.row{display:flex;gap:28px}
+.col{flex:1;min-width:0}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+/* sampul */
+.cover{display:flex;flex-direction:column;justify-content:center}
+.cover img.logo{width:84px;height:84px;margin-bottom:34px}
+.cover h1{color:#fff;font-size:68px}
+.cover .sub{font-size:32px;color:var(--gold);margin-top:8px;font-family:var(--head)}
+.cover .fak{font-size:22px;margin-top:10px}
+.cover .lede{font-size:18px;color:#cfe3d7;max-width:560px;margin-top:34px}
+.cover .tag{position:absolute;left:60px;bottom:40px;font-size:14px;color:#cfe3d7}
+.cover .s1,.cover .s2{position:absolute;border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.4)}
+.cover .s1{right:50px;top:90px;width:440px}
+.cover .s2{right:50px;top:300px;width:390px;transform:translateX(-0px)}
+/* alur */
+.flow{display:flex;gap:30px;align-items:stretch;margin-bottom:26px}
+.step{flex:1;position:relative}
+.step .no{width:40px;height:40px;border-radius:50%;background:var(--mid);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:10px;font-size:18px}
+.step.paraf{background:var(--warnbg)} .step.paraf .no{background:var(--gold);color:var(--ink)}
+.step h3{font-size:19px;margin-bottom:6px}
+.step p{font-size:15px}
+.step+.step::before{content:"›";position:absolute;left:-24px;top:22px;font-size:30px;font-weight:700;color:var(--mid)}
+table{width:100%;border-collapse:collapse;font-size:17px}
+th,td{border:1px solid var(--line);padding:12px 16px;text-align:left;vertical-align:middle}
+th{color:#fff;font-family:var(--head);font-size:19px}
+th.a{background:var(--green)} th.b{background:var(--mid)}
+td.k{background:var(--tint);font-weight:700}
+/* nomor */
+.nomor{display:flex;justify-content:center;align-items:flex-start;gap:6px;margin:6px 0 26px}
+.nomor .p{text-align:center;width:150px}
+.nomor .box{background:var(--green);color:#fff;font-family:var(--head);font-weight:700;font-size:28px;border-radius:12px;height:84px;display:flex;align-items:center;justify-content:center}
+.nomor .p.hl .box{background:var(--gold);color:var(--ink)}
+.nomor .sl{font-size:34px;color:var(--muted);height:84px;display:flex;align-items:center;width:20px;justify-content:center}
+.nomor .l1{font-weight:700;color:var(--green);margin-top:8px;font-size:16px}
+.nomor .l2{font-size:13px;color:var(--muted)}
+.big{display:flex;align-items:center;gap:12px}
+.big .n{font-family:var(--head);font-size:84px;font-weight:700;color:var(--green);line-height:1}
+.verif-flow{display:flex;flex-direction:column;gap:12px}
+.verif-flow .card{display:flex;gap:16px;align-items:center;padding:14px 18px}
+.verif-flow b{color:var(--green);font-size:18px;display:block}
+.verif-flow span{font-size:15px}
+.note{background:var(--green);color:#fff;border-radius:14px;padding:22px}
+.note b{color:var(--gold);display:block;margin-bottom:6px;font-size:18px}
+.note p{font-size:16px}
+.qr{display:flex;gap:8px;align-items:flex-start;margin-top:6px}
+.qr .seg{text-align:center;min-width:0}
+.qr code{display:flex;align-items:center;justify-content:center;height:62px;border-radius:10px;font:700 15px "Courier New",Courier,monospace;padding:0 6px;white-space:nowrap;overflow:hidden}
+.qr .seg span{display:block;margin-top:8px;font-size:14px;color:var(--muted)}
+ol.num{list-style:none;counter-reset:n;display:flex;flex-direction:column;gap:10px}
+ol.num li{counter-increment:n;position:relative;padding-left:32px;font-size:17px}
+ol.num li::before{content:counter(n);position:absolute;left:0;top:1px;width:22px;height:22px;border-radius:50%;background:var(--mid);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+/* penutup */
+.end h1{color:#fff;font-size:60px;margin-top:70px}
+.end .gold{color:var(--gold);font-size:24px;margin:20px 0 28px;font-family:var(--head)}
+.end li{font-size:20px;margin-bottom:12px;list-style:none}
+.end li b{color:#fff} .end li span{color:#cfe3d7}
+/* kontrol */
+#bar{position:fixed;left:0;bottom:0;height:4px;background:var(--gold);width:0;transition:width .25s}
+#hud{position:fixed;right:12px;bottom:10px;display:flex;gap:8px;align-items:center;font:600 13px var(--body);color:#fff;background:rgba(0,40,24,.8);padding:4px 8px;border-radius:10px;z-index:5}
+#hud button{background:rgba(255,255,255,.12);color:#fff;border:0;border-radius:8px;width:36px;height:32px;cursor:pointer;font-size:16px}
+#hud button:hover{background:rgba(255,255,255,.25)}
+#hud button:focus-visible{outline:2px solid var(--gold)}
+#notes{position:fixed;left:0;right:0;bottom:0;background:rgba(0,0,0,.88);color:#fff;padding:16px 24px 20px;font-size:16px;line-height:1.5;z-index:4;display:none;max-height:32vh;overflow:auto}
+#notes.on{display:block}
+#help{position:fixed;left:12px;bottom:10px;font:13px var(--body);color:#fff;background:rgba(0,40,24,.8);padding:6px 10px;border-radius:10px;z-index:5}
+@media print{
+  @page{size:1280px 720px;margin:0}
+  html,body{overflow:visible;height:auto;background:#fff}
+  #viewport{position:static;display:block}
+  #stage{transform:none!important;width:1280px;height:auto}
+  .slide{position:relative;opacity:1;visibility:visible;width:1280px;height:720px;break-after:page;page-break-after:always}
+  #hud,#bar,#notes,#help{display:none!important}
+}
+@media (max-width:700px){#help{display:none}}
+</style>
+</head>
+<body>
+<div id="viewport"><main id="stage" aria-live="polite">
+
+<!-- 1 -->
+<section class="slide dark cover" data-notes="Pembuka. SIPERSU adalah sistem informasi persuratan Fakultas Teknik UM Buton. Presentasi ini menjelaskan masalah yang diselesaikan, cara kerja aplikasi untuk tiap peran, dan bagaimana keamanan serta operasionalnya dijaga. Seluruh tangkapan layar berasal dari aplikasi yang berjalan dengan data demo, bukan data nyata.">
+  <img class="logo" src="../template/img/Logo-undangan.png" alt="Logo Universitas Muhammadiyah Buton">
+  <h1>SIPERSU FT-UMB</h1>
+  <div class="sub">Sistem Informasi Persuratan</div>
+  <div class="fak">Fakultas Teknik Universitas Muhammadiyah Buton</div>
+  <p class="lede">Pengajuan surat, surat keluar dan masuk, nomor sesuai pedoman, serta tanda tangan elektronik yang dapat diverifikasi.</p>
+  <img class="s1" src="gambar/tu-dasbor.jpg" alt="Dasbor SIPERSU untuk Admin TU">
+  <img class="s2" src="gambar/mhs-katalog.jpg" alt="Katalog pengajuan surat mahasiswa">
+  <div class="tag">Bahan presentasi · Oktober 2026 · tekan → untuk lanjut, F untuk layar penuh</div>
+</section>
+
+<!-- 2 -->
+<section class="slide" data-notes="Bingkai masalah. Poin di kiri adalah tantangan umum proses persuratan manual, bukan data survei. Pesan utamanya: sistem ini menjawab empat hal, yaitu keterlacakan, ketepatan nomor, keaslian, dan jejak audit.">
+  <h2>Persuratan manual menyulitkan semua pihak</h2>
+  <div class="row" style="height:420px">
+    <div class="card col" style="background:#f7f7f5;padding:30px">
+      <h3 style="color:#8a3b12;margin-bottom:20px">Tantangan umum proses manual</h3>
+      <ul class="pts">
+        <li><b style="color:#8a3b12">Status tidak jelas.</b> Mahasiswa harus bertanya langsung ke TU untuk tahu surat sudah sampai mana.</li>
+        <li><b style="color:#8a3b12">Nomor rawan salah.</b> Nomor ganda, loncat, atau tidak sesuai pedoman.</li>
+        <li><b style="color:#8a3b12">Keaslian sulit dibuktikan.</b> Surat cetak mudah ditiru atau diubah.</li>
+        <li><b style="color:#8a3b12">Jejak tercecer.</b> Siapa menyetujui kapan sulit ditelusuri; arsip tersebar.</li>
+      </ul>
+    </div>
+    <div class="card tint col" style="padding:30px">
+      <h3 style="margin-bottom:20px">Dengan SIPERSU</h3>
+      <ul class="pts">
+        <li><b>Status terlacak.</b> Setiap tahap tampil di garis waktu, lengkap dengan pelaksana dan waktunya.</li>
+        <li><b>Nomor otomatis atau manual.</b> Mengikuti Pedoman Tata Naskah Dinas UM Buton, tidak pernah ganda.</li>
+        <li><b>Dapat diverifikasi.</b> Surat ber-QR ditandatangani digital dan dicek lewat QR.</li>
+        <li><b>Semua tercatat.</b> Log aktivitas, riwayat persetujuan, dan buku agenda terpusat.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="slide" data-notes="Tiga fungsi inti. Pertama, e-Layanan: mahasiswa mengajukan sendiri. Kedua, persuratan staf: surat keluar dan masuk serta buku agenda. Ketiga, tanda tangan elektronik dan verifikasi. Semuanya berjalan lokal di server fakultas.">
+  <h2>Satu sistem untuk tiga kebutuhan</h2>
+  <div class="grid3" style="height:380px">
+    <div class="card" style="padding:32px"><div class="badge" style="width:72px;height:72px"><svg role="img" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" height="28" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></div><h3 style="margin:22px 0 12px">e-Layanan mahasiswa</h3><p>Ajukan surat dari layar, lacak status, unduh PDF saat terbit.</p><p style="margin-top:22px;color:var(--mid);font-weight:700">5 jenis surat bawaan</p></div>
+    <div class="card" style="padding:32px"><div class="badge" style="width:72px;height:72px"><svg role="img" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" height="28" width="28" xmlns="http://www.w3.org/2000/svg"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></div><h3 style="margin:22px 0 12px">Persuratan staf</h3><p>Surat keluar dari format siap pakai, surat masuk dengan nomor agenda, serta buku agenda terpusat.</p><p style="margin-top:22px;color:var(--mid);font-weight:700">9 format staf, 3 jenis surat masuk</p></div>
+    <div class="card" style="padding:32px"><div class="badge" style="width:72px;height:72px"><svg role="img" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" height="28" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div><h3 style="margin:22px 0 12px">Tanda tangan digital</h3><p>Tanda tangan elektronik pejabat, QR pada surat, dan halaman pemeriksa keaslian.</p><p style="margin-top:22px;color:var(--mid);font-weight:700">Ed25519 + SHA-256</p></div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="slide" data-notes="Tujuh peran. Satu akun bisa memegang lebih dari satu peran. Menu yang tampil menyesuaikan peran. Aturan yang perlu ditekankan: penandatangan harus pemegang jabatan aktif; TU dan Super Admin sengaja tidak diberi hak menandatangani supaya pemisahan tugas terjaga. Kaprodi hanya memverifikasi mahasiswa prodinya sendiri.">
+  <h2>Tujuh peran, hak akses yang jelas</h2>
+  <div class="grid4">
+    <div class="card"><div class="badge"><svg role="img" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" height="28" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div><h3 style="font-size:20px;margin:14px 0 6px">Mahasiswa</h3><p style="font-size:16px">Mengajukan, melacak, mengunduh surat</p></div>
+    <div class="card"><div class="badge"><svg role="img" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" height="28" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></div><h3 style="font-size:20px;margin:14px 0 6px">Dosen / Tendik</h3><p style="font-size:16px">Membuat surat keluar</p></div>
+    <div class="card"><div class="badge"><svg role="img" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" height="28" width="28" xmlns="http://www.w3.org/2000/svg"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg></div><h3 style="font-size:20px;margin:14px 0 6px">Kaprodi</h3><p style="font-size:16px">Memverifikasi pengajuan prodinya sendiri</p></div>
+    <div class="card"><div class="badge"><svg role="img" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" height="28" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div><h3 style="font-size:20px;margin:14px 0 6px">Wakil Dekan</h3><p style="font-size:16px">Memaraf surat yang memerlukannya</p></div>
+    <div class="card"><div class="badge"><svg role="img" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" height="28" width="28" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg></div><h3 style="font-size:20px;margin:14px 0 6px">Dekan</h3><p style="font-size:16px">Menandatangani surat</p></div>
+    <div class="card"><div class="badge"><svg role="img" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" height="28" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg></div><h3 style="font-size:20px;margin:14px 0 6px">Admin TU</h3><p style="font-size:16px">Verifikasi, nomor, surat masuk, format, master data, backup</p></div>
+    <div class="card"><div class="badge"><svg role="img" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" height="28" width="28" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div><h3 style="font-size:20px;margin:14px 0 6px">Super Admin</h3><p style="font-size:16px">Seperti Admin TU; tidak dapat menandatangani</p></div>
+    <div class="note"><b>Aturan penting</b><p>Hanya pemegang jabatan penandatangan yang dapat menandatangani. Admin TU dan Super Admin tidak bisa.</p></div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="slide" data-notes="Lima status utama: Diajukan, Diverifikasi, Disetujui (menunggu tanda tangan), Ditandatangani, Selesai; plus Ditolak. Tahap paraf hanya muncul bila jenis surat mengaturnya, misalnya Surat Izin Penelitian, Cuti Akademik, dan Rekomendasi Beasiswa. Jenis surat yang diatur tanpa QR dan tanpa persetujuan langsung terbit setelah TU memverifikasi.">
+  <h2>Alur pengajuan surat mahasiswa</h2>
+  <div class="flow">
+    <div class="step card"><div class="no">1</div><h3>Diajukan</h3><p>Mahasiswa mengisi formulir dan unggah berkas</p></div>
+    <div class="step card"><div class="no">2</div><h3>Diverifikasi</h3><p>TU atau Kaprodi memeriksa; surat disusun otomatis</p></div>
+    <div class="step card paraf"><div class="no">3</div><h3>Paraf</h3><p>Wakil Dekan, hanya untuk jenis surat yang memerlukan</p></div>
+    <div class="step card"><div class="no">4</div><h3>Ditandatangani</h3><p>Dekan menandatangani; nomor dan PDF terbit</p></div>
+    <div class="step card"><div class="no">5</div><h3>Selesai</h3><p>TU menutup pengajuan setelah surat diserahkan</p></div>
+  </div>
+  <ul class="pts" style="margin-top:34px">
+    <li><b>Ditolak atau dikembalikan:</b> alasan atau catatan revisi wajib diisi dan terbaca pemohon.</li>
+    <li><b>Nomor surat terbit saat tanda tangan,</b> tidak lebih awal dan tidak pernah ganda.</li>
+    <li><b>Tenggat layanan (SLA)</b> per jenis surat, 2 sampai 5 hari kerja.</li>
+  </ul>
+</section>
+
+<!-- 6 -->
+<section class="slide" data-notes="Demo yang disarankan: login sebagai mahasiswa, buka Pengajuan Surat, isi satu formulir, lalu buka Lacak Status. Tunjukkan bahwa data profil terisi otomatis dan berkas dibatasi PDF/JPG/PNG maksimal 2 MB.">
+  <h2>Mahasiswa mengurus surat dari layar sendiri</h2>
+  <div class="row">
+    <div class="col"><img class="shot" src="gambar/mhs-katalog.jpg" alt="Katalog jenis surat yang dapat diajukan mahasiswa"><p class="cap">Pilih jenis surat; waktu proses tertera</p></div>
+    <div class="col"><img class="shot" src="gambar/mhs-lacak.jpg" alt="Halaman lacak status pengajuan"><p class="cap">Lacak status dengan nomor registrasi</p></div>
+  </div>
+  <ul class="pts" style="margin-top:14px;gap:8px">
+    <li><b>Formulir tiga langkah:</b> data akademik, berkas persyaratan (PDF/JPG/PNG, maks 2 MB), ringkasan.</li>
+    <li><b>Unduh PDF</b> begitu surat ditandatangani; riwayat tersimpan di akun.</li>
+  </ul>
+</section>
+
+<!-- 7 -->
+<section class="slide" data-notes="Tampilan Admin TU saat memverifikasi. Kotak Tindakan Anda berada di atas. Garis waktu di kanan menunjukkan tahap yang sudah dan belum terjadi. Menolak mewajibkan alasan.">
+  <h2>TU memeriksa, sistem menyusun surat</h2>
+  <div class="row" style="align-items:flex-start">
+    <div style="width:700px;flex:none"><img class="shot" src="gambar/tu-verifikasi.jpg" alt="Halaman verifikasi pengajuan oleh Admin TU"></div>
+    <ul class="pts" style="padding-top:6px">
+      <li><b>Satu halaman:</b> rincian permohonan, identitas pemohon, berkas, dan garis waktu.</li>
+      <li><b>Tindakan:</b> isi nomor surat bila penomoran manual, tambah catatan, lalu Verifikasi &amp; Teruskan atau Tolak.</li>
+      <li><b>Otomatis:</b> surat disusun dari templat dan diteruskan ke paraf atau tanda tangan sesuai aturan jenis surat.</li>
+      <li><b>Kaprodi</b> memverifikasi sendiri untuk jenis surat tertentu, hanya mahasiswa prodinya.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="slide" data-notes="Layar Dekan. Penekanan: hanya pemegang jabatan penandatangan aktif yang melihat tombol ini; Admin TU dan Super Admin tidak. Kata sandi akun diminta sebagai kontrol akses. Seluruh langkah penerbitan berada dalam satu transaksi basis data sehingga tidak ada nomor yang terbit tanpa surat.">
+  <h2>Pimpinan mengesahkan dengan kata sandi</h2>
+  <div class="row" style="align-items:flex-start">
+    <div style="width:700px;flex:none"><img class="shot" src="gambar/dekan-ttd.jpg" alt="Halaman persetujuan Dekan dengan panel tanda tangan"></div>
+    <ul class="pts" style="padding-top:6px">
+      <li><b>Pratinjau sama dengan PDF.</b> Nomor tampil 000; nomor asli terbit saat tanda tangan.</li>
+      <li><b>Konfirmasi kata sandi akun</b> sebelum Setujui &amp; Tanda Tangani (TTE).</li>
+      <li><b>Tiga pilihan:</b> tanda tangani, kembalikan untuk revisi, atau tolak (catatan atau alasan wajib).</li>
+      <li><b>Satu transaksi:</b> nomor, QR, tanda tangan digital, PDF, dan hash disimpan bersama, atau dibatalkan bersama.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 9 -->
+<section class="slide" data-notes="Bandingkan dua bentuk. Surat ber-QR cocok untuk surat yang perlu dibuktikan keasliannya. Surat tanpa QR tetap bernomor dan PDF-nya dibuat, tetapi pengesahan dilakukan manual di luar aplikasi. Contoh PDF keduanya ada di folder documentation/contoh-surat.">
+  <h2>Dua bentuk surat: ber-QR atau tanpa QR</h2>
+  <table>
+    <thead><tr><th style="background:#fff"></th><th class="a">Surat ber-QR (TTE)</th><th class="b">Surat tanpa QR</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Pengesahan</td><td>Tanda tangan elektronik pejabat</td><td>Tanda tangan basah dan cap</td></tr>
+      <tr><td class="k">Persetujuan di aplikasi</td><td>Paraf (opsional), lalu tanda tangan pejabat</td><td>Tidak ada; langsung terbit</td></tr>
+      <tr><td class="k">PDF</td><td>2 halaman: surat + Lembar Riwayat Dokumen; QR dan spesimen tanda tangan</td><td>1 halaman; ruang tanda tangan dan stempel dikosongkan</td></tr>
+      <tr><td class="k">Nomor</td><td>Terbit saat tanda tangan</td><td>Terbit saat tombol Terbitkan Surat</td></tr>
+      <tr><td class="k">Verifikasi publik</td><td>Ya, lewat QR</td><td>Tidak</td></tr>
+    </tbody>
+  </table>
+  <p class="muted" style="margin-top:26px;font-size:17px">Pembuat surat memilih bentuk di awal; bawaannya mengikuti format surat. Surat yang sudah terbit tidak dihapus, tetapi dibatalkan dengan alasan, dan status batal tampil di halaman verifikasi.</p>
+</section>
+
+<!-- 10 -->
+<section class="slide" data-notes="Fitur pembeda: jenis surat baru bisa ditambahkan oleh TU lewat menu Format Surat tanpa menunggu programmer. Sembilan format staf dan lima format mahasiswa sudah tersedia sebagai bawaan; TU dapat menyalin dan memodifikasinya.">
+  <h2>TU menyiapkan format surat tanpa coding</h2>
+  <div class="row" style="align-items:flex-start">
+    <ul class="pts" style="width:440px;flex:none;padding-top:6px">
+      <li><b>Surat untuk apa:</b> staf, surat masuk, atau mahasiswa.</li>
+      <li><b>Isian:</b> teks, tanggal, angka, pilihan, daftar, dan tabel.</li>
+      <li><b>Templat isi</b> dengan pratinjau dan posisi tanda tangan.</li>
+      <li><b>Aturan alur:</b> pemverifikasi, paraf, penandatangan, tenggat.</li>
+      <li><b>Penomoran:</b> seruan dan pokok masalah.</li>
+    </ul>
+    <div class="col"><img class="shot" src="gambar/tu-format-ubah.jpg" alt="Formulir mengubah format surat"></div>
+  </div>
+</section>
+
+<!-- 11 -->
+<section class="slide" data-notes="Anatomi nomor menurut Pedoman Tata Naskah Dinas UM Buton. Contoh: 007/KET/II.3.AU/UMB-06.2/F/2026. Penghitung urut berjalan per unit kerja per tahun dan hanya bertambah; nomor yang dibatalkan tidak dipakai ulang. Mode dipilih di Pengaturan, Format Nomor. Nomor agenda surat masuk memakai pola terpisah, misalnya AGD-2026/X/0004.">
+  <h2>Nomor surat mengikuti pedoman UM Buton</h2>
+  <div class="nomor">
+    <div class="p hl"><div class="box">007</div><div class="l1">urut</div><div class="l2">per unit kerja per tahun</div></div><div class="sl">/</div>
+    <div class="p"><div class="box">KET</div><div class="l1">seruan</div><div class="l2">kode kekhususan</div></div><div class="sl">/</div>
+    <div class="p"><div class="box">II.3.AU</div><div class="l1">tetap</div><div class="l2">kode tata naskah</div></div><div class="sl">/</div>
+    <div class="p"><div class="box">UMB-06.2</div><div class="l1">unit kerja</div><div class="l2">prodi atau fakultas</div></div><div class="sl">/</div>
+    <div class="p"><div class="box">F</div><div class="l1">pokok masalah</div><div class="l2">klasifikasi A sampai O</div></div><div class="sl">/</div>
+    <div class="p"><div class="box">2026</div><div class="l1">tahun</div><div class="l2">tahun takwim</div></div>
+  </div>
+  <div class="row">
+    <div class="card tint col" style="padding:28px"><h3 style="margin-bottom:10px">Otomatis (bawaan)</h3><p>Nomor dibuat sistem saat surat terbit, di dalam transaksi basis data. Dua penandatanganan bersamaan tidak pernah mendapat nomor sama.</p></div>
+    <div class="card tint col" style="padding:28px"><h3 style="margin-bottom:10px">Manual (diisi TU)</h3><p>TU mengetik nomor sebelum surat berjalan: cukup angka urut (mis. 9) atau nomor lengkap. Nomor yang bentrok dengan surat lain atau Pembukuan ditolak.</p></div>
+  </div>
+</section>
+
+<!-- 12 -->
+<section class="slide" data-notes="Surat masuk dicatat TU dengan pindaian dan nomor agenda otomatis. Pembukuan adalah buku agenda tunggal berdasarkan nomor surat; surat dari aplikasi masuk otomatis, surat lama bisa diimpor dari CSV. Penghitung nomor otomatis dapat disesuaikan agar melanjutkan nomor tertinggi dari data impor.">
+  <h2>Surat masuk dan buku agenda terpusat</h2>
+  <div class="row">
+    <div class="col"><img class="shot" src="gambar/tu-sm-index.jpg" alt="Daftar surat masuk dengan nomor agenda"><p class="cap">Surat masuk: nomor agenda otomatis, sifat, pindaian</p></div>
+    <div class="col"><img class="shot" src="gambar/tu-pembukuan.jpg" alt="Buku agenda Pembukuan"><p class="cap">Pembukuan: masuk, keluar, dan surat lama dalam satu buku</p></div>
+  </div>
+  <ul class="pts" style="margin-top:14px;gap:8px">
+    <li><b>Sifat surat:</b> biasa, penting, segera, rahasia; surat rahasia hanya terlihat Admin, Dekan, dan Wakil Dekan.</li>
+    <li><b>Surat lama</b> masuk lewat Impor CSV (periksa dulu, nomor kembar dilewati) dan dapat diekspor kembali.</li>
+  </ul>
+</section>
+
+<!-- 13 -->
+<section class="slide" data-notes="Ini tanda tangan digital Ed25519, bukan enkripsi. Kunci privat hanya ada di server; kunci publik tertanam di halaman verifikasi. Hash SHA-256 PDF final disimpan sehingga petugas TU dapat mencocokkan berkas yang diserahkan. Pada Fase 1 server hanya terbuka di jaringan kampus; halaman verifikasi statis bisa dipublikasikan ke hosting gratis bila nanti QR perlu dipindai dari luar kampus. Penjelasan lengkap: documentation/cara-kerja-tanda-tangan-elektronik.md.">
+  <h2>Keaslian surat dapat diperiksa lewat QR</h2>
+  <div class="row" style="align-items:flex-start">
+    <div style="width:520px;flex:none">
+      <div class="verif-flow">
+        <div class="card"><div class="badge"><svg role="img" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" height="28" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></div><div><b>Pejabat menandatangani</b><span>kunci privat di server menyegel ringkasan data surat</span></div></div>
+        <div class="card"><div class="badge"><svg role="img" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" height="28" width="28" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div><div><b>QR dicetak di surat</b><span>berisi alamat verifikasi, data ringkas, dan tanda tangan digital</span></div></div>
+        <div class="card"><div class="badge"><svg role="img" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" height="28" width="28" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg></div><div><b>Penerima memindai</b><span>halaman memeriksa tanda tangan dengan kunci publik</span></div></div>
+        <div class="card"><div class="badge"><svg role="img" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" height="28" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div><div><b>Sah atau tidak valid</b><span>satu karakter diubah, pemeriksaan gagal</span></div></div>
+      </div>
+      <p style="margin-top:16px;font-size:15px">Petugas TU juga dapat mencocokkan berkas PDF dengan hash yang tersimpan, dan melihat status batal.</p>
+    </div>
+    <div class="col"><img class="shot" src="gambar/verifikasi.jpg" alt="Halaman verifikasi: Dokumen Asli, Terverifikasi"><p class="cap">Yang terjamin adalah keaslian dan keutuhan, bukan kerahasiaan isi surat.</p></div>
+  </div>
+</section>
+
+<!-- 13b -->
+<section class="slide" data-notes="Anatomi tautan di QR: alamat halaman verifikasi statis, tanda pagar, payload (data surat dalam base64url), titik, lalu tanda tangan digital. Bagian setelah tanda pagar tidak pernah dikirim peramban ke server, jadi pemeriksaan terjadi di perangkat pemindai. Payload memuat nomor, perihal, nama dan jabatan penanda tangan, tanggal, hash SHA-256 isi surat, dan versi format. Peringatan penting untuk penerima: QR asli yang disalin ke surat palsu tetap lolos sebagai asli, tetapi halaman verifikasi menampilkan data surat yang sebenarnya, sehingga penerima wajib mencocokkan nomor, perihal, dan nama. Halaman statis tidak tahu apakah surat sudah dibatalkan; hanya verifikasi lengkap oleh TU yang menunjukkan status batal. Rincian: documentation/cara-kerja-tanda-tangan-elektronik.md bagian 5 sampai 9.">
+  <h2>Apa isi QR pada surat</h2>
+  <div class="qr">
+    <div class="seg" style="flex:4.7"><code style="background:var(--green);color:#fff">http://sipersu.ft.umbuton.ac.id/verifikasi</code><span>alamat halaman verifikasi</span></div>
+    <div class="seg" style="flex:.5"><code style="background:var(--gold);color:var(--ink)">#</code><span>pemisah (fragment)</span></div>
+    <div class="seg" style="flex:2.9"><code style="background:var(--mid);color:#fff">eyJ2IjoxLCJuIjoi…</code><span>payload: data surat</span></div>
+    <div class="seg" style="flex:.4"><code style="background:var(--gold);color:var(--ink)">.</code><span>&nbsp;</span></div>
+    <div class="seg" style="flex:2.6"><code style="background:#2f6f9f;color:#fff">C0hioENjzZTK…</code><span>tanda tangan digital</span></div>
+  </div>
+  <div class="grid3" style="margin-top:26px">
+    <div class="card" style="height:330px"><h3 style="font-size:21px;margin-bottom:14px">Data yang disegel</h3><ul class="pts" style="gap:8px"><li style="font-size:17px">Nomor surat</li><li style="font-size:17px">Perihal</li><li style="font-size:17px">Nama dan jabatan penanda tangan</li><li style="font-size:17px">Tanggal surat</li><li style="font-size:17px">SHA-256 isi surat</li><li style="font-size:17px">Versi format</li></ul></div>
+    <div class="card" style="height:330px"><h3 style="font-size:21px;margin-bottom:14px">Saat QR dipindai</h3><ol class="num"><li>Peramban membuka halaman verifikasi statis</li><li>Bagian setelah # dibaca di perangkat Anda, tidak dikirim ke server</li><li>Tanda tangan diperiksa dengan kunci publik yang tertanam</li><li>Hasil: Dokumen Asli atau Tidak Valid</li></ol></div>
+    <div class="card" style="height:330px;background:var(--warnbg)"><h3 style="font-size:21px;margin-bottom:14px;color:var(--warn)">Yang perlu diingat</h3><ul class="pts" style="gap:10px"><li style="font-size:17px">Cocokkan nomor, perihal, dan nama di layar dengan surat di tangan</li><li style="font-size:17px">Pembatalan hanya terlihat di verifikasi lengkap oleh TU</li><li style="font-size:17px">Isi surat tidak dirahasiakan</li></ul></div>
+  </div>
+</section>
+
+<!-- 14 -->
+<section class="slide" data-notes="Enam lapis kontrol. Akses jaringan dibatasi di dalam aplikasi lewat daftar rentang IP yang dapat diatur (LAN_CIDRS). Tidak ada rute yang dibuka ke internet pada Fase 1. Log Aktivitas dapat dilihat Admin di Pengaturan.">
+  <h2>Keamanan dan jejak audit</h2>
+  <div class="grid3">
+    <div class="card" style="height:230px"><div style="display:flex;gap:14px;align-items:center"><div class="badge"><svg role="img" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" height="28" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg></div><h3 style="font-size:20px">Hanya jaringan kampus</h3></div><p style="margin-top:18px;font-size:17px">IP di luar jaringan privat ditolak (403)</p></div>
+    <div class="card" style="height:230px"><div style="display:flex;gap:14px;align-items:center"><div class="badge"><svg role="img" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" height="28" width="28" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div><h3 style="font-size:20px">Login terlindungi</h3></div><p style="margin-top:18px;font-size:17px">Kata sandi ter-hash; 5 kali salah dalam semenit memblokir sementara</p></div>
+    <div class="card" style="height:230px"><div style="display:flex;gap:14px;align-items:center"><div class="badge"><svg role="img" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" height="28" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg></div><h3 style="font-size:20px">Tanda tangan terbatas</h3></div><p style="margin-top:18px;font-size:17px">Hanya pemegang jabatan; wajib konfirmasi kata sandi</p></div>
+    <div class="card" style="height:230px"><div style="display:flex;gap:14px;align-items:center"><div class="badge"><svg role="img" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" height="28" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div><h3 style="font-size:20px">Hak akses per peran</h3></div><p style="margin-top:18px;font-size:17px">Dicek ulang di server menurut peran, prodi, dan status surat</p></div>
+    <div class="card" style="height:230px"><div style="display:flex;gap:14px;align-items:center"><div class="badge"><svg role="img" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" height="28" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg></div><h3 style="font-size:20px">Surat rahasia</h3></div><p style="margin-top:18px;font-size:17px">Disembunyikan dari Kaprodi dan disamarkan di Pembukuan</p></div>
+    <div class="card" style="height:230px"><div style="display:flex;gap:14px;align-items:center"><div class="badge"><svg role="img" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" height="28" width="28" xmlns="http://www.w3.org/2000/svg"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></div><h3 style="font-size:20px">Jejak audit</h3></div><p style="margin-top:18px;font-size:17px">Log aktivitas, riwayat persetujuan, dan lembar riwayat pada PDF</p></div>
+  </div>
+</section>
+
+<!-- 15 -->
+<section class="slide" data-notes="Operasional sederhana: satu server Windows. Backup terenkripsi dengan checksum. Yang paling sering terlupa adalah uji pemulihan; dasbor Admin mengingatkan tiap 30 hari. Kunci tanda tangan ikut dicadangkan, dan salinan kunci harus disimpan di tempat aman terpisah. Panduan pemasangan lengkap ada di INSTALL.md.">
+  <h2>Berjalan lokal, dijaga backup 3-2-1</h2>
+  <div class="grid3">
+    <div class="card tint"><div class="big"><span class="n">3</span><h3>salinan data</h3></div><p style="margin-top:10px;font-size:16px">server, HDD eksternal, flashdisk arsip</p></div>
+    <div class="card tint"><div class="big"><span class="n">2</span><h3>jenis media</h3></div><p style="margin-top:10px;font-size:16px">HDD dan flashdisk</p></div>
+    <div class="card tint"><div class="big"><span class="n">1</span><h3>di luar lokasi</h3></div><p style="margin-top:10px;font-size:16px">flashdisk di brankas Dekanat; Google Drive opsional</p></div>
+  </div>
+  <ul class="pts" style="margin-top:32px">
+    <li><b>Server:</b> satu laptop atau PC Windows dengan Laragon (Apache + PHP) dan basis data SQLite. Tanpa internet untuk pemakaian harian.</li>
+    <li><b>Jadwal otomatis:</b> backup harian 16.30 ke HDD (30 terakhir); email antre tiap menit; Google Drive Jumat 17.30 bila tersedia.</li>
+    <li><b>Backup terenkripsi:</b> ZIP AES-256 berisi basis data, berkas, kunci tanda tangan, dan pengaturan. Pengingat uji pemulihan tiap 30 hari.</li>
+  </ul>
+</section>
+
+<!-- 16 -->
+<section class="slide" data-notes="Jujur soal cakupan. Menu Disposisi, Arsip, dan Laporan sudah dipersiapkan dalam kerangka menu tetapi belum diaktifkan. Kolom kanan adalah daftar periksa sebelum sistem dipakai sungguhan; poin pertama dan kedua paling penting karena akun contoh memakai kata sandi bawaan.">
+  <h2>Status dan langkah berikutnya</h2>
+  <div class="grid3" style="height:400px">
+    <div class="card tint" style="padding:28px"><h3 style="margin-bottom:16px">Sudah berjalan</h3><ul class="pts" style="gap:10px"><li style="font-size:17px">e-Layanan mahasiswa</li><li style="font-size:17px">Surat keluar ber-QR dan tanpa QR</li><li style="font-size:17px">Surat masuk dan Pembukuan</li><li style="font-size:17px">Format Surat dan Master Data</li><li style="font-size:17px">Penomoran sesuai pedoman</li><li style="font-size:17px">Verifikasi QR, notifikasi, log, backup</li></ul></div>
+    <div class="card" style="padding:28px;background:var(--warnbg)"><h3 style="margin-bottom:16px;color:var(--warn)">Belum aktif</h3><ul class="pts" style="gap:10px"><li style="font-size:17px">Disposisi surat masuk</li><li style="font-size:17px">Arsip digital</li><li style="font-size:17px">Laporan</li></ul></div>
+    <div class="card" style="padding:28px;background:var(--bluebg)"><h3 style="margin-bottom:16px;color:var(--blue)">Sebelum dipakai</h3><ul class="pts" style="gap:10px"><li style="font-size:17px">Ganti semua sandi akun contoh</li><li style="font-size:17px">Isi pejabat, prodi, klasifikasi asli</li><li style="font-size:17px">Unggah spesimen tanda tangan dan stempel</li><li style="font-size:17px">Pilih alamat server yang stabil</li><li style="font-size:17px">Simpan salinan kunci di tempat aman</li><li style="font-size:17px">Satu kali backup dan uji pemulihan</li></ul></div>
+  </div>
+</section>
+
+<!-- 17 -->
+<section class="slide dark end" data-notes="Tutup dengan demo singkat: ajukan satu surat sebagai mahasiswa, verifikasi sebagai TU, tanda tangani sebagai Dekan, lalu pindai QR. Siapkan akun peran masing-masing sebelum presentasi dan gunakan data demo, bukan data nyata.">
+  <h1>Demo dan tanya jawab</h1>
+  <div class="gold">Dokumen pendukung di folder documentation/</div>
+  <ul>
+    <li><b>panduan-pengguna.md</b> <span>&nbsp;langkah demi langkah per peran</span></li>
+    <li><b>dokumentasi-sistem.md</b> <span>&nbsp;gambaran sistem, alur, keamanan, operasional</span></li>
+    <li><b>cara-kerja-tanda-tangan-elektronik.md</b> <span>&nbsp;kunci, QR, dan verifikasi</span></li>
+    <li><b>contoh-surat/</b> <span>&nbsp;15 pasang contoh PDF</span></li>
+    <li><b>../INSTALL.md</b> <span>&nbsp;pemasangan di Windows</span></li>
+  </ul>
+</section>
+
+</main></div>
+
+<div id="bar"></div>
+<div id="help">← → atau spasi: pindah · F: layar penuh · N: catatan · P: cetak ke PDF</div>
+<div id="hud"><button id="prev" aria-label="Slide sebelumnya">‹</button><span id="num" aria-live="off">1 / 17</span><button id="next" aria-label="Slide berikutnya">›</button><button id="fs" aria-label="Layar penuh">⛶</button></div>
+<div id="notes" role="note"></div>
+
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll('.slide')), stage=document.getElementById('stage');
+  var i=0, notes=document.getElementById('notes'), bar=document.getElementById('bar'), num=document.getElementById('num');
+  function fit(){var s=Math.min(innerWidth/1280,innerHeight/720);stage.style.transform='scale('+s+')';}
+  function show(n,push){
+    i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach(function(s,k){s.classList.toggle('on',k===i);s.setAttribute('aria-hidden',k===i?'false':'true');});
+    num.textContent=(i+1)+' / '+slides.length;
+    bar.style.width=((i+1)/slides.length*100)+'%';
+    notes.textContent=slides[i].getAttribute('data-notes')||'';
+    if(push!==false){try{history.replaceState(null,'','#'+(i+1));}catch(e){}}
+  }
+  function fs(){var d=document;if(d.fullscreenElement){d.exitFullscreen();}else if(d.documentElement.requestFullscreen){d.documentElement.requestFullscreen();}}
+  addEventListener('resize',fit);
+  addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey)return;
+    var k=e.key;
+    if(k==='ArrowRight'||k==='PageDown'||k===' '||k==='Enter'){e.preventDefault();show(i+1);}
+    else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){e.preventDefault();show(i-1);}
+    else if(k==='Home')show(0); else if(k==='End')show(slides.length-1);
+    else if(k==='f'||k==='F')fs();
+    else if(k==='n'||k==='N')notes.classList.toggle('on');
+    else if(k==='p'||k==='P')window.print();
+  });
+  document.getElementById('prev').onclick=function(){show(i-1);};
+  document.getElementById('next').onclick=function(){show(i+1);};
+  document.getElementById('fs').onclick=fs;
+  var x0=null;
+  addEventListener('touchstart',function(e){x0=e.touches[0].clientX;},{passive:true});
+  addEventListener('touchend',function(e){if(x0===null)return;var dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>50)show(i+(dx<0?1:-1));x0=null;},{passive:true});
+  stage.addEventListener('click',function(e){if(e.target.closest('a,button'))return;show(i+(e.clientX<innerWidth/3?-1:1));});
+  addEventListener('hashchange',function(){var n=parseInt(location.hash.slice(1),10);if(n)show(n-1,false);});
+  fit();
+  show((parseInt(location.hash.slice(1),10)||1)-1,false);
+})();
+</script>
+</body>
+</html>
