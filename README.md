@@ -8,6 +8,39 @@ Laravel 12 · Livewire 4 · Alpine.js · Tailwind CSS (dikompilasi sekali) · SQ
 
 ---
 
+## Tampilan aplikasi
+
+Tangkapan layar berikut diambil dari aplikasi yang berjalan dengan **data demo** (nama dan nomor di dalamnya fiktif). Panduan lengkap per peran ada di [documentation/panduan-pengguna.md](documentation/panduan-pengguna.md).
+
+<table>
+  <tr>
+    <td width="50%"><img src="documentation/gambar/login.jpg" alt="Halaman masuk" width="100%"><br><sub><b>Halaman masuk</b>: tab Mahasiswa, Dosen, dan Staf TU/Admin</sub></td>
+    <td width="50%"><img src="documentation/gambar/mhs-katalog.jpg" alt="Katalog pengajuan surat mahasiswa" width="100%"><br><sub><b>Mahasiswa</b>: katalog jenis surat beserta waktu proses</sub></td>
+  </tr>
+  <tr>
+    <td><img src="documentation/gambar/mhs-lacak.jpg" alt="Lacak status pengajuan" width="100%"><br><sub><b>Mahasiswa</b>: lacak status dan unduh surat terbit</sub></td>
+    <td><img src="documentation/gambar/tu-dasbor.jpg" alt="Dasbor Admin TU" width="100%"><br><sub><b>Admin TU</b>: dasbor, statistik, dan tindakan cepat</sub></td>
+  </tr>
+  <tr>
+    <td><img src="documentation/gambar/tu-verifikasi.jpg" alt="Verifikasi pengajuan oleh TU" width="100%"><br><sub><b>Admin TU</b>: verifikasi pengajuan dengan garis waktu berjenjang</sub></td>
+    <td><img src="documentation/gambar/dekan-ttd.jpg" alt="Penandatanganan oleh Dekan" width="100%"><br><sub><b>Dekan</b>: pratinjau surat dan tanda tangan elektronik dengan kata sandi</sub></td>
+  </tr>
+  <tr>
+    <td><img src="documentation/gambar/tu-format-ubah.jpg" alt="Mengubah format surat" width="100%"><br><sub><b>Format Surat</b>: TU membuat jenis surat tanpa pemrograman</sub></td>
+    <td><img src="documentation/gambar/tu-sk-form.jpg" alt="Formulir surat keluar dengan pratinjau" width="100%"><br><sub><b>Surat keluar</b>: formulir dengan pratinjau A4 langsung</sub></td>
+  </tr>
+  <tr>
+    <td><img src="documentation/gambar/tu-sm-index.jpg" alt="Daftar surat masuk" width="100%"><br><sub><b>Surat masuk</b>: nomor agenda otomatis, sifat, dan pindaian</sub></td>
+    <td><img src="documentation/gambar/tu-pembukuan.jpg" alt="Buku agenda Pembukuan" width="100%"><br><sub><b>Pembukuan</b>: buku agenda dengan impor dan ekspor CSV</sub></td>
+  </tr>
+  <tr>
+    <td><img src="documentation/gambar/tu-nomor.jpg" alt="Pengaturan format nomor surat" width="100%"><br><sub><b>Pengaturan</b>: pola nomor sesuai pedoman, mode otomatis atau manual</sub></td>
+    <td><img src="documentation/gambar/verifikasi.jpg" alt="Halaman verifikasi QR" width="100%"><br><sub><b>Verifikasi QR</b>: "Dokumen Asli, Terverifikasi"</sub></td>
+  </tr>
+</table>
+
+---
+
 ## Daftar isi
 
 1. [Apa yang dikerjakan sistem](#1-apa-yang-dikerjakan-sistem)
@@ -293,7 +326,7 @@ Semua di folder [documentation/](documentation/):
 | [api-rest.md](documentation/api-rest.md), [openapi.yaml](documentation/openapi.yaml) | Pengembang integrasi |
 | [pemulihan.md](documentation/pemulihan.md) | Pengelola: banjir akses, aplikasi mati, rollback, backup dan pemulihan |
 | [cara-kerja-tanda-tangan-elektronik.md](documentation/cara-kerja-tanda-tangan-elektronik.md) | Kunci, QR, tanda tangan digital, batasan |
-| Presentasi: [PowerPoint](documentation/presentasi-sipersu.pptx), [PDF](documentation/presentasi-sipersu.pdf), [web](documentation/presentasi-sipersu.html) | Bahan presentasi 18 slide (versi web dibuka di peramban, tanpa internet) |
+| Presentasi: [PowerPoint](documentation/presentasi-sipersu.pptx), [PDF](documentation/presentasi-sipersu.pdf), [web](documentation/presentasi-sipersu.html) | Bahan presentasi 22 slide (versi web dibuka di peramban, tanpa internet) |
 | [format-csv-pengguna.md](documentation/format-csv-pengguna.md), [format-csv-pembukuan.md](documentation/format-csv-pembukuan.md) | Format berkas impor beserta contoh `.csv` |
 | [contoh-surat/](documentation/contoh-surat/README.md) | 15 pasang contoh PDF surat (ber-QR dan tanpa QR) |
 | [../INSTALL.md](INSTALL.md), [../AKUN-DAN-PASSWORD.md](AKUN-DAN-PASSWORD.md) | Pemasangan di Windows; akun contoh |

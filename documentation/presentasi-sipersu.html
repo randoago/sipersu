@@ -87,6 +87,10 @@ td.k{background:var(--tint);font-weight:700}
 ol.num{list-style:none;counter-reset:n;display:flex;flex-direction:column;gap:10px}
 ol.num li{counter-increment:n;position:relative;padding-left:32px;font-size:17px}
 ol.num li::before{content:counter(n);position:absolute;left:0;top:1px;width:22px;height:22px;border-radius:50%;background:var(--mid);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.lbl{display:flex;align-items:center;gap:12px;margin-bottom:10px;font:700 21px var(--head);color:var(--green)}
+.lbl .n{width:34px;height:34px;border-radius:50%;background:var(--mid);color:#fff;font:700 17px var(--body);display:flex;align-items:center;justify-content:center;flex:none}
+.lbl .n.opsi{background:var(--gold);color:var(--ink)}
+.cap2{font-size:16px;line-height:1.4;margin-top:12px;color:var(--ink)}
 /* penutup */
 .end h1{color:#fff;font-size:60px;margin-top:70px}
 .end .gold{color:var(--gold);font-size:24px;margin:20px 0 28px;font-family:var(--head)}
@@ -207,6 +211,39 @@ ol.num li::before{content:counter(n);position:absolute;left:0;top:1px;width:22px
   </ul>
 </section>
 
+<section class="slide" data-notes="Simulasi langkah 1 dan 2 pada formulir pengajuan. Contoh yang diisi: Surat Keterangan Aktif Kuliah. Di langkah 1 data akademik pemohon terisi otomatis dari akun; mahasiswa hanya mengisi data detail surat. Di langkah 2 mahasiswa mengunggah berkas persyaratan. Seluruh data adalah data demo.">
+  <h2>Simulasi: mahasiswa mengisi pengajuan</h2>
+  <div class="row">
+    <div class="col"><div class="lbl"><span class="n">1</span>Isi data surat</div><img class="shot" src="gambar/sim-1-isi.jpg" alt="Formulir data detail Surat Keterangan Aktif Kuliah yang sudah terisi"></div>
+    <div class="col"><div class="lbl"><span class="n">2</span>Unggah berkas persyaratan</div><img class="shot" src="gambar/sim-2-berkas.jpg" alt="Dua berkas persyaratan berhasil diunggah"></div>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <p class="cap2 col">Surat Keterangan Aktif Kuliah: semester 7, tahun akademik 2026/2027 Ganjil, keterangan untuk BPJS. Data profil terisi otomatis dari akun.</p>
+    <p class="cap2 col">KTM aktif dan bukti SPP semester berjalan (PDF, JPG, atau PNG, maksimal 2 MB). Berkas wajib ditandai &quot;Wajib&quot;.</p>
+  </div>
+</section>
+
+<section class="slide" data-notes="Langkah 3: ringkasan. Mahasiswa memeriksa isian dan berkas, mencentang pernyataan, lalu mengirim. Tombol Lihat Tampilan Surat membuka pratinjau surat yang sama dengan PDF; nomor masih 000 karena nomor terbit saat tanda tangan.">
+  <h2>Simulasi: periksa, pratinjau, kirim</h2>
+  <div class="row">
+    <div class="col"><div class="lbl"><span class="n">3</span>Periksa ringkasan, lalu kirim</div><img class="shot" src="gambar/sim-3-kirim.jpg" alt="Ringkasan permohonan dengan pernyataan dicentang dan tombol Kirim Pengajuan"><p class="cap2">Periksa isian dan berkas, centang pernyataan, lalu klik Kirim Pengajuan. Data tidak dapat diubah setelah dikirim.</p></div>
+    <div class="col"><div class="lbl"><span class="n opsi">&#10003;</span>Lihat Tampilan Surat (opsional)</div><img class="shot" src="gambar/sim-4-pratinjau.jpg" alt="Pratinjau surat sebelum dikirim dengan nomor 000"><p class="cap2">Pratinjau sama dengan PDF. Nomor tampil 000; nomor asli dan QR terbit saat Dekan menandatangani.</p></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Hasil pengiriman. Halaman langsung menampilkan nomor registrasi dan garis waktu: tahap 1 selesai, tahap 2 menunggu verifikasi Admin TU. Admin TU mendapat notifikasi pengajuan baru. Kelanjutannya diperagakan di slide verifikasi TU dan penandatanganan Dekan.">
+  <h2>Simulasi: pengajuan terkirim</h2>
+  <div class="row" style="align-items:flex-start">
+    <div style="width:700px;flex:none"><img class="shot" src="gambar/sim-5-terkirim.jpg" alt="Halaman status setelah pengajuan terkirim, dengan nomor registrasi"></div>
+    <ul class="pts" style="padding-top:6px">
+      <li><b>Nomor registrasi</b> muncul seketika (contoh REG-2026-000009) untuk dilacak.</li>
+      <li><b>Status Diajukan:</b> tahap berikutnya menunggu verifikasi Admin TU.</li>
+      <li><b>Berkas yang diunggah</b> tercatat sebagai lampiran pengajuan.</li>
+      <li><b>Admin TU menerima notifikasi</b> pengajuan baru; mahasiswa dapat memantau di garis waktu.</li>
+    </ul>
+  </div>
+</section>
+
 <!-- 7 -->
 <section class="slide" data-notes="Tampilan Admin TU saat memverifikasi. Kotak Tindakan Anda berada di atas. Garis waktu di kanan menunjukkan tahap yang sudah dan belum terjadi. Menolak mewajibkan alasan.">
   <h2>TU memeriksa, sistem menyusun surat</h2>
@@ -263,6 +300,14 @@ ol.num li::before{content:counter(n);position:absolute;left:0;top:1px;width:22px
       <li><b>Penomoran:</b> seruan dan pokok masalah.</li>
     </ul>
     <div class="col"><img class="shot" src="gambar/tu-format-ubah.jpg" alt="Formulir mengubah format surat"></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Simulasi surat keluar dari format Surat Undangan. TU memilih bentuk dan format, mengisi formulir, dan pratinjau surat berubah saat mengetik. Tanggal yang dipilih menampilkan tanggal Hijriah. Setelah Ajukan, surat menunggu tanda tangan pejabat; nomor lengkap disusun otomatis dari angka urut yang diketik TU dan baru resmi terbit saat tanda tangan.">
+  <h2>Simulasi: TU membuat surat undangan</h2>
+  <div class="row">
+    <div class="col"><div class="lbl"><span class="n">1</span>Isi formulir, pratinjau ikut berubah</div><img class="shot" src="gambar/sim-6-surat-form.jpg" alt="Formulir Surat Undangan terisi dengan pratinjau A4 di sebelah kanan"><p class="cap2">Nomor 9, tanggal 2 November 2026 (Hijriah tampil otomatis), tujuan, perihal, hari, waktu, dan tempat rapat.</p></div>
+    <div class="col"><div class="lbl"><span class="n">2</span>Ajukan untuk tanda tangan</div><img class="shot" src="gambar/sim-7-surat-diajukan.jpg" alt="Surat diajukan: status Menunggu TTD dengan tahapan surat"><p class="cap2">Status Menunggu TTD. Nomor yang akan terbit: 009/II.3.AU/UMB-06/A/2026; tahapan surat tampil di kanan.</p></div>
   </div>
 </section>
 
