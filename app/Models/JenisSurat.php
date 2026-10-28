@@ -29,6 +29,53 @@ class JenisSurat extends Model
         return $this->mode_ttd === 'basah';
     }
 
+    public const PERAN_ALUR = ['admin_tu' => 'Admin TU', 'kaprodi' => 'Kaprodi', 'wakil_dekan' => 'Wakil Dekan'];
+
+    /** Menyelaraskan kolom alur agar tidak saling bertentangan (dipakai Format Surat maupun menu Alur Surat). */
+    public static function rapikanAlur(array $isi): array
+    {
+        if (($isi['mode_ttd'] ?? 'qr') === 'basah') {
+            $isi['perlu_paraf'] = false;          // surat tanpa QR tidak melalui persetujuan; hanya surat ber-QR yang diparaf/ditandatangani
+        }
+        if (empty($isi['perlu_paraf'])) {
+            $isi['paraf_role'] = null;
+        }
+        if (($isi['sasaran'] ?? null) !== 'mahasiswa') {
+            $isi['verifikator_role'] = 'admin_tu';
+        }
+
+        return $isi;
+    }
+
+    /** Tahapan alur untuk ditampilkan: [['judul', 'oleh', 'ikon', 'peringatan'?]]. */
+    public function langkahAlur(): array
+    {
+        $peran = self::PERAN_ALUR;
+        $mhs = $this->sasaran === 'mahasiswa';
+        $langkah = [$mhs
+            ? ['judul' => 'Pengajuan', 'oleh' => 'Mahasiswa', 'ikon' => 'send']
+            : ['judul' => 'Draf surat', 'oleh' => 'Pembuat (Admin TU / pejabat)', 'ikon' => 'edit_note']];
+        if ($mhs) {
+            $langkah[] = ['judul' => 'Verifikasi', 'oleh' => ($peran[$this->verifikator_role] ?? 'Petugas').($this->verifikator_role === 'kaprodi' ? ' (prodi pemohon)' : ''), 'ikon' => 'fact_check'];
+        }
+        if ($this->langsungTerbit()) {
+            $langkah[] = ['judul' => 'Terbit & cetak', 'oleh' => 'Tanda tangan basah dan cap di TU', 'ikon' => 'print'];
+
+            return $langkah;
+        }
+        if ($this->perlu_paraf) {
+            $langkah[] = ['judul' => 'Paraf', 'oleh' => $peran[$this->paraf_role] ?? 'Pejabat', 'ikon' => 'edit_note'];
+        }
+        $pejabat = $this->penandatanganJabatan?->pejabat;
+        $langkah[] = [
+            'judul' => 'Tanda tangan (QR)', 'oleh' => ($this->penandatanganJabatan?->nama ?? 'Belum dipilih').($pejabat ? ' — '.$pejabat->namaLengkap() : ''), 'ikon' => 'draw',
+            'peringatan' => $pejabat ? null : 'Jabatan ini belum punya pejabat aktif; surat tidak dapat ditandatangani.',
+        ];
+        $langkah[] = ['judul' => 'Terbit', 'oleh' => 'Nomor surat & QR verifikasi', 'ikon' => 'verified'];
+
+        return $langkah;
+    }
+
     public function scopeUntukMahasiswa($q)
     {
         return $q->where('sasaran', 'mahasiswa');

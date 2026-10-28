@@ -84,6 +84,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/format-surat/{format}/aktif', [$fs, 'aktif'])->name('format-surat.aktif');
         Route::post('/format-surat/{format}/salin', [$fs, 'salin'])->name('format-surat.salin');
         Route::redirect('/master/jenis-surat', '/format-surat');
+        Route::get('/alur-surat', [\App\Http\Controllers\AlurSuratController::class, 'index'])->name('alur-surat.index');
+        Route::put('/alur-surat/{format}', [\App\Http\Controllers\AlurSuratController::class, 'perbarui'])->name('alur-surat.perbarui');
 
         Route::redirect('/pengaturan', '/pengaturan/nomor')->name('pengaturan.index');
         Route::get('/pengaturan/nomor', [\App\Http\Controllers\PengaturanController::class, 'nomor'])->name('pengaturan.nomor');

@@ -65,7 +65,7 @@ Ada tujuh peran. Satu akun dapat memegang lebih dari satu peran.
 | Surat Masuk | | | ✔ | ✔ | ✔ | ✔ |
 | Surat Keluar | | ✔ | ✔ | ✔ | ✔ | ✔ |
 | Pembukuan | | | | ✔ (lihat) | ✔ (lihat) | ✔ (catat, impor) |
-| Format Surat, Master Data, Pengaturan | | | | | | ✔ |
+| Format Surat, Alur Surat, Master Data, Pengaturan | | | | | | ✔ |
 
 Menu Disposisi, Arsip, dan Laporan sudah dipersiapkan pada kerangka menu tetapi **belum aktif** (lihat bagian 11).
 
@@ -104,7 +104,9 @@ Enam status pengajuan: **Diajukan → Diverifikasi → Disetujui → Ditandatang
 | Surat Cuti Akademik | Kaprodi (prodi pemohon) | Wakil Dekan | Dekan | 5 hari |
 | Surat Rekomendasi Beasiswa | Admin TU | Wakil Dekan | Dekan | 3 hari |
 
-Semua aturan di atas dapat diubah TU lewat **Format Surat** tanpa menyentuh kode.
+Semua aturan di atas dapat diubah TU lewat menu **Alur Surat** (khusus alur) atau **Format Surat** (bersama isian dan templat) tanpa menyentuh kode.
+
+**Menu Alur Surat** menampilkan tahapan tiap format sebagai diagram dan menyediakan formulir ubah singkat: bentuk (ber-QR/tanpa QR), pemverifikasi, penandatangan, paraf, dan target hari kerja. Aturan penyelarasan sama dengan Format Surat (`JenisSurat::rapikanAlur`): tanpa QR berarti tanpa paraf, dan pemverifikasi selain Admin TU hanya berlaku untuk layanan mahasiswa. Selama ada pengajuan berjalan pada suatu format, bentuk, pemverifikasi, dan paraf dikunci; penandatangan yang diganti ikut memperbarui tahap tanda tangan yang masih menunggu. Setiap perubahan dicatat di Log Aktivitas (`alur_ubah`).
 
 ### 3.2 Surat keluar staf
 

@@ -164,6 +164,7 @@ Admin TU memegang paling banyak tugas. Ringkasnya:
 | Mencatat surat masuk | Surat Masuk |
 | Mengelola buku agenda | Pembukuan |
 | Menyiapkan format surat | Format Surat |
+| Mengatur siapa yang memverifikasi, memaraf, dan menandatangani | Alur Surat |
 | Mengelola pengguna, prodi, jabatan, klasifikasi, seruan, spesimen | Master Data |
 | Nomor, kop surat, log, backup | Pengaturan |
 
@@ -244,6 +245,19 @@ Menu **Format Surat** memungkinkan TU menambah atau mengubah jenis surat tanpa p
 5. **Aturan alur:** pilih pemverifikasi, apakah perlu paraf (dan oleh siapa), penandatangan, tenggat hari kerja, bentuk bawaan (ber-QR atau tanpa QR), dan gaya tanggal (Masehi atau Masehi + Hijriah).
 6. **Penomoran:** pilih **Seruan** (kode kekhususan; kosong = surat biasa) dan **Pokok Masalah** (A–O) untuk nomor surat.
 7. Simpan. Format bisa dinonaktifkan kapan saja tanpa memengaruhi surat yang sudah terbit.
+
+### 4.6a Alur Surat: siapa memverifikasi, memaraf, dan menandatangani
+
+Menu **Alur Surat** menampilkan tahapan setiap jenis surat sebagai urutan kotak (misalnya *Pengajuan → Verifikasi → Paraf → Tanda tangan → Terbit*), dikelompokkan menjadi **Layanan Mahasiswa** dan **Surat Keluar**.
+
+1. Klik **Ubah alur** pada jenis surat yang ingin diatur.
+2. Pilih **Bentuk surat**: *Ber-QR* (diparaf dan ditandatangani elektronik) atau *Tanpa QR* (langsung terbit untuk dicetak, tanda tangan basah dan cap).
+3. Untuk layanan mahasiswa, pilih **Diverifikasi oleh** (Admin TU atau Kaprodi prodi pemohon) dan **Target selesai** dalam hari kerja.
+4. Pilih **Penandatangan** (jabatan). Bila jabatan belum punya pejabat aktif, kotak tanda tangan diberi peringatan merah.
+5. Centang **Perlu paraf** bila perlu, lalu pilih pemarafnya (Wakil Dekan atau Kaprodi).
+6. Klik **Simpan Alur**.
+
+Catatan: selama masih ada pengajuan mahasiswa yang berjalan pada suatu format, bentuk, pemverifikasi, dan paraf tidak dapat diubah (agar pengajuan itu tidak macet); penandatangan dan target waktu tetap bisa diganti. Untuk surat keluar, perubahan berlaku bagi surat yang dibuat sesudahnya. Isian dan templat surat tetap diatur di **Format Surat**.
 
 ### 4.7 Master Data
 

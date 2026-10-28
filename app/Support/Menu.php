@@ -24,6 +24,7 @@ class Menu
         ['arsip.index', 'Arsip', 'folder_zip', null],
         ['laporan.index', 'Laporan', 'summarize', [Peran::SuperAdmin, Peran::AdminTu, Peran::Dekan, Peran::WakilDekan]],
         ['format-surat.index', 'Format Surat', 'edit_document', [Peran::SuperAdmin, Peran::AdminTu]],
+        ['alur-surat.index', 'Alur Surat', 'route', [Peran::SuperAdmin, Peran::AdminTu]],
         ['master.index', 'Master Data', 'database', [Peran::SuperAdmin, Peran::AdminTu]],
         ['pengaturan.index', 'Pengaturan', 'settings', [Peran::SuperAdmin, Peran::AdminTu]],
     ];

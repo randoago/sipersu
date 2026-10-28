@@ -43,15 +43,7 @@ class FormatSuratController extends Controller
     {
         $d = $this->validasi($request, $format);
         $isi = ['aktif' => $request->boolean('aktif'), 'perlu_paraf' => $request->boolean('perlu_paraf'), 'pindaian' => $request->boolean('pindaian') && $request->input('sasaran') === 'staf'] + $d['kolom'];
-        if (($isi['mode_ttd'] ?? 'qr') === 'basah') {
-            $isi['perlu_paraf'] = false;          // surat tanpa QR tidak melalui persetujuan; hanya surat ber-QR yang diparaf/ditandatangani
-        }
-        if (! $isi['perlu_paraf']) {
-            $isi['paraf_role'] = null;
-        }
-        if ($isi['sasaran'] !== 'mahasiswa') {
-            $isi['verifikator_role'] = 'admin_tu';
-        }
+        $isi = JenisSurat::rapikanAlur($isi);
         if ($isi['sasaran'] === 'masuk') {
             // Surat masuk tidak ditandatangani/dirender: hanya kolom isian tambahan + klasifikasi bawaan.
             $isi = array_merge($isi, ['template_html' => '', 'penandatangan_jabatan_id' => null, 'perlu_paraf' => false, 'paraf_role' => null, 'mode_ttd' => 'qr', 'sla_hari' => 1, 'judul_surat' => null, 'perihal_template' => null]);
