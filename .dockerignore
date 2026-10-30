@@ -1,0 +1,10 @@
+.git
+.env
+node_modules
+vendor
+storage/logs/*
+storage/keys
+database/*.sqlite*
+documentation
+template
+stich

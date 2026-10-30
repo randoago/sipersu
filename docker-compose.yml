@@ -1,0 +1,18 @@
+services:
+  app:
+    build: .
+    container_name: sipersu
+    ports:
+      - "8080:80"
+    environment:
+      APP_ENV: production
+      APP_URL: http://localhost:8080
+      BACKUP_PASSWORD: ganti-sandi-backup-ini
+    volumes:
+      - sipersu_db:/var/www/html/database
+      - sipersu_storage:/var/www/html/storage
+    restart: unless-stopped
+
+volumes:
+  sipersu_db:
+  sipersu_storage:
