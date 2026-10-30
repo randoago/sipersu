@@ -3,6 +3,10 @@
     <h1 class="mb-1 font-headline-xl text-headline-xl">Master Data</h1>
     <p class="mb-5 font-body-md text-body-md text-on-surface-variant">Kelola data referensi sistem. Data yang sudah dipakai surat tidak dihapus, hanya dinonaktifkan, agar riwayat surat tetap utuh. Pokok Masalah dan Seruan yang belum dipakai dapat dihapus.</p>
     @include('master._tab')
+    @if (session('sinkron_galat'))
+        <details class="mb-4 rounded-lg border border-outline-variant bg-surface-container-lowest p-space-md"><summary class="cursor-pointer font-label-lg text-label-lg">Catatan sinkronisasi ({{ count(session('sinkron_galat')) }})</summary>
+            <ul class="mt-2 list-disc space-y-1 pl-5 font-body-sm text-body-sm text-on-surface-variant">@foreach (session('sinkron_galat') as $g)<li>{{ $g }}</li>@endforeach</ul></details>
+    @endif
     @if ($entitas === 'pengguna')
         <div class="mb-4 inline-flex gap-1 rounded-lg bg-surface-container p-1" role="tablist" aria-label="Kelompok pengguna">
             @foreach (['dosen' => 'Dosen, Tendik & Pejabat', 'mahasiswa' => 'Mahasiswa'] as $kode => $nama)
@@ -12,7 +16,10 @@
     @endif
     <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <form method="get" class="relative sm:w-80">@if ($entitas === 'pengguna')<input type="hidden" name="kelompok" value="{{ $kelompok }}">@endif<x-ikon name="search" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[20px] text-outline" /><input name="q" value="{{ $q }}" placeholder="Cari {{ mb_strtolower($d['judul']) }}…" class="h-10 w-full rounded-lg border-outline-variant bg-surface-container-lowest pl-10 font-body-md text-body-md focus:ring-2 focus:ring-primary"></form>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
+            @if ($entitas === 'prodi' || ($entitas === 'pengguna' && $kelompok === 'mahasiswa'))
+                <form method="post" action="{{ route('master.sinkron-siska', $entitas === 'prodi' ? 'prodi' : 'pengguna') }}" onsubmit="return confirm('Sinkronkan {{ $entitas === 'prodi' ? 'program studi' : 'mahasiswa' }} dari SISKA sekarang? Data lokal yang sama akan diperbarui; proses dapat memakan waktu.')">@csrf<x-tombol type="submit" varian="sekunder" ikon="sync">Sinkron dari SISKA</x-tombol></form>
+            @endif
             @if ($entitas === 'pengguna')<x-tombol :href="route('master.impor')" varian="sekunder" ikon="upload_file">Impor CSV</x-tombol>@endif
             <x-tombol :href="route('master.buat', $entitas)" ikon="add">Tambah {{ $d['judul'] }}</x-tombol>
         </div>

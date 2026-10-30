@@ -128,8 +128,15 @@ Route::middleware('auth')->group(function () {
         Route::post('/pengguna/impor/periksa', [$ip, 'periksa'])->name('impor.periksa');
         Route::post('/pengguna/impor/proses', [$ip, 'proses'])->name('impor.proses');
         Route::get('/pengguna/impor/hasil', [$ip, 'hasil'])->name('impor.hasil');
+        $ss = \App\Http\Controllers\SinkronSiskaController::class;
+        Route::post('/sinkron-siska/{jenis}', [$ss, 'jalankan'])->where('jenis', 'prodi|pengguna')->middleware('throttle:6,1')->name('sinkron-siska');
+        Route::middleware('role:super_admin')->group(function () use ($ss) {
+            Route::get('/siska', [$ss, 'form'])->name('siska');
+            Route::put('/siska', [$ss, 'simpan'])->name('siska.simpan');
+            Route::post('/siska/uji', [$ss, 'uji'])->middleware('throttle:10,1')->name('siska.uji');
+        });
         $e = ['entitas' => 'pengguna|prodi|jabatan|klasifikasi|seruan'];
-        Route::get('/{entitas}', [\App\Http\Controllers\MasterController::class, 'daftar'])->where($e)->name('daftar');
+        Route::get('/{entitas}',[\App\Http\Controllers\MasterController::class, 'daftar'])->where($e)->name('daftar');
         Route::get('/{entitas}/buat', [\App\Http\Controllers\MasterController::class, 'buat'])->where($e)->name('buat');
         Route::post('/{entitas}', [\App\Http\Controllers\MasterController::class, 'simpan'])->where($e)->name('simpan');
         Route::get('/{entitas}/{id}/ubah', [\App\Http\Controllers\MasterController::class, 'ubah'])->where($e)->name('ubah');
