@@ -1,4 +1,4 @@
-@php $d = $s?->data ?? []; $v = fn ($k, $b = null) => old($k, match ($k) { 'klasifikasi_id' => $s?->klasifikasi_id, 'sifat' => $s?->sifat, 'perihal' => $s?->perihal, 'jabatan_id' => $s?->jabatan_id, 'mode_ttd' => $s?->mode_ttd ?? $b, 'nomor_manual' => $s?->nomor_manual, default => $d[$k] ?? $b }); @endphp
+@php $d = $s?->data ?? []; $v = fn ($k, $b = null) => old($k, match ($k) { 'klasifikasi_id' => $s?->klasifikasi_id, 'sifat' => $s?->sifat, 'perihal' => $s?->perihal, 'jabatan_id' => $s?->jabatan_id, 'mode_ttd' => $s?->mode_ttd ?? $b, 'nomor_manual' => $s?->nomor_manual, 'paraf_role' => $s?->peranParaf()[0] ?? null, default => $d[$k] ?? $b }); @endphp
 <x-layouts::app :title="$s ? 'Ubah Draf Surat' : 'Buat Surat'" :cari="false">
 <div class="mx-auto max-w-[1800px]">
     <nav class="mb-2 flex items-center gap-1.5 font-label-sm text-label-sm text-on-surface-variant"><a href="{{ route('surat-keluar.index') }}" class="hover:text-primary">Surat Keluar</a><x-ikon name="chevron_right" class="text-[14px]" /><span>{{ $s ? 'Ubah draf' : 'Buat surat' }}</span></nav>

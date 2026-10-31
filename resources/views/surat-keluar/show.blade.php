@@ -34,7 +34,7 @@
                 <x-kartu judul="Tindakan" ikon="gavel">
                     <div class="space-y-3">
                         @if ($izin['ubah'])
-                            <form method="post" action="{{ route('surat-keluar.ajukan', $s) }}">@csrf<x-tombol type="submit" ukuran="lg" ikon="send" class="w-full">{{ $s->langsungTerbit() ? 'Terbitkan Surat (tanpa persetujuan)' : 'Ajukan untuk '.(($s->data['paraf_role'] ?? null) ? 'Paraf' : 'Tanda Tangan') }}</x-tombol></form>
+                            <form method="post" action="{{ route('surat-keluar.ajukan', $s) }}">@csrf<x-tombol type="submit" ukuran="lg" ikon="send" class="w-full">{{ $s->langsungTerbit() ? 'Terbitkan Surat (tanpa persetujuan)' : 'Ajukan untuk '.($s->peranParaf() ? 'Paraf' : 'Tanda Tangan') }}</x-tombol></form>
                             <div class="flex gap-2"><x-tombol :href="route('surat-keluar.ubah', $s)" varian="sekunder" ikon="edit" class="flex-1">Ubah</x-tombol>
                                 <form method="post" action="{{ route('surat-keluar.hapus', $s) }}" onsubmit="return confirm('Hapus draf ini?')">@csrf @method('DELETE')<x-tombol type="submit" varian="bahaya" ikon="delete">Hapus</x-tombol></form></div>
                         @endif

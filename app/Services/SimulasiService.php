@@ -73,7 +73,7 @@ class SimulasiService
 
                 return [$this->alur->ajukan($mhs, $j, $isian[$kode]), $j, $asal];
             };
-            $verif = fn ($p, $j) => $this->alur->verifikasi($p, $j->verifikator_role === 'kaprodi' ? $kaprodi : $tu, 'Berkas lengkap.');
+            $verif = fn ($p, $j) => $this->alur->verifikasi($p, $j->peranPertama('verifikasi') === 'kaprodi' ? $kaprodi : $tu, 'Berkas lengkap.');
 
             [$p] = $buat('KET-AKTIF');
             $catat('pengajuan', '1. Diajukan', 'Surat Keterangan Aktif Kuliah — menunggu verifikasi Admin TU', 'pengajuan', $p->id);

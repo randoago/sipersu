@@ -67,38 +67,41 @@ class AlurPengajuan
         return $p->persetujuan()->whereIn('status', ['menunggu', 'revisi'])->first();
     }
 
+    /** Tahap status → jenis tahap yang sedang menunggu pada status itu. */
+    private const TAHAP_STATUS = ['diajukan' => 'verifikasi', 'diverifikasi' => 'paraf', 'disetujui' => 'ttd'];
+
+    /**
+     * Jenis tahap ('verifikasi' | 'paraf' | 'ttd') yang berhak diputuskan pengguna sekarang, atau null. Satu kueri tahap berjalan;
+     * pakai ini (bukan beberapa boleh*) bila perlu mengetahui apakah pengguna punya tugas pada pengajuan.
+     */
+    public function wewenang(Pengajuan $p, User $u): ?string
+    {
+        $tahap = $this->berjalan($p);
+        if (! $tahap || (self::TAHAP_STATUS[$p->status->value] ?? null) !== $tahap->tahap) {
+            return null;
+        }
+        if ($tahap->tahap === 'ttd') {
+            return ($tahap->jabatan ?? $p->jenis->penandatanganJabatan)?->user_id === $u->id ? 'ttd' : null;
+        }
+        $boleh = $u->hasRole(Peran::SuperAdmin->value)
+            || ($u->hasRole($tahap->peran) && ($tahap->peran !== Peran::Kaprodi->value || ($u->prodi_id && $u->prodi_id === $p->pemohon->prodi_id)));
+
+        return $boleh ? $tahap->tahap : null;
+    }
+
     public function bolehVerifikasi(Pengajuan $p, User $u): bool
     {
-        if ($p->status !== S::Diajukan) {
-            return false;
-        }
-        $tahap = $this->berjalan($p);
-        $peran = $tahap?->tahap === 'verifikasi' ? $tahap->peran : $p->jenis->verifikator_role;
-        if ($u->hasRole(Peran::SuperAdmin->value)) {
-            return true;
-        }
-
-        return $peran && $u->hasRole($peran) && $this->satuProdiBilaKaprodi($peran, $p, $u);
+        return $this->wewenang($p, $u) === 'verifikasi';
     }
 
     public function bolehParaf(Pengajuan $p, User $u): bool
     {
-        $tahap = $this->berjalan($p);
-        if ($p->status !== S::Diverifikasi || $tahap?->tahap !== 'paraf') {
-            return false;
-        }
-
-        return $u->hasRole(Peran::SuperAdmin->value) || ($u->hasRole($tahap->peran) && $this->satuProdiBilaKaprodi($tahap->peran, $p, $u));
+        return $this->wewenang($p, $u) === 'paraf';
     }
 
     public function bolehTandatangan(Pengajuan $p, User $u): bool
     {
-        $tahap = $this->berjalan($p);
-        if ($p->status !== S::Disetujui || $tahap?->tahap !== 'ttd') {
-            return false;
-        }
-
-        return ($tahap->jabatan ?? $p->jenis->penandatanganJabatan)?->user_id === $u->id;
+        return $this->wewenang($p, $u) === 'ttd';
     }
 
     public function bolehSelesaikan(Pengajuan $p, User $u): bool
@@ -106,15 +109,10 @@ class AlurPengajuan
         return $p->status === S::Ditandatangani && $u->adalahAdmin();
     }
 
-    /** Pengguna yang berhak menolak/mengembalikan pada tahap berjalan. */
+    /** Pengguna yang berhak menolak pada tahap berjalan. */
     public function bolehTolak(Pengajuan $p, User $u): bool
     {
-        return $this->bolehVerifikasi($p, $u) || $this->bolehParaf($p, $u) || $this->bolehTandatangan($p, $u);
-    }
-
-    private function satuProdiBilaKaprodi(string $peran, Pengajuan $p, User $u): bool
-    {
-        return $peran !== Peran::Kaprodi->value || ($u->prodi_id && $u->prodi_id === $p->pemohon->prodi_id);
+        return $this->wewenang($p, $u) !== null;
     }
 
     // ---- transisi ---------------------------------------------------------------------------------------
@@ -128,16 +126,7 @@ class AlurPengajuan
             throw ValidationException::withMessages(['nomor_manual' => 'Surat belum disusun atau sudah terbit; nomor tidak dapat diubah.']);
         }
         $nomor = NomorManual::bersihkan($nomor);
-        $lengkap = null;
-        if ($nomor !== null) {
-            if (! preg_match(NomorManual::POLA, $nomor)) {
-                throw ValidationException::withMessages(['nomor_manual' => NomorManual::PESAN['nomor_manual.regex']]);
-            }
-            $lengkap = NomorManual::lengkapSurat($nomor, $surat);
-            if ($lengkap && NomorManual::bentrok($lengkap, $surat->id)) {
-                throw ValidationException::withMessages(['nomor_manual' => "Nomor {$lengkap} sudah dipakai surat lain."]);
-            }
-        }
+        $lengkap = $nomor === null ? null : NomorManual::periksa('nomor_manual', $nomor, $surat);
         $surat->update(['nomor_manual' => $nomor]);
         LogAktivitas::catat('nomor_manual', $nomor ? "Mengisi nomor urut surat manual {$p->kode}: {$nomor} ({$lengkap})" : "Mengosongkan nomor urut manual {$p->kode}", $surat, [], $oleh->id);
 
@@ -152,13 +141,7 @@ class AlurPengajuan
             throw ValidationException::withMessages(['nomor_surat' => 'Penomoran manual: isi nomor urut surat sebelum memverifikasi.']);
         }
         if ($nomor !== null) {
-            if (! preg_match(NomorManual::POLA, $nomor)) {
-                throw ValidationException::withMessages(['nomor_surat' => NomorManual::PESAN['nomor_surat.regex']]);
-            }
-            $lengkap = ($p->surat ? NomorManual::lengkapSurat($nomor, $p->surat) : NomorManual::lengkapUntuk($nomor, $p->jenis->klasifikasi, null, null, $p->jenis->kekhususan));
-            if ($lengkap && NomorManual::bentrok($lengkap, $p->surat?->id)) {
-                throw ValidationException::withMessages(['nomor_surat' => "Nomor {$lengkap} sudah dipakai surat lain."]);
-            }
+            NomorManual::periksa('nomor_surat', $nomor, $p->surat, $p->jenis);
         }
 
         return DB::transaction(function () use ($p, $oleh, $catatan, $nomor) {
@@ -240,7 +223,7 @@ class AlurPengajuan
     /** Kembalikan ke tahap verifikasi (mis. data perlu dikoreksi Admin TU). */
     public function kembalikan(Pengajuan $p, User $oleh, string $catatan): Pengajuan
     {
-        $this->wajib($this->bolehParaf($p, $oleh) || $this->bolehTandatangan($p, $oleh), 'Anda tidak berwenang mengembalikan pengajuan ini.');
+        $this->wajib(in_array($this->wewenang($p, $oleh), ['paraf', 'ttd'], true), 'Anda tidak berwenang mengembalikan pengajuan ini.');
         if (trim($catatan) === '') {
             throw ValidationException::withMessages(['catatan' => 'Catatan revisi wajib diisi.']);
         }
@@ -269,7 +252,7 @@ class AlurPengajuan
             $p->update(['status' => S::Ditandatangani]);
             Notifikator::kirim($p->pemohon, 'Surat Anda telah terbit', "{$p->jenis->nama} bernomor {$surat->nomor} sudah terbit dan dapat diunduh untuk dicetak.", route('pengajuan.show', $p), 'sukses');
         } elseif ($berikut->tahap === 'ttd') {
-            $this->siapTtd($p, $surat);
+            $this->siapTtd($p, $surat, $berikut);
         } elseif ($berikut->tahap === 'paraf') {
             $p->update(['status' => S::Diverifikasi]);
             Notifikator::kirim($this->penerima($berikut->peran, $p), 'Menunggu paraf: '.$p->jenis->nama,
@@ -281,12 +264,11 @@ class AlurPengajuan
         }
     }
 
-    private function siapTtd(Pengajuan $p, $surat): void
+    private function siapTtd(Pengajuan $p, $surat, Persetujuan $tahap): void
     {
         $p->update(['status' => S::Disetujui]);
         $surat->update(['status' => 'menunggu_ttd']);
-        $tahap = $this->berjalan($p);
-        $pejabat = ($tahap?->jabatan ?? $p->jenis->penandatanganJabatan)?->pejabat;
+        $pejabat = ($tahap->jabatan ?? $p->jenis->penandatanganJabatan)?->pejabat;
         if ($pejabat) {
             Notifikator::kirim($pejabat, 'Menunggu tanda tangan: '.$p->jenis->nama,
                 "Surat {$p->kode} siap ditandatangani.", route('persetujuan.show', $p), 'tugas');
@@ -306,7 +288,7 @@ class AlurPengajuan
     /** Penerima pemberitahuan pengajuan baru: pemverifikasi tahap pertama. */
     private function verifikator(Pengajuan $p)
     {
-        return $this->penerima($this->berjalan($p)?->peran ?? $p->jenis->verifikator_role, $p);
+        return $this->penerima($this->berjalan($p)?->peran, $p);
     }
 
     private function wajib(bool $syarat, string $pesan): void

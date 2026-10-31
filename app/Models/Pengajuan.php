@@ -113,8 +113,8 @@ class Pengajuan extends Model
         $sekarang = $this->daftarTahap()->first(fn ($t) => in_array($t['status'], ['menunggu', 'revisi'], true));
 
         return match ($this->status) {
-            StatusPengajuan::Diajukan => 'Verifikasi '.$labelPeran($sekarang['peran'] ?? $this->jenis->verifikator_role),
-            StatusPengajuan::Diverifikasi => 'Menunggu paraf '.$labelPeran($sekarang['peran'] ?? $this->jenis->paraf_role),
+            StatusPengajuan::Diajukan => 'Verifikasi '.$labelPeran($sekarang['peran'] ?? $this->jenis->peranPertama('verifikasi')),
+            StatusPengajuan::Diverifikasi => 'Menunggu paraf '.$labelPeran($sekarang['peran'] ?? $this->jenis->peranPertama('paraf')),
             StatusPengajuan::Disetujui => 'Menunggu tanda tangan '.($this->jenis->penandatanganJabatan?->nama ?? 'Dekan'),
             StatusPengajuan::Ditandatangani => 'Surat terbit — menunggu penyelesaian TU',
             StatusPengajuan::Selesai => 'Selesai',

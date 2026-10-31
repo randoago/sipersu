@@ -104,7 +104,7 @@ class FormatSuratTest extends TestCase
         $this->assertSame(['Cuti Tahunan', 'Cuti Sakit'], $f->field_formulir[2]['opsi']);
         $this->assertTrue($f->field_formulir[0]['wajib']);
         $this->assertSame('SURAT-IZIN-CUTI-DOSEN', $f->kode);
-        $this->assertSame('admin_tu', $f->verifikator_role);
+        $this->assertSame([], $f->tahapAlur(), 'surat keluar baru tidak punya tahap verifikasi/paraf bawaan');
         $this->assertDatabaseHas('log_aktivitas', ['aksi' => 'format_buat']);
     }
 
@@ -385,7 +385,7 @@ class FormatSuratTest extends TestCase
     public function test_format_mahasiswa_buatan_tu_langsung_tampil_di_katalog_dan_bisa_diajukan(): void
     {
         $this->actingAs($this->u('198701012010011001'))->post('/format-surat', $this->payload([
-            'nama' => 'Surat Keterangan Bebas Pustaka', 'sasaran' => 'mahasiswa', 'judul_surat' => 'SURAT KETERANGAN BEBAS PUSTAKA', 'verifikator_role' => 'admin_tu',
+            'nama' => 'Surat Keterangan Bebas Pustaka', 'sasaran' => 'mahasiswa', 'judul_surat' => 'SURAT KETERANGAN BEBAS PUSTAKA',
             'fields' => [['label' => 'Keperluan', 'tipe' => 'teks', 'wajib' => '1']], 'perihal_template' => '',
             'template_html' => '<p>Mahasiswa {{ pemohon.nama }} bebas pustaka untuk {{ isian.keperluan }}.</p>',
             'syarat' => [['label' => 'KTM', 'wajib' => '1']],

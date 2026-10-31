@@ -10,7 +10,7 @@
     <x-tabel :jumlah="$daftar->count()" kosong="Tidak ada pengajuan yang cocok.">
         <x-slot:kepala><th class="px-4">Jenis & Nomor</th><th>Pemohon</th><th>Diajukan</th><th>Status</th><th class="px-4 text-right">Aksi</th></x-slot:kepala>
         @foreach ($daftar as $p)
-            @php $perlu = $alur->bolehVerifikasi($p, auth()->user()) || $alur->bolehParaf($p, auth()->user()) || $alur->bolehTandatangan($p, auth()->user()); @endphp
+            @php $perlu = $alur->wewenang($p, auth()->user()) !== null; @endphp
             <tr>
                 <td class="px-4 py-3"><p class="font-label-lg text-label-lg">{{ $p->jenis->nama }}</p><p class="font-body-sm text-body-sm text-on-surface-variant tabular">{{ $p->kode }}</p></td>
                 <td><p class="font-label-lg text-label-lg">{{ $p->pemohon->nama }}</p><p class="font-body-sm text-body-sm text-on-surface-variant tabular">{{ $p->pemohon->nomor_induk }} • {{ $p->pemohon->prodi?->nama }}</p></td>

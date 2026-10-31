@@ -102,6 +102,23 @@ class NomorManual
     }
 
     /** Nomor lengkap sudah dipakai: surat yang sudah terbit, atau draf lain yang nomor urutnya menghasilkan nomor sama. */
+    /**
+     * Memastikan nomor urut berpola benar dan nomor lengkapnya belum dipakai surat lain; mengembalikan nomor lengkap.
+     * `$kolom` = nama bidang untuk pesan galat; surat yang belum disusun (verifikasi pertama) memakai klasifikasi dan kekhususan jenisnya.
+     */
+    public static function periksa(string $kolom, string $nomor, ?Surat $surat, ?\App\Models\JenisSurat $jenis = null): ?string
+    {
+        if (! preg_match(self::POLA, $nomor)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([$kolom => self::PESAN[$kolom.'.regex']]);
+        }
+        $lengkap = $surat ? self::lengkapSurat($nomor, $surat) : self::lengkapUntuk($nomor, $jenis?->klasifikasi, null, null, $jenis?->kekhususan);
+        if ($lengkap && self::bentrok($lengkap, $surat?->id)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([$kolom => "Nomor {$lengkap} sudah dipakai surat lain."]);
+        }
+
+        return $lengkap;
+    }
+
     public static function bentrok(string $nomorLengkap, ?int $kecualiSuratId = null): bool
     {
         $k = mb_strtolower($nomorLengkap);

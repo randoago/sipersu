@@ -135,12 +135,12 @@ class TanpaPersetujuanTest extends TestCase
 
         $alur = ['penandatangan_jabatan_id' => $f->penandatangan_jabatan_id, 'paraf' => ['wakil_dekan']];
         $tu->put(route('alur-surat.perbarui', $f), $alur + ['mode_ttd' => 'qr'])->assertSessionHasNoErrors();
-        $this->assertTrue($f->fresh()->perlu_paraf);
+        $this->assertSame('wakil_dekan', $f->fresh()->peranPertama('paraf'));
         $this->assertFalse($f->fresh()->langsungTerbit());
 
         $tu->put(route('alur-surat.perbarui', $f), $alur + ['mode_ttd' => 'basah'])->assertSessionHasNoErrors();
         $f->refresh();
-        $this->assertFalse($f->perlu_paraf, 'tanpa QR: paraf dinonaktifkan');
+        $this->assertNull($f->peranPertama('paraf'), 'tanpa QR: paraf dinonaktifkan');
         $this->assertTrue($f->langsungTerbit());
     }
 

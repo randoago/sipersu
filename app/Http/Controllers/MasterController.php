@@ -180,10 +180,6 @@ class MasterController extends Controller
             }
             $data['syarat'] = $this->jsonTerstruktur($request->input('syarat') ?: '[]', 'syarat', fn ($x) => is_array($x) && filled($x['label'] ?? null), 'Setiap syarat wajib punya "label".');
             $data['template_html'] = app(PenyusunSurat::class)->bersihkanHtml($data['template_html']);
-            $data['perlu_paraf'] = $request->boolean('perlu_paraf');
-            if (! $data['perlu_paraf']) {
-                $data['paraf_role'] = null;
-            }
         }
 
         return $data;

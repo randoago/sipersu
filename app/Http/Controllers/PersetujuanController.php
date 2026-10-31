@@ -16,7 +16,7 @@ class PersetujuanController extends Controller
         $user = $request->user();
         $daftar = Pengajuan::with('jenis.penandatanganJabatan', 'pemohon.prodi')
             ->whereIn('status', [S::Diverifikasi->value, S::Disetujui->value])->latest()->get()
-            ->filter(fn ($p) => $alur->bolehParaf($p, $user) || $alur->bolehTandatangan($p, $user))->values();
+            ->filter(fn ($p) => in_array($alur->wewenang($p, $user), ['paraf', 'ttd'], true))->values();
 
         return view('persetujuan.index', ['daftar' => $daftar]);
     }
@@ -32,8 +32,8 @@ class PersetujuanController extends Controller
             'p' => $pengajuan,
             'surat' => $pengajuan->surat,
             'dokumen' => $penyusun->dataDokumen($pengajuan->surat),
-            'bolehParaf' => $alur->bolehParaf($pengajuan, $user),
-            'bolehTtd' => $alur->bolehTandatangan($pengajuan, $user),
+            'bolehParaf' => ($wewenang = $alur->wewenang($pengajuan, $user)) === 'paraf',
+            'bolehTtd' => $wewenang === 'ttd',
         ]);
     }
 

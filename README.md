@@ -71,7 +71,7 @@ Tangkapan layar berikut diambil dari aplikasi yang berjalan dengan **data demo**
 | **Penomoran** | Mengikuti Pedoman Tata Naskah Dinas UM Buton: `{urut}/{kekhususan}/II.3.AU/{unit kerja}/{pokok masalah}/{tahun}`, contoh `007/KET/II.3.AU/UMB-06.2/F/2026`. Otomatis atau diisi manual oleh TU; tidak pernah ganda |
 | **Tanda tangan elektronik** | Tanda tangan digital Ed25519 oleh pemegang jabatan penandatangan; QR pada surat; hash SHA-256 PDF disimpan. Halaman verifikasi memeriksa keaslian |
 | **Format Surat** | TU membuat atau mengubah jenis surat **tanpa pemrograman**: isian (teks, tanggal, angka, pilihan, daftar, tabel), templat isi, aturan alur, seruan, pokok masalah |
-| **Alur Surat** | Menu khusus untuk mengatur **siapa memverifikasi, memaraf, dan menandatangani** tiap jenis surat serta bentuknya (ber-QR atau tanpa QR), ditampilkan sebagai diagram tahapan. Tahap verifikasi dan paraf **bisa ditambah, dihapus, dan diurutkan** (beberapa pemverifikasi/pemaraf berurutan); bisa diubah Admin TU maupun Super Admin, dan pengajuan yang sedang berjalan tetap memakai tahapan saat diajukan |
+| **Alur Surat** | Menu khusus untuk mengatur **siapa memverifikasi, memaraf, dan menandatangani** tiap jenis surat serta bentuknya (ber-QR atau tanpa QR), ditampilkan sebagai diagram tahapan. Tahap verifikasi dan paraf **bisa ditambah, dihapus, dan diurutkan** (beberapa pemverifikasi/pemaraf berurutan); tiap alur dapat diciutkan agar halaman ringkas; bisa diubah Admin TU maupun Super Admin, dan pengajuan yang sedang berjalan tetap memakai tahapan saat diajukan |
 | **Master Data** | Pengguna (termasuk impor CSV), program studi, jabatan dan pejabat, klasifikasi surat, seruan, spesimen tanda tangan dan stempel |
 | **Pengaturan** | Pola nomor, kop surat, log aktivitas, backup |
 | **Notifikasi** | Di dalam aplikasi, dan opsional lewat email |
@@ -104,8 +104,10 @@ Satu akun boleh memegang beberapa peran. Hanya **pemegang jabatan penandatangan 
 flowchart LR
     A[Diajukan] --> B{Verifikasi<br/>TU / Kaprodi}
     B -- ditolak --> X[Ditolak]
-    B --> C{Perlu paraf?}
-    C -- ya --> D[Paraf Wakil Dekan]
+    B --> B2{Verifikasi lagi?}
+    B2 -- ya --> B
+    B2 -- tidak --> C{Perlu paraf?}
+    C -- ya --> D[Paraf<br/>Wakil Dekan / Kaprodi, satu atau lebih]
     C -- tidak --> E
     D --> E[Disetujui<br/>menunggu tanda tangan]
     E --> F[Ditandatangani<br/>nomor + QR + PDF]
@@ -115,6 +117,7 @@ flowchart LR
 - Nomor surat terbit **saat tanda tangan**, tidak lebih awal.
 - Jenis surat yang diatur **tanpa QR dan tanpa persetujuan** langsung terbit setelah TU memverifikasi.
 - Setiap jenis surat punya tenggat layanan (SLA) dalam hari kerja.
+- Tahap verifikasi dan paraf tiap jenis surat **diatur di menu Alur Surat** (tambah, hapus, urutkan; maksimal 6 tahap). Alur disimpan hanya di kolom `jenis_surat.alur`; pengajuan yang sedang berjalan tetap memakai tahapan saat diajukan.
 
 **Surat keluar staf:** draf → (paraf opsional) → tanda tangan → terbit; atau **tanpa QR**: terbit langsung dengan PDF kosong untuk tanda tangan basah dan cap. Surat terbit tidak dihapus, tetapi **dibatalkan** dengan alasan.
 
@@ -288,7 +291,7 @@ Pemasangan: `php artisan migrate` (tabel token). Rincian, contoh respons, dan kl
 ## 10. Pengujian
 
 ```bash
-php artisan test                              # seluruh uji (233 uji)
+php artisan test                              # seluruh uji (257 uji)
 php artisan test tests/Feature/ApiV1Test.php  # satu berkas
 ```
 
@@ -325,6 +328,7 @@ Semua di folder [documentation/](documentation/):
 | [panduan-pengguna.md](documentation/panduan-pengguna.md) | Pengguna: langkah demi langkah per peran, dengan tangkapan layar |
 | [dokumentasi-sistem.md](documentation/dokumentasi-sistem.md) | Pimpinan dan pengelola: alur, penomoran, keamanan, arsitektur, operasional |
 | [api-rest.md](documentation/api-rest.md), [openapi.yaml](documentation/openapi.yaml) | Pengembang integrasi |
+| [catatan-review-alur-surat.md](documentation/catatan-review-alur-surat.md) | Pengembang: temuan review, revisi, pemeriksaan, dan utang yang tersisa pada fitur alur surat |
 | [pemulihan.md](documentation/pemulihan.md) | Pengelola: banjir akses, aplikasi mati, rollback, backup dan pemulihan |
 | [cara-kerja-tanda-tangan-elektronik.md](documentation/cara-kerja-tanda-tangan-elektronik.md) | Kunci, QR, tanda tangan digital, batasan |
 | Presentasi: [PowerPoint](documentation/presentasi-sipersu.pptx), [PDF](documentation/presentasi-sipersu.pdf), [web](documentation/presentasi-sipersu.html) | Bahan presentasi 22 slide (versi web dibuka di peramban, tanpa internet) |

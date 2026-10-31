@@ -19,7 +19,6 @@ class JenisSurat extends Model
             'syarat' => 'array',
             'aktif' => 'boolean',
             'pindaian' => 'boolean',
-            'perlu_paraf' => 'boolean',
             'alur' => 'array',
         ];
     }
@@ -40,25 +39,16 @@ class JenisSurat extends Model
     /** Batas jumlah tahap verifikasi + paraf per format (tanda tangan selalu satu, di akhir). */
     public const MAKS_TAHAP = 6;
 
-    /**
-     * Tahap verifikasi/paraf berurutan: [['tahap' => 'verifikasi'|'paraf', 'peran' => ...]]. Tanda tangan tidak ikut (selalu terakhir).
-     * Memakai kolom `alur` bila sudah diatur; bila belum, diturunkan dari kolom lama (verifikator_role, perlu_paraf, paraf_role).
-     */
+    /** Tahap verifikasi/paraf berurutan: [['tahap' => 'verifikasi'|'paraf', 'peran' => ...]]. Tanda tangan tidak ikut (selalu terakhir). */
     public function tahapAlur(): array
     {
-        $tahap = is_array($this->alur) ? $this->alur : self::tahapDariKolom($this->getAttributes());
-
-        return self::bersihkanTahap($tahap, $this->sasaran, $this->mode_ttd);
+        return self::bersihkanTahap((array) $this->alur, $this->sasaran, $this->mode_ttd);
     }
 
-    public static function tahapDariKolom(array $isi): array
+    /** Peran pada tahap pertama dari jenis tertentu ('verifikasi' | 'paraf'), atau null bila tidak ada. */
+    public function peranPertama(string $tahap): ?string
     {
-        $tahap = [['tahap' => 'verifikasi', 'peran' => $isi['verifikator_role'] ?? 'admin_tu']];
-        if (! empty($isi['perlu_paraf']) && ! empty($isi['paraf_role'])) {
-            $tahap[] = ['tahap' => 'paraf', 'peran' => $isi['paraf_role']];
-        }
-
-        return $tahap;
+        return collect($this->tahapAlur())->firstWhere('tahap', $tahap)['peran'] ?? null;
     }
 
     /**
@@ -85,14 +75,10 @@ class JenisSurat extends Model
         return array_slice(array_merge($verif, $paraf), 0, self::MAKS_TAHAP);
     }
 
-    /** Menyelaraskan kolom alur agar tidak saling bertentangan (dipakai Format Surat maupun menu Alur Surat). Kolom lama diisi dari tahap pertama. */
+    /** Menyelaraskan alur dengan sasaran dan bentuk suratnya (dipakai Format Surat maupun menu Alur Surat). */
     public static function rapikanAlur(array $isi): array
     {
-        $tahap = self::bersihkanTahap($isi['alur'] ?? self::tahapDariKolom($isi), $isi['sasaran'] ?? null, $isi['mode_ttd'] ?? 'qr');
-        $verif = collect($tahap)->firstWhere('tahap', 'verifikasi');
-        $paraf = collect($tahap)->firstWhere('tahap', 'paraf');
-
-        return ['alur' => $tahap, 'verifikator_role' => $verif['peran'] ?? 'admin_tu', 'perlu_paraf' => (bool) $paraf, 'paraf_role' => $paraf['peran'] ?? null] + $isi;
+        return ['alur' => self::bersihkanTahap($isi['alur'] ?? [], $isi['sasaran'] ?? null, $isi['mode_ttd'] ?? 'qr')] + $isi;
     }
 
     /** Tahapan alur untuk ditampilkan: [['judul', 'oleh', 'ikon', 'peringatan'?]]. */

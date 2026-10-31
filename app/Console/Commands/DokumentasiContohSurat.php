@@ -44,7 +44,7 @@ class DokumentasiContohSurat extends Command
                 foreach ($mode as $m => $label) {
                     $jenis->update(['mode_ttd' => $m]);                  // dibatalkan oleh rollback di akhir
                     $p = $alur->ajukan($mhs, $jenis, $data);
-                    $p = $alur->verifikasi($p, $jenis->verifikator_role === 'kaprodi' ? $u('0912078603') : $tu);
+                    $p = $alur->verifikasi($p, $jenis->peranPertama('verifikasi') === 'kaprodi' ? $u('0912078603') : $tu);
                     if ($p->status->value === 'diverifikasi') {
                         $p = $alur->paraf($p, $wadek);
                     }

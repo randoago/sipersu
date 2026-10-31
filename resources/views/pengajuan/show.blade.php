@@ -4,10 +4,11 @@
     $terbit = in_array($p->status, [S::Ditandatangani, S::Selesai], true) && $p->surat?->file_pdf;
     $garis = $p->garisWaktu();
     $selesaiN = collect($garis)->where('status', 'selesai')->count();
-    $bolehV = $alur->bolehVerifikasi($p, $user);
-    $bolehTolak = $alur->bolehTolak($p, $user);
+    $wewenang = $alur->wewenang($p, $user);
+    $bolehV = $wewenang === 'verifikasi';
+    $bolehTolak = $wewenang !== null;
     $bolehSelesai = $alur->bolehSelesaikan($p, $user);
-    $bolehParaf = $alur->bolehParaf($p, $user) || $alur->bolehTandatangan($p, $user);
+    $bolehParaf = in_array($wewenang, ['paraf', 'ttd'], true);
 @endphp
 <x-layouts::app :title="'Pengajuan '.$p->kode" :cari="false">
 <div class="mx-auto max-w-6xl space-y-6">

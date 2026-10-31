@@ -48,7 +48,7 @@ class FormatSuratController extends Controller
         $isi = JenisSurat::rapikanAlur($isi + ['mode_ttd' => $format?->mode_ttd ?? 'qr', 'alur' => $format?->tahapAlur() ?? []]);
         if ($isi['sasaran'] === 'masuk') {
             // Surat masuk tidak ditandatangani/dirender: hanya kolom isian tambahan + klasifikasi bawaan.
-            $isi = array_merge($isi, ['template_html' => '', 'penandatangan_jabatan_id' => null, 'alur' => null, 'perlu_paraf' => false, 'paraf_role' => null, 'mode_ttd' => 'qr', 'sla_hari' => 1, 'judul_surat' => null, 'perihal_template' => null]);
+            $isi = array_merge($isi, ['template_html' => '', 'penandatangan_jabatan_id' => null, 'alur' => [], 'mode_ttd' => 'qr', 'sla_hari' => 1, 'judul_surat' => null, 'perihal_template' => null]);
         }
         $isi['field_formulir'] = $d['fields'];
         $isi['syarat'] = $isi['sasaran'] === 'mahasiswa' ? $d['syarat'] : [];

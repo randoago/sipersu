@@ -83,7 +83,7 @@ class AlurSuratKeluar
             'arah' => 'keluar', 'klasifikasi_id' => $d['klasifikasi_id'], 'perihal' => $d['perihal'], 'sifat' => $d['sifat'],
             'asal_tujuan' => preg_split('/\R/', trim($d['tujuan']))[0], 'isi_html' => $isi, 'jabatan_id' => $d['jabatan_id'], 'mode_ttd' => $d['mode_ttd'] ?? 'qr',
             'tgl_surat' => self::tanggalPilihan($d['tanggal_surat'] ?? null),
-            'data' => ['umum' => true, 'tujuan' => $d['tujuan'], 'lampiran' => $d['lampiran'] ?? '', 'isi' => $d['isi'], 'salam' => ! empty($d['salam']), 'paraf_role' => $d['paraf_role'] ?: null],
+            'data' => ['umum' => true, 'tujuan' => $d['tujuan'], 'lampiran' => $d['lampiran'] ?? '', 'isi' => $d['isi'], 'salam' => ! empty($d['salam']), 'paraf_roles' => array_values(array_filter([$d['paraf_role'] ?? null]))],
         ];
         if ($surat) {
             $surat->update($atribut);
@@ -122,16 +122,7 @@ class AlurSuratKeluar
             throw ValidationException::withMessages(['nomor_manual' => 'Surat sudah terbit; nomor tidak dapat diubah.']);
         }
         $nomor = NomorManual::bersihkan($nomor);
-        $lengkap = null;
-        if ($nomor !== null) {
-            if (! preg_match(NomorManual::POLA, $nomor)) {
-                throw ValidationException::withMessages(['nomor_manual' => NomorManual::PESAN['nomor_manual.regex']]);
-            }
-            $lengkap = NomorManual::lengkapSurat($nomor, $s);
-            if ($lengkap && NomorManual::bentrok($lengkap, $s->id)) {
-                throw ValidationException::withMessages(['nomor_manual' => "Nomor {$lengkap} sudah dipakai surat lain."]);
-            }
-        }
+        $lengkap = $nomor === null ? null : NomorManual::periksa('nomor_manual', $nomor, $s);
         $lama = $s->nomor_manual;
         $s->update(['nomor_manual' => $nomor]);
         LogAktivitas::catat('nomor_manual', $nomor ? "Mengisi nomor urut surat manual: {$nomor} ({$lengkap})" : 'Mengosongkan nomor urut manual (kembali otomatis)', $s, ['sebelumnya' => $lama], $oleh->id);
@@ -215,7 +206,6 @@ class AlurSuratKeluar
         if (trim($catatan) === '') {
             throw ValidationException::withMessages(['catatan' => 'Catatan wajib diisi.']);
         }
-        $s->persetujuan()->update(['status' => 'menunggu', 'user_id' => null, 'diputuskan_pada' => null]);
         $s->update(['status' => 'draf']);
         $s->persetujuan()->delete();
         LogAktivitas::catat('surat_keluar_kembali', "Mengembalikan surat: {$s->perihal}", $s, ['catatan' => $catatan], $oleh->id);

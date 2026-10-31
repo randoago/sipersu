@@ -163,7 +163,7 @@ class PenyusunSurat
             'isi' => $this->badan($jenis->template_html, $data, $jabatan),
             'perihal' => \Illuminate\Support\Str::limit($perihal !== '' ? $perihal : $jenis->nama, 200, ''),
             'tujuan' => (string) (collect($data['isian'])->only(['kepada', 'tujuan', 'yth'])->first() ?? '-'),
-            'data' => $data + ['isian_mentah' => $isian, 'format' => true, 'paraf_role' => $parafRoles[0] ?? null, 'paraf_roles' => $parafRoles],
+            'data' => $data + ['isian_mentah' => $isian, 'format' => true, 'paraf_roles' => $parafRoles],
         ];
     }
 

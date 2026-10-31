@@ -28,7 +28,7 @@ class DasborController extends Controller
         $tugasPengajuan = Pengajuan::with('jenis.penandatanganJabatan', 'pemohon.prodi')
             ->whereIn('status', [S::Diajukan->value, S::Diverifikasi->value, S::Disetujui->value])
             ->latest()->get()
-            ->filter(fn (Pengajuan $p) => $alur->bolehVerifikasi($p, $user) || $alur->bolehParaf($p, $user) || $alur->bolehTandatangan($p, $user))
+            ->filter(fn (Pengajuan $p) => $alur->wewenang($p, $user) !== null)
             ->map(fn (Pengajuan $p) => (object) [
                 'kategori' => $p->jenis->kategori ?? 'Umum', 'judul' => $p->jenis->nama, 'ref' => $p->kode,
                 'nama' => $p->pemohon->nama, 'sub' => 'NPM: '.$p->pemohon->nomor_induk.' • '.$p->pemohon->prodi?->nama,

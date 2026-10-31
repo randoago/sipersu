@@ -79,10 +79,8 @@ class AlurSuratMenuTest extends TestCase
         $this->actingAs($this->tu())->put(route('alur-surat.perbarui', $f), $this->isi($f, ['paraf' => ['wakil_dekan'], 'penandatangan_jabatan_id' => $dekan]))
             ->assertRedirect(route('alur-surat.index'))->assertSessionHas('sukses');
         $f->refresh();
-        $this->assertTrue($f->perlu_paraf);
-        $this->assertSame('wakil_dekan', $f->paraf_role);
+        $this->assertSame([['tahap' => 'paraf', 'peran' => 'wakil_dekan']], $f->alur);
         $this->assertSame($dekan, $f->penandatangan_jabatan_id);
-        $this->assertSame('admin_tu', $f->verifikator_role);
         $this->assertNotNull(LogAktivitas::where('aksi', 'alur_ubah')->first());
     }
 
@@ -92,9 +90,7 @@ class AlurSuratMenuTest extends TestCase
         $this->actingAs($this->tu())->put(route('alur-surat.perbarui', $f), $this->isi($f, ['mode_ttd' => 'basah', 'paraf' => ['kaprodi'], 'verifikasi' => ['kaprodi']]))->assertSessionHasNoErrors();
         $f->refresh();
         $this->assertTrue($f->langsungTerbit());
-        $this->assertFalse($f->perlu_paraf);
-        $this->assertNull($f->paraf_role);
-        $this->assertSame('admin_tu', $f->verifikator_role);
+        $this->assertSame([], $f->alur);
     }
 
     public function test_masukan_tahap_dijaga(): void
@@ -118,22 +114,19 @@ class AlurSuratMenuTest extends TestCase
         $this->assertSame([['tahap' => 'paraf', 'peran' => 'kaprodi']], $f->fresh()->tahapAlur());
     }
 
-    public function test_beberapa_pemaraf_berurutan_disimpan_dan_kolom_lama_mengikuti_tahap_pertama(): void
+    public function test_beberapa_pemaraf_berurutan_disimpan(): void
     {
         $f = $this->format('mahasiswa');
         $this->actingAs($this->tu())->put(route('alur-surat.perbarui', $f), $this->isi($f, ['verifikasi' => ['admin_tu', 'kaprodi'], 'paraf' => ['kaprodi', 'wakil_dekan']]))->assertSessionHasNoErrors();
         $f->refresh();
         $this->assertSame(['verifikasi:admin_tu', 'verifikasi:kaprodi', 'paraf:kaprodi', 'paraf:wakil_dekan'], array_map(fn ($t) => $t['tahap'].':'.$t['peran'], $f->tahapAlur()));
-        $this->assertSame('admin_tu', $f->verifikator_role);
-        $this->assertTrue($f->perlu_paraf);
-        $this->assertSame('kaprodi', $f->paraf_role);
         $this->assertSame(['Pengajuan', 'Verifikasi', 'Verifikasi', 'Paraf', 'Paraf', 'Tanda tangan (QR)', 'Terbit'], array_column($f->langkahAlur(), 'judul'));
     }
 
     public function test_pengajuan_melewati_semua_tahap_yang_diatur(): void
     {
         $this->seed(DemoSeeder::class);
-        $f = JenisSurat::where('sasaran', 'mahasiswa')->where('mode_ttd', 'qr')->where('perlu_paraf', false)->where('verifikator_role', 'admin_tu')->firstOrFail();
+        $f = $this->formatVerifikasiTuSaja();
         $f->pengajuan()->update(['status' => 'selesai']);
         $this->actingAs($this->tu())->put(route('alur-surat.perbarui', $f), $this->isi($f, ['verifikasi' => ['admin_tu', 'kaprodi'], 'paraf' => ['wakil_dekan', 'wakil_dekan']]))->assertSessionHasNoErrors();
 
@@ -166,7 +159,7 @@ class AlurSuratMenuTest extends TestCase
     public function test_pengajuan_berjalan_tidak_terpengaruh_perubahan_tahap_format(): void
     {
         $this->seed(DemoSeeder::class);
-        $f = JenisSurat::where('sasaran', 'mahasiswa')->where('mode_ttd', 'qr')->where('perlu_paraf', false)->where('verifikator_role', 'admin_tu')->firstOrFail();
+        $f = $this->formatVerifikasiTuSaja();
         $f->pengajuan()->update(['status' => 'selesai']);
         $mhs = User::where('nomor_induk', '21650012')->firstOrFail();
         $alur = app(\App\Services\AlurPengajuan::class);
@@ -186,7 +179,7 @@ class AlurSuratMenuTest extends TestCase
     public function test_pengajuan_baru_mengikuti_alur_yang_diubah(): void
     {
         $this->seed(DemoSeeder::class);
-        $f = JenisSurat::where('sasaran', 'mahasiswa')->where('mode_ttd', 'qr')->where('perlu_paraf', false)->where('verifikator_role', 'admin_tu')->firstOrFail();
+        $f = $this->formatVerifikasiTuSaja();
         $f->pengajuan()->update(['status' => 'selesai']);
         $this->actingAs($this->tu())->put(route('alur-surat.perbarui', $f), $this->isi($f, ['paraf' => ['wakil_dekan']]))->assertSessionHasNoErrors();
 
@@ -244,11 +237,18 @@ class AlurSuratMenuTest extends TestCase
     public function test_langkah_alur_menggambarkan_bentuk_surat(): void
     {
         $f = $this->format('mahasiswa');
-        $f->fill(['perlu_paraf' => true, 'paraf_role' => 'wakil_dekan', 'verifikator_role' => 'kaprodi']);
+        $f->alur = [['tahap' => 'verifikasi', 'peran' => 'kaprodi'], ['tahap' => 'paraf', 'peran' => 'wakil_dekan']];
         $this->assertSame(['Pengajuan', 'Verifikasi', 'Paraf', 'Tanda tangan (QR)', 'Terbit'], array_column($f->langkahAlur(), 'judul'));
         $f->mode_ttd = 'basah';
         $this->assertSame(['Pengajuan', 'Verifikasi', 'Terbit & cetak'], array_column($f->langkahAlur(), 'judul'));
         $s = $this->format('staf');
         $this->assertSame('Draf surat', $s->langkahAlur()[0]['judul']);
+    }
+
+    /** Format layanan mahasiswa ber-QR yang hanya diverifikasi Admin TU (tanpa paraf). */
+    private function formatVerifikasiTuSaja(): JenisSurat
+    {
+        return JenisSurat::where('sasaran', 'mahasiswa')->where('mode_ttd', 'qr')->get()
+            ->first(fn (JenisSurat $j) => $j->tahapAlur() === [['tahap' => 'verifikasi', 'peran' => 'admin_tu']]) ?? $this->fail('Format contoh tidak ditemukan.');
     }
 }
