@@ -18,7 +18,7 @@
             <div class="grid gap-space-md md:grid-cols-2">
                 <x-input label="Nomor surat asal" name="nomor_asal" wajib :value="$v('nomor_asal')" placeholder="Contoh: 0451/LL9/TU/2026" />
                 <x-input label="Asal surat (pengirim)" name="asal" wajib :value="$v('asal')" placeholder="Contoh: LLDIKTI Wilayah IX Sulawesi" />
-                <x-input label="Tanggal surat" name="tgl_surat" type="date" wajib :value="$v('tgl_surat')" />
+                <x-input label="Tanggal surat" name="tgl_surat" type="date" wajib :value="$v('tgl_surat', now()->toDateString())" />
                 <x-input label="Tanggal diterima" name="tgl_diterima" type="date" wajib :value="$v('tgl_diterima', now()->toDateString())" />
                 <x-input label="Perihal" name="perihal" wajib class="md:col-span-2" :value="$v('perihal')" />
                 <x-select label="Sifat surat" name="sifat" wajib>@foreach ($sifat as $k => $l)<option value="{{ $k }}" @selected($v('sifat', 'biasa') === $k)>{{ $l }}</option>@endforeach</x-select>

@@ -81,7 +81,7 @@ class TanggalSuratTest extends TestCase
         $tu = $this->actingAs($this->u('198701012010011001'));
         foreach (['/surat-keluar/format/UNDANGAN-RAPAT', '/surat-keluar/buat/bebas'] as $url) {
             $tu->get($url)->assertOk()->assertSee('Tanggal surat')->assertSee('name="tanggal_surat"', false)->assertSee('2026-10-04', false)
-                ->assertSee('min="2026-09-04"', false)->assertSee('max="2027-01-02"', false);
+                ->assertDontSee('min=', false)->assertDontSee('max=', false);
         }
     }
 
@@ -132,18 +132,18 @@ class TanggalSuratTest extends TestCase
         $this->assertSame('001/II.3.AU/UMB-06/A/2026', $b->nomor, 'counter 2026 terpisah dari 2027');
     }
 
-    public function test_batas_tanggal_30_hari_ke_belakang_dan_90_hari_ke_depan(): void
+    public function test_bisa_pilih_tanggal_kapanpun_saja(): void
     {
         $tu = $this->actingAs($this->u('198701012010011001'));
-        $tu->post('/surat-keluar', $this->bebas(['tanggal_surat' => '2026-09-03']))->assertSessionHasErrors('tanggal_surat');   // -31 hari
-        $tu->post('/surat-keluar', $this->bebas(['tanggal_surat' => '2027-01-03']))->assertSessionHasErrors('tanggal_surat');   // +91 hari
+        // Tanggal lampau maupun masa depan bebas dipilih kapanpun saja
+        $tu->post('/surat-keluar', $this->bebas(['perihal' => 'Tanggal mundur', 'tanggal_surat' => '2026-09-03']))->assertSessionHasNoErrors();
+        $tu->post('/surat-keluar', $this->bebas(['perihal' => 'Awal tahun', 'tanggal_surat' => '2026-01-15']))->assertSessionHasNoErrors();
+        $tu->post('/surat-keluar', $this->bebas(['perihal' => 'Masa depan jauh', 'tanggal_surat' => '2027-06-01']))->assertSessionHasNoErrors();
+        $this->assertSame(3, Surat::count());
+
+        // Format tanggal tidak valid tetap ditolak
         $tu->post('/surat-keluar', $this->bebas(['tanggal_surat' => '04/10/2026']))->assertSessionHasErrors('tanggal_surat');
         $tu->post('/surat-keluar', $this->bebas(['tanggal_surat' => 'besok']))->assertSessionHasErrors('tanggal_surat');
-        $this->assertSame(0, Surat::count());
-
-        $tu->post('/surat-keluar', $this->bebas(['perihal' => 'Batas bawah', 'tanggal_surat' => '2026-09-04']))->assertSessionHasNoErrors();
-        $tu->post('/surat-keluar', $this->bebas(['perihal' => 'Batas atas', 'tanggal_surat' => '2027-01-02']))->assertSessionHasNoErrors();
-        $this->assertSame(2, Surat::count());
     }
 
     public function test_surat_dari_format_menyimpan_dan_mengubah_tanggal(): void

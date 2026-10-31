@@ -9,7 +9,7 @@
     <div class="flex items-center gap-2">
         <div class="relative flex-1">
             <x-ikon name="calendar_today" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-outline" />
-            <input type="date" id="tanggal_surat" name="tanggal_surat" value="{{ old('tanggal_surat', $awal) }}" x-model="tgl" @change="hitung()" min="{{ now()->subDays(30)->toDateString() }}" max="{{ now()->addDays(90)->toDateString() }}"
+            <input type="date" id="tanggal_surat" name="tanggal_surat" value="{{ old('tanggal_surat', $awal) }}" x-model="tgl" @change="hitung()"
                    class="block h-10 w-full rounded-lg border border-outline-variant bg-surface-container-lowest pl-10 font-body-md text-body-md text-on-surface focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 @error('tanggal_surat') border-[#e11d48] @enderror">
         </div>
         <button type="button" @click="hariIniKlik()" x-show="tgl !== hariIni" x-cloak class="h-10 shrink-0 rounded-lg bg-surface-container px-3 font-label-md text-label-md hover:bg-surface-container-high">Hari ini</button>
