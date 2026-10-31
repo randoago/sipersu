@@ -70,6 +70,30 @@ class FormatSuratTest extends TestCase
         $this->actingAs($this->u('198701012010011001'))->get('/format-surat/buat')->assertSee('{{ isian.nama_rapat }}', false)->assertDontSee('php echo');
     }
 
+    public function test_alur_tidak_diatur_dari_format_surat_tetapi_dari_menu_alur_surat(): void
+    {
+        $tu = $this->actingAs($this->u('198701012010011001'));
+        // Format baru memakai alur bawaan, walau formulir mengirim pilihan lain (diabaikan).
+        $tu->post('/format-surat', $this->payload(['mode_ttd' => 'basah', 'perlu_paraf' => '1', 'paraf_role' => 'kaprodi']))->assertRedirect('/format-surat');
+        $f = JenisSurat::where('nama', 'Surat Izin Cuti Dosen')->firstOrFail();
+        $this->assertSame('qr', $f->mode_ttd);
+        $this->assertSame([], $f->tahapAlur());
+
+        $f->update(['alur' => [['tahap' => 'paraf', 'peran' => 'kaprodi'], ['tahap' => 'paraf', 'peran' => 'wakil_dekan']]]);
+        $tu->put("/format-surat/{$f->id}", $this->payload(['judul_surat' => 'SURAT CUTI', 'paraf_role' => 'wakil_dekan']))->assertSessionHasNoErrors();
+        $f->refresh();
+        $this->assertSame('SURAT CUTI', $f->judul_surat);
+        $this->assertCount(2, $f->tahapAlur());
+        $this->assertSame('qr', $f->mode_ttd);
+    }
+
+    public function test_format_mahasiswa_baru_mendapat_verifikasi_bawaan(): void
+    {
+        $this->actingAs($this->u('198701012010011001'))->post('/format-surat', $this->payload(['sasaran' => 'mahasiswa']))->assertRedirect('/format-surat');
+        $f = JenisSurat::where('nama', 'Surat Izin Cuti Dosen')->firstOrFail();
+        $this->assertSame([['tahap' => 'verifikasi', 'peran' => 'admin_tu']], $f->tahapAlur());
+    }
+
     public function test_tu_membuat_format_baru_dengan_kunci_isian_otomatis(): void
     {
         $this->actingAs($this->u('198701012010011001'))->post('/format-surat', $this->payload())->assertRedirect('/format-surat');
@@ -95,7 +119,6 @@ class FormatSuratTest extends TestCase
         $tu->post('/format-surat', $this->payload(['fields' => [['label' => 'Jenis', 'tipe' => 'pilihan', 'opsi' => '']]]))->assertSessionHasErrors('fields');
         $tu->post('/format-surat', $this->payload(['template_html' => '<p>{{ isian.tidak_ada }}</p>']))->assertSessionHasErrors('template_html');
         $tu->post('/format-surat', $this->payload(['nama' => '']))->assertSessionHasErrors('nama');
-        $tu->post('/format-surat', $this->payload(['mode_ttd' => 'lain']))->assertSessionHasErrors('mode_ttd');
     }
 
     public function test_format_memilih_seruan_dan_pokok_masalah_untuk_nomor_surat(): void

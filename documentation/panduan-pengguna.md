@@ -252,12 +252,15 @@ Menu **Alur Surat** menampilkan tahapan setiap jenis surat sebagai urutan kotak 
 
 1. Klik **Ubah alur** pada jenis surat yang ingin diatur.
 2. Pilih **Bentuk surat**: *Ber-QR* (diparaf dan ditandatangani elektronik) atau *Tanpa QR* (langsung terbit untuk dicetak, tanda tangan basah dan cap).
-3. Untuk layanan mahasiswa, pilih **Diverifikasi oleh** (Admin TU atau Kaprodi prodi pemohon) dan **Target selesai** dalam hari kerja.
+3. Untuk layanan mahasiswa, atur **Tahap verifikasi** (Admin TU atau Kaprodi prodi pemohon; minimal satu) dan isi **Target selesai** dalam hari kerja.
 4. Pilih **Penandatangan** (jabatan). Bila jabatan belum punya pejabat aktif, kotak tanda tangan diberi peringatan merah.
-5. Centang **Perlu paraf** bila perlu, lalu pilih pemarafnya (Wakil Dekan atau Kaprodi).
-6. Klik **Simpan Alur**.
+5. Pada **Tahap paraf** (hanya surat ber-QR), klik **Tambah paraf** untuk setiap pemaraf (Wakil Dekan atau Kaprodi). Tanpa tahap paraf, surat langsung ke tanda tangan.
+6. Tiap tahap berupa kotak: gunakan tombol panah kiri/kanan untuk **menggesernya** dan tombol tempat sampah untuk **menghapusnya**; kotak bergaris putus-putus menambah tahap baru. Urutan selalu: verifikasi, paraf, lalu tanda tangan.
+7. Klik **Simpan Alur**.
 
-Catatan: selama masih ada pengajuan mahasiswa yang berjalan pada suatu format, bentuk, pemverifikasi, dan paraf tidak dapat diubah (agar pengajuan itu tidak macet); penandatangan dan target waktu tetap bisa diganti. Untuk surat keluar, perubahan berlaku bagi surat yang dibuat sesudahnya. Isian dan templat surat tetap diatur di **Format Surat**.
+Menu ini dapat diubah oleh **Admin TU** dan **Super Admin**.
+
+Catatan: perubahan tahapan hanya berlaku untuk pengajuan atau surat yang dibuat sesudahnya; pengajuan yang sedang berjalan tetap memakai tahapan saat diajukan. Selama masih ada pengajuan mahasiswa yang berjalan, **bentuk surat** (ber-QR/tanpa QR) tidak dapat diubah; penandatangan dan target waktu tetap bisa diganti. Isian dan templat surat diatur di **Format Surat**; bentuk surat, pemverifikasi, dan pemaraf hanya diatur di menu ini.
 
 ### 4.7 Master Data
 

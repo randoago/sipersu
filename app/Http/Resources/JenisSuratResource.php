@@ -21,6 +21,7 @@ class JenisSuratResource extends JsonResource
             'perlu_paraf' => (bool) $this->perlu_paraf,
             'verifikator' => $this->verifikator_role,
             'pemaraf' => $this->paraf_role,
+            'tahap' => collect($this->tahapAlur())->map(fn ($t) => ['tahap' => $t['tahap'], 'peran' => $t['peran']])->values(),
             'kekhususan' => $this->kekhususan,
             'klasifikasi' => $this->whenLoaded('klasifikasi', fn () => $this->klasifikasi ? ['kode' => $this->klasifikasi->kode, 'nama' => $this->klasifikasi->nama] : null),
             'isian' => $this->when($request->routeIs('api.jenis-surat.show'), fn () => collect($this->field_formulir)->map(fn ($f) => [

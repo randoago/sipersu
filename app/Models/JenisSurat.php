@@ -20,6 +20,7 @@ class JenisSurat extends Model
             'aktif' => 'boolean',
             'pindaian' => 'boolean',
             'perlu_paraf' => 'boolean',
+            'alur' => 'array',
         ];
     }
 
@@ -31,20 +32,67 @@ class JenisSurat extends Model
 
     public const PERAN_ALUR = ['admin_tu' => 'Admin TU', 'kaprodi' => 'Kaprodi', 'wakil_dekan' => 'Wakil Dekan'];
 
-    /** Menyelaraskan kolom alur agar tidak saling bertentangan (dipakai Format Surat maupun menu Alur Surat). */
-    public static function rapikanAlur(array $isi): array
+    /** Peran yang boleh memverifikasi / memaraf pada tahap alur. */
+    public const PERAN_VERIFIKATOR = ['admin_tu', 'kaprodi'];
+
+    public const PERAN_PEMARAF = ['wakil_dekan', 'kaprodi'];
+
+    /** Batas jumlah tahap verifikasi + paraf per format (tanda tangan selalu satu, di akhir). */
+    public const MAKS_TAHAP = 6;
+
+    /**
+     * Tahap verifikasi/paraf berurutan: [['tahap' => 'verifikasi'|'paraf', 'peran' => ...]]. Tanda tangan tidak ikut (selalu terakhir).
+     * Memakai kolom `alur` bila sudah diatur; bila belum, diturunkan dari kolom lama (verifikator_role, perlu_paraf, paraf_role).
+     */
+    public function tahapAlur(): array
     {
-        if (($isi['mode_ttd'] ?? 'qr') === 'basah') {
-            $isi['perlu_paraf'] = false;          // surat tanpa QR tidak melalui persetujuan; hanya surat ber-QR yang diparaf/ditandatangani
-        }
-        if (empty($isi['perlu_paraf'])) {
-            $isi['paraf_role'] = null;
-        }
-        if (($isi['sasaran'] ?? null) !== 'mahasiswa') {
-            $isi['verifikator_role'] = 'admin_tu';
+        $tahap = is_array($this->alur) ? $this->alur : self::tahapDariKolom($this->getAttributes());
+
+        return self::bersihkanTahap($tahap, $this->sasaran, $this->mode_ttd);
+    }
+
+    public static function tahapDariKolom(array $isi): array
+    {
+        $tahap = [['tahap' => 'verifikasi', 'peran' => $isi['verifikator_role'] ?? 'admin_tu']];
+        if (! empty($isi['perlu_paraf']) && ! empty($isi['paraf_role'])) {
+            $tahap[] = ['tahap' => 'paraf', 'peran' => $isi['paraf_role']];
         }
 
-        return $isi;
+        return $tahap;
+    }
+
+    /**
+     * Membuang tahap yang tidak sah dan menyusun urutan yang bisa dijalankan:
+     * verifikasi selalu di depan paraf; hanya layanan mahasiswa yang diverifikasi (minimal satu); surat tanpa QR tidak diparaf.
+     */
+    public static function bersihkanTahap(array $tahap, ?string $sasaran, ?string $mode): array
+    {
+        $sah = [];
+        foreach ($tahap as $t) {
+            $jenis = is_array($t) ? ($t['tahap'] ?? null) : null;
+            $peran = $t['peran'] ?? null;
+            if (($jenis === 'verifikasi' && in_array($peran, self::PERAN_VERIFIKATOR, true))
+                || ($jenis === 'paraf' && in_array($peran, self::PERAN_PEMARAF, true))) {
+                $sah[] = ['tahap' => $jenis, 'peran' => $peran];
+            }
+        }
+        $verif = $sasaran === 'mahasiswa' ? array_values(array_filter($sah, fn ($t) => $t['tahap'] === 'verifikasi')) : [];
+        if ($sasaran === 'mahasiswa' && ! $verif) {
+            $verif = [['tahap' => 'verifikasi', 'peran' => 'admin_tu']];
+        }
+        $paraf = ($mode ?? 'qr') === 'basah' || $sasaran === 'masuk' ? [] : array_values(array_filter($sah, fn ($t) => $t['tahap'] === 'paraf'));
+
+        return array_slice(array_merge($verif, $paraf), 0, self::MAKS_TAHAP);
+    }
+
+    /** Menyelaraskan kolom alur agar tidak saling bertentangan (dipakai Format Surat maupun menu Alur Surat). Kolom lama diisi dari tahap pertama. */
+    public static function rapikanAlur(array $isi): array
+    {
+        $tahap = self::bersihkanTahap($isi['alur'] ?? self::tahapDariKolom($isi), $isi['sasaran'] ?? null, $isi['mode_ttd'] ?? 'qr');
+        $verif = collect($tahap)->firstWhere('tahap', 'verifikasi');
+        $paraf = collect($tahap)->firstWhere('tahap', 'paraf');
+
+        return ['alur' => $tahap, 'verifikator_role' => $verif['peran'] ?? 'admin_tu', 'perlu_paraf' => (bool) $paraf, 'paraf_role' => $paraf['peran'] ?? null] + $isi;
     }
 
     /** Tahapan alur untuk ditampilkan: [['judul', 'oleh', 'ikon', 'peringatan'?]]. */
@@ -55,16 +103,16 @@ class JenisSurat extends Model
         $langkah = [$mhs
             ? ['judul' => 'Pengajuan', 'oleh' => 'Mahasiswa', 'ikon' => 'send']
             : ['judul' => 'Draf surat', 'oleh' => 'Pembuat (Admin TU / pejabat)', 'ikon' => 'edit_note']];
-        if ($mhs) {
-            $langkah[] = ['judul' => 'Verifikasi', 'oleh' => ($peran[$this->verifikator_role] ?? 'Petugas').($this->verifikator_role === 'kaprodi' ? ' (prodi pemohon)' : ''), 'ikon' => 'fact_check'];
+        foreach ($this->tahapAlur() as $t) {
+            $nama = $peran[$t['peran']] ?? 'Pejabat';
+            $langkah[] = $t['tahap'] === 'verifikasi'
+                ? ['judul' => 'Verifikasi', 'oleh' => $nama.($t['peran'] === 'kaprodi' ? ' (prodi pemohon)' : ''), 'ikon' => 'fact_check']
+                : ['judul' => 'Paraf', 'oleh' => $nama, 'ikon' => 'edit_note'];
         }
         if ($this->langsungTerbit()) {
             $langkah[] = ['judul' => 'Terbit & cetak', 'oleh' => 'Tanda tangan basah dan cap di TU', 'ikon' => 'print'];
 
             return $langkah;
-        }
-        if ($this->perlu_paraf) {
-            $langkah[] = ['judul' => 'Paraf', 'oleh' => $peran[$this->paraf_role] ?? 'Pejabat', 'ikon' => 'edit_note'];
         }
         $pejabat = $this->penandatanganJabatan?->pejabat;
         $langkah[] = [

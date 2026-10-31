@@ -68,6 +68,14 @@ class Surat extends Model
         return $this->morphMany(Lampiran::class, 'lampiranable');
     }
 
+    /** Pemaraf berurutan (peran) untuk surat ini: dari alur format (`paraf_roles`) atau satu pilihan pembuat (`paraf_role`). */
+    public function peranParaf(): array
+    {
+        $daftar = $this->data['paraf_roles'] ?? ($this->data['paraf_role'] ?? null ? [$this->data['paraf_role']] : []);
+
+        return array_values(array_filter((array) $daftar));
+    }
+
     public function pakaiQr(): bool
     {
         return ($this->mode_ttd ?? 'qr') === 'qr';
@@ -86,8 +94,8 @@ class Surat extends Model
         $peran = ['wakil_dekan' => 'Wakil Dekan', 'kaprodi' => 'Kaprodi'];
         $terbit = $this->ditandatangani_pada !== null;
         $baris = fn (string $judul, string $status, $waktu = null, ?string $oleh = null, ?string $catatan = null) => compact('judul', 'status', 'waktu', 'oleh', 'catatan');
-        $dariPersetujuan = function (string $tahap, string $judul) use ($baris) {
-            $ps = $this->persetujuan->firstWhere('tahap', $tahap);
+        $dariPersetujuan = function (string $tahap, string $judul, int $ke = 0) use ($baris) {
+            $ps = $this->persetujuan->where('tahap', $tahap)->values()->get($ke);
 
             return $baris($judul, $ps?->status === 'disetujui' ? 'selesai' : 'menunggu', $ps?->diputuskan_pada, $ps?->user ? 'Oleh: '.$ps->user->namaLengkap() : null, $ps?->catatan);
         };
@@ -97,8 +105,8 @@ class Surat extends Model
             $t[] = $baris('Diterbitkan langsung (tanpa paraf dan tanda tangan elektronik)', $terbit ? 'selesai' : 'menunggu', $this->ditandatangani_pada,
                 $terbit ? 'Nomor: '.$this->nomor : 'Tekan "Terbitkan Surat" untuk membuat nomor dan PDF');
         } else {
-            if ($this->data['paraf_role'] ?? null) {
-                $t[] = $dariPersetujuan('paraf', 'Paraf '.($peran[$this->data['paraf_role']] ?? 'Pejabat'));
+            foreach ($this->peranParaf() as $i => $r) {
+                $t[] = $dariPersetujuan('paraf', 'Paraf '.($peran[$r] ?? 'Pejabat'), $i);
             }
             $t[] = $dariPersetujuan('ttd', $this->pakaiQr() ? 'Tanda Tangan Elektronik (QR)' : 'Persetujuan Pejabat');
             $t[] = $baris('Surat terbit dengan nomor resmi', $terbit ? 'selesai' : 'menunggu', $this->ditandatangani_pada, $terbit ? 'Nomor: '.$this->nomor : null);

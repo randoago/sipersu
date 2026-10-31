@@ -133,20 +133,9 @@
                     <option value="tengah" @selected($v('posisi_nomor', 'tengah') === 'tengah')>Tengah (di bawah judul)</option>
                     <option value="kiri" @selected($v('posisi_nomor') === 'kiri')>Kiri (sejajar Lampiran & Perihal)</option>
                 </x-select>
-                <div class="md:col-span-2" x-show="sasaran !== 'masuk'" x-data="{ m: @js($v('mode_ttd', 'qr')) }">
-                    <p class="mb-1.5 font-label-lg text-label-lg">Bentuk surat <span class="font-body-sm text-body-sm font-normal text-on-surface-variant" x-show="sasaran === 'staf'">(bawaan; petugas dapat memilih ber-QR atau tanpa QR saat membuat surat)</span></p>
-                    <div class="grid gap-3 md:grid-cols-2">
-                        @foreach (['qr' => ['Surat ber-QR (TTE)', 'Tanda tangan elektronik + QR (dapat diverifikasi publik) dengan spesimen tanda tangan & stempel pejabat.', 'qr_code_2'], 'basah' => ['Surat tanpa QR', 'Tanpa persetujuan: langsung terbit. Nomor tetap otomatis; PDF disiapkan KOSONG (tanpa tanda tangan dan stempel) untuk dibubuhi manual.', 'print']] as $k => [$j, $d, $i])
-                            <label class="flex cursor-pointer gap-3 rounded-xl border-2 p-3 transition" :class="m === '{{ $k }}' ? 'border-primary-container bg-primary-fixed/20' : 'border-outline-variant hover:bg-surface-container-low'"><input type="radio" name="mode_ttd" value="{{ $k }}" x-model="m" x-on:change="$dispatch('mode-ttd', m)" class="mt-1 text-primary focus:ring-primary"><span><span class="flex items-center gap-1.5 font-label-lg text-label-lg"><x-ikon name="{{ $i }}" class="text-[18px] text-primary" />{{ $j }}</span><span class="block font-body-sm text-body-sm text-on-surface-variant">{{ $d }}</span></span></label>
-                        @endforeach
-                    </div>
-                </div>
-                <div x-show="sasaran !== 'masuk' && !basah" x-data="{ p: {{ $v('perlu_paraf', false) ? 'true' : 'false' }}, basah: @js($v('mode_ttd', 'qr') === 'basah') }" x-on:mode-ttd.window="basah = $event.detail === 'basah'" class="space-y-2">
-                    <label class="flex cursor-pointer items-center gap-2 font-label-lg text-label-lg"><input type="checkbox" name="perlu_paraf" value="1" x-model="p" class="h-4 w-4 rounded border-outline-variant text-primary focus:ring-primary">Perlu paraf sebelum tanda tangan</label>
-                    <div x-show="p" x-cloak><x-select label="Pemaraf" name="paraf_role"><option value="wakil_dekan" @selected($v('paraf_role') === 'wakil_dekan')>Wakil Dekan</option><option value="kaprodi" @selected($v('paraf_role') === 'kaprodi')>Kaprodi</option></x-select></div>
-                </div>
+                <p x-show="sasaran !== 'masuk'" x-cloak class="rounded-lg bg-surface-container-low p-3 font-body-sm text-body-sm text-on-surface-variant md:col-span-2">Bentuk surat (ber-QR/tanpa QR), pemverifikasi, dan pemaraf tidak diatur di sini. Format baru memakai alur bawaan; ubah di menu <a class="font-semibold text-primary underline" href="{{ route('alur-surat.index') }}">Alur Surat</a>.</p>
+                <input type="hidden" name="mode_ttd" value="{{ $v('mode_ttd', 'qr') }}">
                 <div class="grid gap-space-md" x-show="sasaran === 'mahasiswa'" x-cloak>
-                    <x-select label="Diverifikasi oleh (pengajuan mahasiswa)" name="verifikator_role"><option value="admin_tu" @selected($v('verifikator_role', 'admin_tu') === 'admin_tu')>Admin TU</option><option value="kaprodi" @selected($v('verifikator_role') === 'kaprodi')>Kaprodi (prodi pemohon)</option></x-select>
                     <x-input label="Target selesai (hari kerja)" name="sla_hari" type="number" :value="$v('sla_hari', 3)" />
                 </div>
                 <input type="hidden" name="sla_hari" value="{{ $v('sla_hari', 3) }}" x-bind:disabled="sasaran === 'mahasiswa'">

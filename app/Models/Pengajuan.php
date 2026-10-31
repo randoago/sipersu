@@ -65,23 +65,37 @@ class Pengajuan extends Model
 
     // ---- tampilan alur ---------------------------------------------------------------------------------
 
-    /** Posisi 1-based pada alur: Diajukan, Verifikasi, [Paraf], Tanda Tangan, Selesai. */
+    /**
+     * Tahap persetujuan pengajuan ini (verifikasi, paraf, ttd) menurut alur saat diajukan.
+     * Pengajuan lama tanpa baris persetujuan memakai alur format saat ini.
+     *
+     * @return \Illuminate\Support\Collection<int, array{tahap: string, peran: ?string, status: string}>
+     */
+    public function daftarTahap(): \Illuminate\Support\Collection
+    {
+        if ($this->persetujuan->isNotEmpty()) {
+            return $this->persetujuan->map(fn ($x) => ['tahap' => $x->tahap, 'peran' => $x->peran, 'status' => $x->status]);
+        }
+
+        return collect($this->jenis->tahapAlur())->map(fn ($t) => $t + ['status' => 'menunggu'])
+            ->when(! $this->jenis->langsungTerbit(), fn ($c) => $c->push(['tahap' => 'ttd', 'peran' => 'penandatangan', 'status' => 'menunggu']));
+    }
+
+    /** Posisi 1-based pada alur: Diajukan, tiap tahap persetujuan, [Terbit bila tanpa tanda tangan], Selesai. */
     public function totalLangkah(): int
     {
-        return $this->jenis->perlu_paraf ? 5 : 4;
+        $tahap = $this->daftarTahap();
+
+        return 2 + $tahap->count() + ($tahap->contains('tahap', 'ttd') ? 0 : 1);
     }
 
     public function langkahKe(): int
     {
-        $paraf = $this->jenis->perlu_paraf;
-
         return match ($this->status) {
-            StatusPengajuan::Diajukan => 1,
-            StatusPengajuan::Diverifikasi => 2,
-            StatusPengajuan::Disetujui => $paraf ? 3 : 2,
-            StatusPengajuan::Ditandatangani => $paraf ? 4 : 3,
-            StatusPengajuan::Selesai => $this->totalLangkah(),
             StatusPengajuan::Ditolak => 1,
+            StatusPengajuan::Selesai => $this->totalLangkah(),
+            StatusPengajuan::Ditandatangani => $this->totalLangkah() - 1,
+            default => 1 + $this->daftarTahap()->where('status', 'disetujui')->count(),
         };
     }
 
@@ -96,10 +110,11 @@ class Pengajuan extends Model
         $labelPeran = fn (?string $r) => match ($r) {
             'admin_tu' => 'Admin TU', 'kaprodi' => 'Kaprodi', 'wakil_dekan' => 'Wakil Dekan', 'dekan' => 'Dekan', default => 'Petugas',
         };
+        $sekarang = $this->daftarTahap()->first(fn ($t) => in_array($t['status'], ['menunggu', 'revisi'], true));
 
         return match ($this->status) {
-            StatusPengajuan::Diajukan => 'Verifikasi '.$labelPeran($this->jenis->verifikator_role),
-            StatusPengajuan::Diverifikasi => 'Menunggu paraf '.$labelPeran($this->jenis->paraf_role),
+            StatusPengajuan::Diajukan => 'Verifikasi '.$labelPeran($sekarang['peran'] ?? $this->jenis->verifikator_role),
+            StatusPengajuan::Diverifikasi => 'Menunggu paraf '.$labelPeran($sekarang['peran'] ?? $this->jenis->paraf_role),
             StatusPengajuan::Disetujui => 'Menunggu tanda tangan '.($this->jenis->penandatanganJabatan?->nama ?? 'Dekan'),
             StatusPengajuan::Ditandatangani => 'Surat terbit — menunggu penyelesaian TU',
             StatusPengajuan::Selesai => 'Selesai',
@@ -137,7 +152,7 @@ class Pengajuan extends Model
                 $sekarangDitemukan = true;
             }
             $tahap[] = [
-                'judul' => $judul[$ps->tahap] ?? ucfirst($ps->tahap),
+                'judul' => ($judul[$ps->tahap] ?? ucfirst($ps->tahap)).($this->persetujuan->where('tahap', $ps->tahap)->count() > 1 ? ' — '.(JenisSurat::PERAN_ALUR[$ps->peran] ?? 'Pejabat') : ''),
                 'status' => $status,
                 'waktu' => $ps->diputuskan_pada,
                 'oleh' => $ps->user ? 'Oleh: '.$ps->user->namaLengkap() : null,

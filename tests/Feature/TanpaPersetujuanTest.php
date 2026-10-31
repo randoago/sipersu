@@ -119,25 +119,29 @@ class TanpaPersetujuanTest extends TestCase
         $this->assertNull($p->surat->nomor);
     }
 
-    public function test_format_surat_tanpa_qr_otomatis_tanpa_paraf_dan_ber_qr_tetap_boleh_paraf(): void
+    public function test_alur_surat_tanpa_qr_otomatis_tanpa_paraf_dan_ber_qr_tetap_boleh_paraf(): void
     {
         $dasar = [
             'nama' => 'Surat Edaran Internal', 'deskripsi' => 'x', 'ikon' => 'mail', 'sasaran' => 'staf', 'judul_surat' => 'EDARAN', 'perihal_template' => 'Edaran {{ isian.hal }}',
             'klasifikasi_id' => KlasifikasiSurat::where('kode', 'A')->value('id'), 'penandatangan_jabatan_id' => Jabatan::where('kode', 'dekan')->value('id'),
-            'sla_hari' => 1, 'urutan' => 5, 'aktif' => '1', 'perlu_paraf' => '1', 'paraf_role' => 'wakil_dekan',
+            'sla_hari' => 1, 'urutan' => 5, 'aktif' => '1',
             'fields' => [['label' => 'Hal', 'tipe' => 'teks', 'wajib' => '1', 'nama' => '']], 'template_html' => '<p>{{ isian.hal }}</p>',
         ];
         $tu = $this->actingAs($this->u('198701012010011001'));
 
-        $tu->post('/format-surat', $dasar + ['mode_ttd' => 'basah'])->assertRedirect('/format-surat');
-        $a = JenisSurat::where('nama', 'Surat Edaran Internal')->latest('id')->first();
-        $this->assertFalse($a->perlu_paraf, 'tanpa QR: paraf dinonaktifkan');
-        $this->assertTrue($a->langsungTerbit());
+        $tu->post('/format-surat', $dasar)->assertRedirect('/format-surat');
+        $f = JenisSurat::where('nama', 'Surat Edaran Internal')->latest('id')->first();
+        $this->assertFalse($f->langsungTerbit(), 'format baru memakai alur bawaan: ber-QR');
 
-        $tu->post('/format-surat', ['nama' => 'Edaran Ber QR'] + $dasar + ['mode_ttd' => 'qr'])->assertRedirect('/format-surat');
-        $b = JenisSurat::where('nama', 'Edaran Ber QR')->first();
-        $this->assertTrue($b->perlu_paraf);
-        $this->assertFalse($b->langsungTerbit());
+        $alur = ['penandatangan_jabatan_id' => $f->penandatangan_jabatan_id, 'paraf' => ['wakil_dekan']];
+        $tu->put(route('alur-surat.perbarui', $f), $alur + ['mode_ttd' => 'qr'])->assertSessionHasNoErrors();
+        $this->assertTrue($f->fresh()->perlu_paraf);
+        $this->assertFalse($f->fresh()->langsungTerbit());
+
+        $tu->put(route('alur-surat.perbarui', $f), $alur + ['mode_ttd' => 'basah'])->assertSessionHasNoErrors();
+        $f->refresh();
+        $this->assertFalse($f->perlu_paraf, 'tanpa QR: paraf dinonaktifkan');
+        $this->assertTrue($f->langsungTerbit());
     }
 
     public function test_pilihan_bentuk_tanpa_qr_menjelaskan_tidak_ada_persetujuan(): void

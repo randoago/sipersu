@@ -3,8 +3,9 @@
     $peran = ['admin_tu' => 'Admin Tata Usaha', 'kaprodi' => 'Ketua Program Studi', 'wakil_dekan' => 'Wakil Dekan'];
     $alurTeks = array_values(array_filter([
         ['Pengajuan Mahasiswa', 'Pengisian formulir & kelengkapan berkas daring.'],
-        ['Verifikasi '.($peran[$j->verifikator_role] ?? 'Petugas'), 'Pemeriksaan keaslian berkas dan kelayakan data.'],
-        $j->perlu_paraf ? ['Paraf '.($peran[$j->paraf_role] ?? 'Pejabat'), 'Persetujuan draf surat oleh pimpinan.'] : null,
+        ...array_map(fn ($t) => $t['tahap'] === 'verifikasi'
+            ? ['Verifikasi '.($peran[$t['peran']] ?? 'Petugas'), 'Pemeriksaan keaslian berkas dan kelayakan data.']
+            : ['Paraf '.($peran[$t['peran']] ?? 'Pejabat'), 'Persetujuan draf surat oleh pimpinan.'], $j->tahapAlur()),
         ['Tanda Tangan '.($j->penandatanganJabatan?->nama ?? 'Dekan'), 'Penandatanganan elektronik dengan kode QR.'],
         ['Surat Terbit & Unduh Mandiri', 'Notifikasi masuk dan dokumen PDF siap diunduh.'],
     ]));

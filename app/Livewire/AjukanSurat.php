@@ -37,7 +37,7 @@ class AjukanSurat extends Component
         abort_unless(auth()->user()->adalahMahasiswa(), 403, 'Hanya mahasiswa yang dapat mengajukan surat.');
         $this->jenis = $jenis;
         foreach ($jenis->field_formulir as $f) {
-            $this->isian[$f['nama']] = '';
+            $this->isian[$f['nama']] = $f['tipe'] === 'tanggal' ? now()->toDateString() : '';
         }
     }
 
@@ -50,7 +50,7 @@ class AjukanSurat extends Component
             $r = [($f['wajib'] ?? false) ? 'required' : 'nullable'];
             $r = array_merge($r, match ($f['tipe']) {
                 'area' => ['string', 'max:'.($f['maks'] ?? 250)],
-                'tanggal' => ['date', 'after_or_equal:'.($f['nama'] === 'tgl_selesai' ? 'isian.tgl_mulai' : 'today')],
+                'tanggal' => ['date', $f['nama'] === 'tgl_selesai' ? 'after_or_equal:isian.tgl_mulai' : 'date'],
                 'angka' => ['integer', 'min:1', 'max:30'],
                 'pilihan' => ['string', 'in:'.implode(',', $f['opsi'] ?? [])],
                 default => ['string', 'max:255'],

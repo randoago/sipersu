@@ -76,7 +76,7 @@ class SuratKeluarController extends Controller
         $this->simpanNomor($request, $s);
         $this->simpanPindaian($request, $s);
 
-        return redirect()->route('surat-keluar.show', $s)->with('sukses', 'Draf surat disimpan. Periksa pratinjau, lalu '.($s->langsungTerbit() ? 'terbitkan (tanpa QR tidak perlu persetujuan).' : 'ajukan untuk '.(($s->data['paraf_role'] ?? null) ? 'paraf' : 'tanda tangan').'.'));
+        return redirect()->route('surat-keluar.show', $s)->with('sukses', 'Draf surat disimpan. Periksa pratinjau, lalu '.($s->langsungTerbit() ? 'terbitkan (tanpa QR tidak perlu persetujuan).' : 'ajukan untuk '.($s->peranParaf() ? 'paraf' : 'tanda tangan').'.'));
     }
 
     public function simpan(Request $request)
@@ -85,7 +85,7 @@ class SuratKeluarController extends Controller
         $s = $this->alur->simpan($request->user(), $this->validasi($request));
         $this->simpanNomor($request, $s);
 
-        return redirect()->route('surat-keluar.show', $s)->with('sukses', 'Draf surat disimpan. Periksa pratinjau, lalu ajukan untuk '.(($s->data['paraf_role'] ?? null) ? 'paraf' : 'tanda tangan').'.');
+        return redirect()->route('surat-keluar.show', $s)->with('sukses', 'Draf surat disimpan. Periksa pratinjau, lalu ajukan untuk '.($s->peranParaf() ? 'paraf' : 'tanda tangan').'.');
     }
 
     /** Pratinjau tampilan surat dari isian formulir yang belum disimpan (format TU atau surat bebas). */
@@ -223,18 +223,16 @@ class SuratKeluarController extends Controller
         return redirect()->route('surat-keluar.index')->with('sukses', 'Draf dihapus.');
     }
 
-    /** Tanggal surat: dari 30 hari lalu sampai 90 hari ke depan (menjaga konsistensi nomor surat). */
+    /** Tanggal surat: bebas kapan pun saja (lampau maupun masa depan). */
     private function aturanTanggal(): array
     {
-        return ['tanggal_surat' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:'.now()->subDays(30)->toDateString(), 'before_or_equal:'.now()->addDays(90)->toDateString()]];
+        return ['tanggal_surat' => ['nullable', 'date_format:Y-m-d']];
     }
 
     private function pesanTanggal(): array
     {
         return [
             'tanggal_surat.date_format' => 'Tanggal surat tidak valid.',
-            'tanggal_surat.after_or_equal' => 'Tanggal surat tidak boleh lebih dari 30 hari ke belakang.',
-            'tanggal_surat.before_or_equal' => 'Tanggal surat tidak boleh lebih dari 90 hari ke depan.',
         ];
     }
 

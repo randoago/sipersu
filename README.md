@@ -71,7 +71,7 @@ Tangkapan layar berikut diambil dari aplikasi yang berjalan dengan **data demo**
 | **Penomoran** | Mengikuti Pedoman Tata Naskah Dinas UM Buton: `{urut}/{kekhususan}/II.3.AU/{unit kerja}/{pokok masalah}/{tahun}`, contoh `007/KET/II.3.AU/UMB-06.2/F/2026`. Otomatis atau diisi manual oleh TU; tidak pernah ganda |
 | **Tanda tangan elektronik** | Tanda tangan digital Ed25519 oleh pemegang jabatan penandatangan; QR pada surat; hash SHA-256 PDF disimpan. Halaman verifikasi memeriksa keaslian |
 | **Format Surat** | TU membuat atau mengubah jenis surat **tanpa pemrograman**: isian (teks, tanggal, angka, pilihan, daftar, tabel), templat isi, aturan alur, seruan, pokok masalah |
-| **Alur Surat** | Menu khusus untuk mengatur **siapa memverifikasi, memaraf, dan menandatangani** tiap jenis surat serta bentuknya (ber-QR atau tanpa QR), ditampilkan sebagai diagram tahapan; perubahan dijaga agar pengajuan yang sedang berjalan tidak macet |
+| **Alur Surat** | Menu khusus untuk mengatur **siapa memverifikasi, memaraf, dan menandatangani** tiap jenis surat serta bentuknya (ber-QR atau tanpa QR), ditampilkan sebagai diagram tahapan. Tahap verifikasi dan paraf **bisa ditambah, dihapus, dan diurutkan** (beberapa pemverifikasi/pemaraf berurutan); bisa diubah Admin TU maupun Super Admin, dan pengajuan yang sedang berjalan tetap memakai tahapan saat diajukan |
 | **Master Data** | Pengguna (termasuk impor CSV), program studi, jabatan dan pejabat, klasifikasi surat, seruan, spesimen tanda tangan dan stempel |
 | **Pengaturan** | Pola nomor, kop surat, log aktivitas, backup |
 | **Notifikasi** | Di dalam aplikasi, dan opsional lewat email |

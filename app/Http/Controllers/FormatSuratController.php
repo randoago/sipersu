@@ -42,11 +42,13 @@ class FormatSuratController extends Controller
     public function simpan(Request $request, ?JenisSurat $format = null)
     {
         $d = $this->validasi($request, $format);
-        $isi = ['aktif' => $request->boolean('aktif'), 'perlu_paraf' => $request->boolean('perlu_paraf'), 'pindaian' => $request->boolean('pindaian') && $request->input('sasaran') === 'staf'] + $d['kolom'];
-        $isi = JenisSurat::rapikanAlur($isi);
+        $isi = ['aktif' => $request->boolean('aktif'), 'pindaian' => $request->boolean('pindaian') && $request->input('sasaran') === 'staf'] + $d['kolom'];
+        // Alur (bentuk, pemverifikasi, pemaraf) diatur di menu Alur Surat: format baru memakai alur bawaan, format lama mempertahankan alurnya
+        // (hanya diselaraskan bila sasarannya berubah, mis. surat keluar menjadi layanan mahasiswa).
+        $isi = JenisSurat::rapikanAlur($isi + ['mode_ttd' => $format?->mode_ttd ?? 'qr', 'alur' => $format?->tahapAlur() ?? []]);
         if ($isi['sasaran'] === 'masuk') {
             // Surat masuk tidak ditandatangani/dirender: hanya kolom isian tambahan + klasifikasi bawaan.
-            $isi = array_merge($isi, ['template_html' => '', 'penandatangan_jabatan_id' => null, 'perlu_paraf' => false, 'paraf_role' => null, 'mode_ttd' => 'qr', 'sla_hari' => 1, 'judul_surat' => null, 'perihal_template' => null]);
+            $isi = array_merge($isi, ['template_html' => '', 'penandatangan_jabatan_id' => null, 'alur' => null, 'perlu_paraf' => false, 'paraf_role' => null, 'mode_ttd' => 'qr', 'sla_hari' => 1, 'judul_surat' => null, 'perihal_template' => null]);
         }
         $isi['field_formulir'] = $d['fields'];
         $isi['syarat'] = $isi['sasaran'] === 'mahasiswa' ? $d['syarat'] : [];
@@ -143,9 +145,6 @@ class FormatSuratController extends Controller
             'klasifikasi_id' => [$masuk ? 'nullable' : 'required', 'exists:klasifikasi_surat,id'],
             'kekhususan' => ['nullable', Rule::in(array_merge(array_keys(\App\Models\Seruan::daftar()), array_filter([$format?->kekhususan])))],
             'penandatangan_jabatan_id' => [$masuk ? 'nullable' : 'required', 'exists:jabatan,id'],
-            'mode_ttd' => [$masuk ? 'nullable' : 'required', Rule::in(['qr', 'basah'])],
-            'paraf_role' => ['nullable', 'required_if:perlu_paraf,1', Rule::in(['wakil_dekan', 'kaprodi'])],
-            'verifikator_role' => ['required_if:sasaran,mahasiswa', 'nullable', Rule::in(['admin_tu', 'kaprodi'])],
             'sla_hari' => [$masuk ? 'nullable' : 'required', 'integer', 'min:1', 'max:30'],
             'urutan' => ['nullable', 'integer', 'min:0', 'max:999'],
             'template_html' => [$masuk ? 'nullable' : 'required', 'string', 'max:20000'],
@@ -154,13 +153,12 @@ class FormatSuratController extends Controller
         ], [
             'nama.required' => 'Nama format wajib diisi.', 'template_html.required' => 'Isi (templat) surat wajib diisi.',
             'klasifikasi_id.required' => 'Pilih pokok masalah untuk nomor surat.', 'penandatangan_jabatan_id.required' => 'Pilih penandatangan.',
-            'kode.regex' => 'Kode hanya huruf besar, angka, dan strip.', 'paraf_role.required_if' => 'Pilih pemaraf bila surat memerlukan paraf.',
+            'kode.regex' => 'Kode hanya huruf besar, angka, dan strip.',
         ]);
 
         $kolom['urutan'] = $kolom['urutan'] ?? 50;
         $kolom['gaya_tanggal'] = $kolom['gaya_tanggal'] ?? 'dikeluarkan';
         $kolom['posisi_nomor'] = $kolom['posisi_nomor'] ?? 'tengah';
-        $kolom['mode_ttd'] = $kolom['mode_ttd'] ?? 'qr';
         $kolom['sla_hari'] = $kolom['sla_hari'] ?? 1;
         $kolom['template_html'] = $kolom['template_html'] ?? '';
         $fields = $this->bangunFields($request->input('fields', []));
@@ -181,7 +179,6 @@ class FormatSuratController extends Controller
         foreach (['deskripsi', 'kategori', 'judul_surat', 'perihal_template', 'kekhususan'] as $k) {
             $kolom[$k] = ($kolom[$k] ?? '') === '' ? null : $kolom[$k];
         }
-        unset($kolom['perlu_paraf']);
 
         $syarat = collect($request->input('syarat', []))->filter(fn ($s) => filled($s['label'] ?? null))
             ->map(fn ($s) => ['label' => Str::limit(trim($s['label']), 120, ''), 'wajib' => ! empty($s['wajib'])])->values()->all();

@@ -1,4 +1,4 @@
-@php $j = $jenis; $m = $bentuk ?? $j->mode_ttd ?? 'qr'; $alurParaf = $m === 'qr' && $j->perlu_paraf ? ['wakil_dekan' => 'Wakil Dekan', 'kaprodi' => 'Kaprodi'][$j->paraf_role] ?? null : null; @endphp
+@php $j = $jenis; $m = $bentuk ?? $j->mode_ttd ?? 'qr'; $alurParaf = $m === 'qr' ? collect($j->tahapAlur())->where('tahap', 'paraf')->map(fn ($t) => \App\Models\JenisSurat::PERAN_ALUR[$t['peran']] ?? 'Pejabat')->implode(' → Paraf ') : ''; @endphp
 <x-layouts::app :title="$j->nama" :cari="false">
 <div class="mx-auto max-w-[1800px]">
     <nav class="mb-2 flex items-center gap-1.5 font-label-sm text-label-sm text-on-surface-variant"><a href="{{ route('surat-keluar.index') }}" class="hover:text-primary">Surat Keluar</a><x-ikon name="chevron_right" class="text-[14px]" /><a href="{{ route('surat-keluar.buat') }}" class="hover:text-primary">Pilih format</a><x-ikon name="chevron_right" class="text-[14px]" /><span class="text-on-surface">{{ $j->nama }}</span></nav>

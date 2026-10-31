@@ -154,6 +154,7 @@ class PenyusunSurat
     public function dariFormat(JenisSurat $jenis, array $isian, User $pembuat): array
     {
         $jenis->loadMissing('penandatanganJabatan.pejabat');
+        $parafRoles = collect($jenis->tahapAlur())->where('tahap', 'paraf')->pluck('peran')->values()->all();
         $data = ['isian' => $this->formatIsian($jenis, $isian), 'pembuat' => ['nama' => $pembuat->namaLengkap()]];
         $jabatan = $jenis->penandatanganJabatan;
         $perihal = trim(strip_tags(html_entity_decode($this->badan($jenis->perihal_template ?: $jenis->nama, $data, $jabatan))));
@@ -162,7 +163,7 @@ class PenyusunSurat
             'isi' => $this->badan($jenis->template_html, $data, $jabatan),
             'perihal' => \Illuminate\Support\Str::limit($perihal !== '' ? $perihal : $jenis->nama, 200, ''),
             'tujuan' => (string) (collect($data['isian'])->only(['kepada', 'tujuan', 'yth'])->first() ?? '-'),
-            'data' => $data + ['isian_mentah' => $isian, 'format' => true, 'paraf_role' => $jenis->perlu_paraf ? $jenis->paraf_role : null],
+            'data' => $data + ['isian_mentah' => $isian, 'format' => true, 'paraf_role' => $parafRoles[0] ?? null, 'paraf_roles' => $parafRoles],
         ];
     }
 

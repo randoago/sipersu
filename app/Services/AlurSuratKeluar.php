@@ -40,11 +40,20 @@ class AlurSuratKeluar
         return $this->bolehMengubah($s, $u);
     }
 
+    /** Pemaraf yang sedang ditunggu: baris paraf pertama yang belum diputuskan (dibaca dari basis data). */
+    public function berjalan(Surat $s): ?\App\Models\Persetujuan
+    {
+        return $s->persetujuan()->where('tahap', 'paraf')->where('status', 'menunggu')->first();
+    }
+
     public function bolehParaf(Surat $s, User $u): bool
     {
-        $peran = $s->data['paraf_role'] ?? null;
+        if ($s->status !== 'menunggu_paraf') {
+            return false;
+        }
+        $peran = $this->berjalan($s)?->peran ?? ($s->peranParaf()[0] ?? null);
 
-        return $s->status === 'menunggu_paraf' && $peran && ($u->hasRole($peran) || $u->hasRole(Peran::SuperAdmin->value));
+        return $peran && ($u->hasRole($peran) || $u->hasRole(Peran::SuperAdmin->value));
     }
 
     public function bolehTandatangan(Surat $s, User $u): bool
@@ -156,11 +165,11 @@ class AlurSuratKeluar
 
         return DB::transaction(function () use ($s, $oleh) {
             $s->persetujuan()->delete();
-            $paraf = $s->data['paraf_role'] ?? null;
-            if ($paraf) {
-                $s->persetujuan()->create(['tahap' => 'paraf', 'urutan' => 1, 'peran' => $paraf]);
+            $paraf = $s->peranParaf();
+            foreach ($paraf as $i => $peran) {
+                $s->persetujuan()->create(['tahap' => 'paraf', 'urutan' => $i + 1, 'peran' => $peran]);
             }
-            $s->persetujuan()->create(['tahap' => 'ttd', 'urutan' => 2, 'peran' => 'penandatangan', 'jabatan_id' => $s->jabatan_id]);
+            $s->persetujuan()->create(['tahap' => 'ttd', 'urutan' => count($paraf) + 1, 'peran' => 'penandatangan', 'jabatan_id' => $s->jabatan_id]);
             $s->update(['status' => $paraf ? 'menunggu_paraf' : 'menunggu_ttd']);
             LogAktivitas::catat('surat_keluar_ajukan', "Mengajukan surat keluar: {$s->perihal}", $s, [], $oleh->id);
             $this->beritahuBerikut($s);
@@ -174,8 +183,8 @@ class AlurSuratKeluar
         $this->wajib($this->bolehParaf($s, $oleh), 'Anda tidak berwenang memaraf surat ini.');
 
         return DB::transaction(function () use ($s, $oleh, $catatan) {
-            $s->persetujuan()->where('tahap', 'paraf')->update(['user_id' => $oleh->id, 'status' => 'disetujui', 'catatan' => $catatan, 'diputuskan_pada' => now()]);
-            $s->update(['status' => 'menunggu_ttd']);
+            $this->berjalan($s)?->update(['user_id' => $oleh->id, 'status' => 'disetujui', 'catatan' => $catatan, 'diputuskan_pada' => now()]);
+            $s->update(['status' => $this->berjalan($s) ? 'menunggu_paraf' : 'menunggu_ttd']);
             LogAktivitas::catat('surat_keluar_paraf', "Memaraf surat: {$s->perihal}", $s, [], $oleh->id);
             $this->beritahuBerikut($s);
 
@@ -233,7 +242,7 @@ class AlurSuratKeluar
     private function beritahuBerikut(Surat $s): void
     {
         if ($s->status === 'menunggu_paraf') {
-            Notifikator::kirim(Notifikator::penggunaPeran([$s->data['paraf_role']]), 'Menunggu paraf: '.$s->perihal, 'Surat keluar menunggu paraf Anda.', route('surat-keluar.show', $s), 'tugas');
+            Notifikator::kirim(Notifikator::penggunaPeran([$this->berjalan($s)?->peran ?? $s->peranParaf()[0]]), 'Menunggu paraf: '.$s->perihal, 'Surat keluar menunggu paraf Anda.', route('surat-keluar.show', $s), 'tugas');
         } elseif ($s->status === 'menunggu_ttd' && $s->jabatan?->pejabat) {
             Notifikator::kirim($s->jabatan->pejabat, 'Menunggu tanda tangan: '.$s->perihal, 'Surat keluar siap ditandatangani.', route('surat-keluar.show', $s), 'tugas');
         }
